@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load bootstrap %}
+
+{% block subtitle %}Edit My profile{% endblock %}
+
+{% block main %}
+<div>
+
+	<h3>Login</h3>
+	<div class="row">
+
+        <form method="post" action="./" class="form-horizontal js-active-form span8 pull-left">
+
+            {% for error in form.non_field_errors %}
+                <div class="alert alert-error">
+                    <a data-dismiss="alert" class="close">×</a>
+                    <p>{{ error }}</p>
+                </div>
+            {% endfor %}
+            
+            {{ form.username|bootstrap }}
+
+            {{ form.password|bootstrap }}
+
+            <div class="form-actions">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Login</button>&nbsp;
+                <a href="{% url 'registration' %}" type="submit" class="btn btn-warning">Registartion</a>&nbsp;
+            </div>
+        </form>
+	</div>
+
+</div>
+{% endblock %}
+
+
+{% block endjs %}
+{% endblock %}

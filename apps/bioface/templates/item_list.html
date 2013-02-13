@@ -1,0 +1,45 @@
+{% extends 'request_page.html' %}
+{% load bootstrap main_filters %}
+
+{% block result_table %}
+    <div class="row">
+        <div>
+        	{% if items %}
+	            <table class="table table-bordered">
+	                <caption><h4>{{ item_name }}</h4></caption>
+	                <thead>
+	                    <tr>
+	                        <!-- <th>Object Name</th> -->
+	                        {% for attr_name in attr_name_list %}
+	                            <th>{{ attr_name }}</th>
+	                        {% endfor %}
+	                    </tr>
+	                </thead>    
+	                <tbody>
+	                    {% for item in items %}
+	                        <tr>
+	                            {% for attr_name in attr_name_list %}
+	                            	{% with item|get:attr_name as value %}
+	                            		<th>
+	                            		{% if value == None %}
+	                            		{% elif value|is_true %}
+	                            			<input type="checkbox" disabled="disabled" checked="checked" />
+	                            		{% elif value|is_false %}
+	                            			<input type="checkbox" disabled="disabled" />
+	                            		{% else %}
+	                                		{{ value }}
+	                                	{% endif %}
+	                                	</th>
+	                                {% endwith %}
+	                            {% endfor %}
+	                        </tr>
+	                    {% endfor %}
+	                </tbody>
+	            </table>
+	        {% else %}
+            	<p>List is empty</p>
+            {% endif %}
+            <p>{{ response }}</p>
+        </div>
+    </div>
+{% endblock %}

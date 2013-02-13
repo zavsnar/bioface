@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load bootstrap main_filters %}
+
+{% block subtitle %}Edit My profile{% endblock %}
+
+{% block main %}
+<div>
+
+	<h3>Request form</h3>
+	<div class="row">
+
+        <form method="post" action="./" class="form-horizontal js-active-form span12 pull-left">
+
+            {% for error in form.non_field_errors %}
+                <div class="alert alert-error">
+                    <a data-dismiss="alert" class="close">×</a>
+                    <p>{{ error }}</p>
+                </div>
+            {% endfor %}
+            
+            {{ form|bootstrap }}
+
+            <div class="form-actions">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Run</button>&nbsp;
+            </div>
+        </form>
+	</div>
+    {% block result_table %}
+        <div class="row">
+            <div class="span8">
+                <table class="table table-bordered">
+                    <caption>Result Table</caption>
+                    <thead>
+                        <tr>
+                            <th>Object Name</th>
+                            {% for attribute in attributes %}
+                                <th>{{ attribute.name }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>    
+                    <tbody>
+                        {% for object in objects %}
+                            <tr>
+                                <td>{{ object.name }}</td>
+                                {% for attribute in attributes %}
+                                    <th>{{ object.attributes|get:attribute.name }}</th>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <p>{{ response }}</p>
+            </div>
+        </div>
+    {% endblock %}
+</div>
+{% endblock %}
+
+
+{% block endjs %}
+{% endblock %}
