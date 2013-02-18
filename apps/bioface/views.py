@@ -9,40 +9,26 @@ import json
 
 import ast
 
-from django import forms
-from django.template import RequestContext
-from django.shortcuts import render, render_to_response
 from django.conf import settings
-from django.shortcuts import redirect
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.forms.forms import NON_FIELD_ERRORS
+from django import forms
+from django.http import StreamingHttpResponse
+from django.template import RequestContext
+from django.template.loader import render_to_string
+from django.shortcuts import render, render_to_response, redirect
+from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout as auth_logout
-# from django.contrib.auth.views import login, logout
-from django.contrib.auth.models import User
-from django.views.generic import CreateView
 from django.contrib import messages
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-# from apps.tasks.models import Task
+from apps.bioface.utils import api_request
+from apps.bioface.forms import add_update_segment_form, GetRequestAPIForm, RegistrationForm, QueryMethodForm
 
-METHODS_FOR_CALL_ITEM = ("get_object", "get_attribute", "get_tag", "get_tags_version", "get_sequence", "get_reference",
-    "get_segment", "get_alignment", "get_annotation")
-METHODS_FOR_CALL_ITEMS = ("get_attributes", "get_tags", "get_sequences", "get_references", 
-    "get_segments", "get_alignments", "get_annotations", "get_objects")
-
-
-def api_request(request, query_dict):
-    API_URL = 'https://10.0.1.204:5000/api/v1/'
-    headers = {'Content-type': 'application/json'}
-    http = httplib2.Http(disable_ssl_certificate_validation=True)
-
-    http_response, content = http.request(API_URL, 'POST', body = json.dumps(query_dict), headers = headers)
-    content_dict = json.loads(content)
-
-    return http_response, content_dict
-
-class RegistrationForm(UserCreationForm):
-    username = forms.EmailField(label="E-mail", max_length=70)
+def alter_index(request):
+    template_name = "test_index.html"
+    template_name = "alter_index.html"
+    return render_to_response( template_name, {},
+        context_instance=RequestContext(request))
 
 def signin(request):
     # https://10.0.1.204:5000
@@ -68,11 +54,11 @@ def signin(request):
                             }
                         }
                     # response, content = http.request(API_URL, 'POST', body = json.dumps(query), headers = headers)
-                    
+
                     # response = json.loads(content)
 
                     # Login in service by API
-                    http_response, content_dict = api_request(request, query)
+                    http_response, content_dict = api_request(query)
 
                     if not content_dict.has_key('error'):
                         sessionkey = content_dict['result']['key']
@@ -87,7 +73,7 @@ def signin(request):
                         msg = content_dict['error']['message']
                         messages.error(request, msg)
                         # print 1111, form._errors
-                        # form._errors[NON_FIELD_ERRORS] = form.error_class( (msg,))
+                        # form._errors[forms.NON_FIELD_ERRORS] = form.error_class( (msg,))
                         
     else:
         form = AuthenticationForm()
@@ -133,15 +119,46 @@ def registration(request):
     return render_to_response("registration.html", {'form': form},
         context_instance=RequestContext(request))
 
-METHOD_CHOISES = zip(METHODS_FOR_CALL_ITEMS, METHODS_FOR_CALL_ITEMS)
-# METHOD_CHOISES.append(("get_objects", "get_objects"))
 
-class GetRequestAPIForm(forms.Form):
-    request = forms.CharField(widget=forms.Textarea, required=False)
-    method = forms.ChoiceField(choices = METHOD_CHOISES)
-    row_query = forms.CharField(required=False)
-    limit = forms.IntegerField(required=False)
-    skip = forms.IntegerField(required=False)
+@login_required
+def create_update_item(request):
+    template_context = {}
+    if request.method == 'POST':
+        prepare_form = QueryMethodForm(data = request.POST)
+        form = add_update_segment_form(request=request, data = request.POST)
+
+        if form.is_valid():
+            cd = form.cleaned_data
+            # Prepare query
+            query_str = cd['request'].replace('"', "'").replace('\n', '')
+            # Convert str to dict
+            # query_dict = ast.literal_eval(query_str)
+            query_dict = {
+                "method" : cd['method'],
+                "key": request.user.sessionkey,
+                # "params" : {
+                #     # "query" : "reference_id = id",
+                #     "limit" : cd['limit'],
+                #     "skip" : cd['skip'],
+                #     # "orderby" : [["field_name", "acs"], ["field_name2", "desc"]]
+                # }
+            }
+            template_name, template_context = get_pagination_page(page, query_dict)
+
+            template_context.update({
+                'query_dict': query_dict,
+                })
+    else:
+        prepare_form = QueryMethodForm()
+        # form = add_update_segment_form(request=request)
+
+    template_context.update({
+        # 'form': form, 
+        'prepare_form': prepare_form
+        })
+
+    return render_to_response('create_update_item.html', template_context, context_instance=RequestContext(request))
+    # return render_to_response('test.html', template_context, context_instance=RequestContext(request))
 
 
 def get_item_by_api():
@@ -149,13 +166,11 @@ def get_item_by_api():
 
 
 def get_item_list_by_api(item_name, content_dict):
-    
-
     template_name = 'item_list.html'
     template_context = {}
-    item_list = content_dict['result'].get(item_name, None)
+    item_list = content_dict['result'].get(item_name, [])
     if item_list:
-        if item_name == "objects1":
+        if item_name == "objects":
             attr_name_list = [ attr['name'] for attr in content_dict['result']['attributes'] ]
             print attr_name_list
         else:
@@ -165,6 +180,37 @@ def get_item_list_by_api(item_name, content_dict):
 
     return template_name, template_context
 
+
+def get_pagination_page(page, query_dict):
+    item_count = 5
+    item_name = query_dict['method'].replace('get_', '')
+    query_dict['params'] = {}
+
+    # Monkey patch. Need for test exist next page, or not
+    query_dict['params']['limit'] = item_count+1
+
+    query_dict['params']['skip'] = item_count * (page-1)
+    http_response, content_dict = api_request(query_dict)
+    template_name, template_context = get_item_list_by_api(item_name, content_dict)
+    items = template_context['items']
+    if len(items) > item_count:
+        next_page = True
+        template_context['items'] = template_context['items'][:-1]
+    else:
+        next_page = False
+
+    previous_page = True if page > 1 else False
+
+    template_context.update({
+        'has_next': next_page,
+        'has_previous': previous_page,
+        'next_page_number': page+1,
+        'previous_page_number': page-1,
+        'method': query_dict['method']
+        # 'query': query_dict['params'],
+    })
+
+    return template_name, template_context
 
 @login_required
 def request_api_page(request):
@@ -190,41 +236,86 @@ def request_api_page(request):
                 #     # "orderby" : [["field_name", "acs"], ["field_name2", "desc"]]
                 # }
             }
-            if cd['limit'] or cd['skip']:
-                query_dict['params'] = {}
-                if cd['limit']:
-                    query_dict['params']['limit'] = cd['limit']
-                if cd['skip']:
-                    query_dict['params']['skip'] = cd['skip']
+            # if cd['limit'] or cd['skip']:
+            #     query_dict['params'] = {}
+            #     if cd['limit']:
+            #         query_dict['params']['limit'] = cd['limit']
+            #     if cd['skip']:
+            #         query_dict['params']['skip'] = cd['skip']
 
             # print query_dict
             # query_dict['key'] = request.user.sessionkey
-            http_response, content_dict = api_request(request, query_dict)
-            if not content_dict.has_key('error'):
-                item_name = query_dict['method'].replace('get_', '')
-                if query_dict['method'] in METHODS_FOR_CALL_ITEM:
-                    get_item_by_api()
-                # elif query_dict['method'] == "get_objects":
-                #     template_context = {
-                #         'attributes': content_dict['result']['attributes'],
-                #         'objects': content_dict['result']['objects']
-                #     }
-                elif query_dict['method'] in METHODS_FOR_CALL_ITEMS:
-                    
-                    template_name, template_context = get_item_list_by_api(item_name, content_dict)
-                
+            page = request.GET.get('page', 1)
+            template_name, template_context = get_pagination_page(page, query_dict)
 
-            else:   
-                msg = content_dict['error']['message']
-                messages.error(request, 'API ERROR: {}'.format(msg)) 
+            # http_response, content_dict = api_request(request, query_dict)
+            # if not content_dict.has_key('error'):
+            #     # item_name = query_dict['method'].replace('get_', '')
+            #     # if query_dict['method'] in METHODS_FOR_CALL_ITEM:
+            #     #     get_item_by_api()
+            #     # # elif query_dict['method'] == "get_objects":
+            #     # #     template_context = {
+            #     # #         'attributes': content_dict['result']['attributes'],
+            #     # #         'objects': content_dict['result']['objects']
+            #     # #     }
+            #     # elif query_dict['method'] in METHODS_FOR_CALL_ITEMS:
+                    
+            #     #     template_name, template_context = get_item_list_by_api(item_name, content_dict)
+
+
+                
+            # else:   
+            #     msg = content_dict['error']['message']
+            #     messages.error(request, 'API ERROR: {}'.format(msg)) 
             
+            # template_context['response'] = content_dict
+
+            # page = request.GET.get('page', 1)
+
+
+            # paginator = Paginator(template_context['items'], 5) # Show 25 items per page
+
+            # try:
+            #     items = paginator.page(page)
+            # except PageNotAnInteger:
+            #     # If page is not an integer, deliver first page.
+            #     items = paginator.page(1)
+            # except EmptyPage:
+            #     # If page is out of range (e.g. 9999), deliver last page of results.
+            #     items = paginator.page(paginator.num_pages)
+
+            # template_context['items'] = items
+
+            template_context.update({
+                'query_dict': query_dict,
+                })
             
-            template_context['response'] = content_dict
-                        
+
     else:
         form = GetRequestAPIForm()
 
+
+    # from apps.bioface.forms import ExampleForm
+
+    # example_form = ExampleForm()
+
+    # from apps.bioface.ajax import get_pagination_page
+    # page = request.GET.get('page')
+
+    # if page:
+    #     items = get_pagination_page(page)
+    # else:
+    #     # If page is not an integer, deliver first page.
+    #     items = get_pagination_page(1)
+
     template_context.update({
         'form': form, 
+        # 'example_form': example_form,
+        # 'items': items
+        # 'query_dict': query_dict,
         })
+
+    # content_stream = render_to_string(template_name, template_context, context_instance=RequestContext(request))
+
+    # return StreamingHttpResponse(streaming_content = content_stream)
     return render_to_response(template_name, template_context, context_instance=RequestContext(request))

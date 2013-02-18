@@ -22,9 +22,6 @@
 
         {% block forestyle %}{% endblock %}
 
-        {% include 'google_analitics_init.html' %}
-        {% include 'google_maps_init.html' %}
-
         {% block forejs %}{% endblock %}
 
         <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
@@ -72,7 +69,8 @@
         </div>
         
 
-        <script src="{{ STATIC_URL }}{{ REQUEST }}js/jquery-1.8.0.min.js"></script>
+        <!-- <script src="{{ STATIC_URL }}js/jquery-1.8.0.min.js"></script> -->
+        <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
         <script src="{{ STATIC_URL }}js/bootstrap.min.js"></script>
         {% block endjs %}
 

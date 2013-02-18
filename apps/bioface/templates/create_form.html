@@ -1,0 +1,16 @@
+<form method="post" action="./" class="form-horizontal js-active-form span8 pull-left">
+    {% csrf_token %}
+    {% for error in form.non_field_errors %}
+        <div class="alert alert-error">
+            <a data-dismiss="alert" class="close">×</a>
+            <p>{{ error }}</p>
+        </div>
+    {% endfor %}
+    
+    {{ form|bootstrap }}
+
+    <div class="form-actions">
+        
+        <button type="submit" class="btn btn-primary">Run</button>&nbsp;
+    </div>
+</form>

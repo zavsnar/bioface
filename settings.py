@@ -67,10 +67,16 @@ STATICFILES_DIRS = (
 
 # List of finder classes that know how to find static files in
 # various locations.
+# STATICFILES_FINDERS = (
+#     'django.contrib.staticfiles.finders.FileSystemFinder',
+#     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+# #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+# )
+
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    'dajaxice.finders.DajaxiceFinder',
 )
 
 # List of callables that know how to import templates from various sources.
@@ -83,11 +89,11 @@ TEMPLATE_LOADERS = (
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    # 'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.transaction.TransactionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    # 'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -112,7 +118,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.request',
     'django.core.context_processors.tz',
     'django.contrib.messages.context_processors.messages',
-    'context_processors.STATIC_URL',
+    # 'context_processors.STATIC_URL',
 )
 
 INSTALLED_APPS = (
@@ -127,6 +133,9 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
 
     # third-parties
+
+    'dajaxice',
+    'dajax',
 
     'django_extensions',
     # 'runfcgi',
@@ -146,6 +155,10 @@ INSTALLED_APPS = (
 )
 
 LOGIN_URL = '/login/'
+
+SESSION_SAVE_EVERY_REQUEST = True
+SESSION_COOKIE_AGE = 86400
+# SESSION_COOKIE_AGE = 15
 
 AUTH_USER_MODEL = 'bioface.CustomUser'
 

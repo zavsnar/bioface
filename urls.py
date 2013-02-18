@@ -9,9 +9,12 @@ from django.contrib.auth.views import login
 from django.contrib import admin
 
 # from sitemaps import scheme as sitemaps
-from views import signin, registration, logout, request_api_page
+from apps.bioface.views import signin, registration, logout, request_api_page, alter_index, create_update_item
 
 admin.autodiscover()
+
+from dajaxice.core import dajaxice_autodiscover, dajaxice_config
+dajaxice_autodiscover()
 
 # robots_txt view
 # robots_txt = "User-agent: *\nDisallow: /" if settings.DISALLOW_SEARCH_ROBOTS else ''
@@ -19,9 +22,12 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
         url(r'^$', request_api_page, name='index'),
+        url(r'^alter-index/$', alter_index, name='alter_index'),
         url(r'^login/$', signin, name='signin'),
         url(r'^logout/$', logout, name='logout'),
         url(r'^registration/$', registration, name='registration'),
+
+        url(r'^create/$', create_update_item, name='create_update_item'),
 #         url(r'^terms/$', render, kwargs={'template_name': 'terms.html'}, name='terms'),
 #         url(r'^support/$', render, kwargs={'template_name': 'support.html'}, name='support'),
 
@@ -40,4 +46,10 @@ if settings.DEBUG:
             # url(r'^500/$', render, kwargs={'template_name': '500.html'}, name='500'),
             (r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
             (r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}),
+            url(dajaxice_config.dajaxice_url, include('dajaxice.urls')),
         )
+
+
+
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+urlpatterns += staticfiles_urlpatterns()

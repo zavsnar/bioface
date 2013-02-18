@@ -1,0 +1,23 @@
+
+
+<div id="page_object">
+    {% for i in items.object_list %}
+        {{ i }}<br>
+    {% endfor %}
+</div>
+
+<div class="pagination">
+    <span class="step-links">
+        {% if items.has_previous %}
+            <button onclick="Dajaxice.apps.bioface.pagination(Dajax.process,{'p':{{ items.previous_page_number }}})">previous</button>
+        {% endif %}
+
+        <span class="current">
+            Page {{ items.number }} of {{ items.paginator.num_pages }}.
+        </span>
+
+        {% if items.has_next %}
+            <button onclick="Dajaxice.apps.bioface.pagination(Dajax.process,{'p':{{ items.next_page_number }}})">next</button>
+        {% endif %}
+    </span>
+</div>
