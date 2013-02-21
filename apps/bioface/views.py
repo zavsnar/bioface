@@ -11,6 +11,7 @@ import ast
 
 from django.conf import settings
 from django import forms
+from django.forms.formsets import formset_factory
 from django.http import StreamingHttpResponse
 from django.template import RequestContext
 from django.template.loader import render_to_string
@@ -21,8 +22,8 @@ from django.contrib.auth import authenticate, login, logout as auth_logout
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-from apps.bioface.utils import api_request
-from apps.bioface.forms import add_update_segment_form, GetRequestAPIForm, RegistrationForm, QueryMethodForm
+from apps.bioface.utils import api_request, API_URL
+from apps.bioface.forms import *
 
 def alter_index(request):
     template_name = "test_index.html"
@@ -119,6 +120,205 @@ def registration(request):
     return render_to_response("registration.html", {'form': form},
         context_instance=RequestContext(request))
 
+def create_object(request):
+    if request.method == 'POST':
+        form = CreateObjectForm(request=request, data = request.POST)
+        if form.is_valid():
+            query_dict = {
+                "method" : "add_object",
+                "key": request.user.sessionkey,
+                "params" : {
+                    # "attributes_autoexpand" : true,
+                    "data" : {
+                        "fields": {
+                        #     "name" : name, //str
+                        #     "lab_id":  Лабораторный идентификатор, //str
+                        #     "organism": организм, //str
+                        #     "source": источник, //str
+                        #     "comment": comment, //str
+                        #     "refs": ["id1", "id2"], //список id референсов
+                        #     "tags": ["id", "id"], //список id тегов
+                             },
+                        # "attributes": [["attribute_id", "value1"],
+                        #     etc...
+                        # ]
+                        }
+                    }
+                }
+
+            obj_fields = query_dict['params']['data']['fields']
+            for key, value in form.cleaned_data.items():
+                if key == 'organism':
+                    value = int(value)
+                obj_fields[key] = value
+
+            http_response, content_dict = api_request(query_dict)
+            
+            if content_dict.has_key('result'):
+            # {u'error': {u'code': -32005,
+            # u'data': u'(IntegrityError) duplicate key value violates unique constraint "objects_name_key"\nDETAIL:  Key (name)=(123) already exists.\n',
+            # u'message': u'not unique'}}
+                messages.success(request, 'Object {0} with ID {1} and Version {2} successfully created.'.format(
+                    form.cleaned_data['name'], content_dict['result']['id'], content_dict['result']['version'])
+                )
+            elif content_dict.has_key('error'):
+                messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))
+
+    else:
+        form = CreateObjectForm(request=request)
+
+    add_organism_form = CreateOrganismForm()
+
+    template_context = {
+        'form': form,
+        'add_organism_form': add_organism_form
+    }
+    return render_to_response('create_object.html', template_context, context_instance=RequestContext(request))
+
+
+def update_object(request, object_id = 0):
+
+    if request.method == 'POST':
+        form = UpdateObjectForm(data = request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            query_dict = {
+                "method" : "update_object",
+                "key": request.user.sessionkey,
+                "params" : {
+                    "id" : cd.pop('id'),
+                    "version" : cd.pop('version'),
+                    "attributes_autoexpand" : True,
+                    "data" : {
+                        "fields": {
+                        #     "name" : name, //str
+                        #     "lab_id":  Лабораторный идентификатор, //str
+                        #     "organism": организм, //str
+                        #     "source": источник, //str
+                        #     "comment": comment, //str
+                        #     "refs": ["id1", "id2"], //список id референсов
+                        #     "tags": ["id", "id"], 
+                        },
+                        "attributes": [
+                        #     ["attribute_id", "value1"],
+                        #     etc...
+                        ]
+                    }
+                }
+            }
+
+            obj_fields = query_dict['params']['data']['fields']
+            for key, value in form.cleaned_data.items():
+                print key, value
+                if value:
+                    obj_fields[key] = value
+
+            http_response, content_dict = api_request(query_dict)
+            
+            if content_dict.has_key('result'):
+            # {u'error': {u'code': -32005,
+            # u'data': u'(IntegrityError) duplicate key value violates unique constraint "objects_name_key"\nDETAIL:  Key (name)=(123) already exists.\n',
+            # u'message': u'not unique'}}
+                messages.success(request, 'Object {0} with ID {1} and Version {2} successfully updated.'.format(
+                    form.cleaned_data['name'], content_dict['result']['id'], content_dict['result']['version'])
+                )
+            elif content_dict.has_key('error'):
+                messages.error(request, 'ERROR: {}'.format(content_dict['error']))
+        else:
+            print 55555
+
+    else:
+        query_dict = {
+            "method" : "get_object",
+            "key": request.user.sessionkey,
+            "params" : {
+                "id" : int(object_id)
+                # "attributes_list": ["attribute_id1", "attribute_id2",  ]
+            }
+        }
+        http_response, content_dict = api_request(query_dict)
+        if content_dict.has_key('result'):
+            
+            print content_dict['result'].pop('attributes')
+            attr_dict = content_dict['result']['object'].pop('attributes')
+            # print 7777, attr_dict.values()
+
+
+            # print 3333, content_dict['result']['object']
+            # raise
+
+            # obj_fields = query_dict['params']['data']['fields']
+            # for key, value in form.cleaned_data.items():
+            #     obj_fields[key] = value
+
+            # sequense_form = InlineSequenseForm(initial={})
+            # formset = formset_factory(InlineSequenseForm, extra=2, can_delete=True)
+
+
+
+            form = UpdateObjectForm(initial=content_dict['result']['object'])
+        elif content_dict.has_key('error'):
+            form = UpdateObjectForm()
+            messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))
+
+
+    template_context = {
+        'form': form,
+        'attr_dict': attr_dict
+        # 'formset': formset
+    }
+
+    return render_to_response('edit-object.html', template_context, context_instance=RequestContext(request))
+
+def create_organism(request):
+    if request.method == 'POST':
+        form = CreateOrganismForm(data = request.POST)
+        if form.is_valid():
+            query_dict = {
+                "method" : "create_object",
+                "key": request.user.sessionkey,
+                "params" : {
+                    # "attributes_autoexpand" : true,
+                    "data" : {
+                        "fields": {
+                        #     "name" : name, //str
+                        #     "lab_id":  Лабораторный идентификатор, //str
+                        #     "organism": организм, //str
+                        #     "source": источник, //str
+                        #     "comment": comment, //str
+                        #     "refs": ["id1", "id2"], //список id референсов
+                        #     "tags": ["id", "id"], //список id тегов
+                             },
+                        # "attributes": [["attribute_id", "value1"],
+                        #     etc...
+                        # ]
+                        }
+                    }
+                }
+
+            obj_fields = query_dict['params']['data']['fields']
+            for key, value in form.cleaned_data.items():
+                obj_fields[key] = value
+
+            http_response, content_dict = api_request(query_dict)
+            
+            if content_dict.has_key('result'):
+            # {u'error': {u'code': -32005,
+            # u'data': u'(IntegrityError) duplicate key value violates unique constraint "objects_name_key"\nDETAIL:  Key (name)=(123) already exists.\n',
+            # u'message': u'not unique'}}
+                messages.success(request, 'Object {0} with ID {1} and Version {2} successfully created.'.format(
+                    form.cleaned_data['name'], content_dict['result']['id'], content_dict['result']['version'])
+                )
+            elif content_dict.has_key('error'):
+                messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))
+
+    else:
+        form = CreateOrganismForm()
+
+    template_context = {
+        'form': form,
+    }
+    return render_to_response('create_object.html', template_context, context_instance=RequestContext(request))
 
 @login_required
 def create_update_item(request):
@@ -167,7 +367,7 @@ def get_item_by_api():
 
 def get_item_list_by_api(item_name, content_dict):
     template_name = 'item_list.html'
-    template_context = {}
+    template_context = {'items': []}
     item_list = content_dict['result'].get(item_name, [])
     if item_list:
         if item_name == "objects":
@@ -184,7 +384,8 @@ def get_item_list_by_api(item_name, content_dict):
 def get_pagination_page(page, query_dict):
     item_count = 5
     item_name = query_dict['method'].replace('get_', '')
-    query_dict['params'] = {}
+    if not query_dict.has_key('params'):
+        query_dict['params'] = {}
 
     # Monkey patch. Need for test exist next page, or not
     query_dict['params']['limit'] = item_count+1
@@ -212,20 +413,26 @@ def get_pagination_page(page, query_dict):
 
     return template_name, template_context
 
+def test(request):
+    return render_to_response('test.html', {}, context_instance=RequestContext(request))
+
 @login_required
-def request_api_page(request):
+def request_api_page(request, method=None):
     response=''
     template_context={}
     template_name = "request_page.html"
+    # template_name = "index.html"
+    # template_name = "test.html"
     if request.method == 'POST':
         form = GetRequestAPIForm(data = request.POST)
 
         if form.is_valid():
             cd = form.cleaned_data
-            # Prepare query
-            query_str = cd['request'].replace('"', "'").replace('\n', '')
-            # Convert str to dict
-            # query_dict = ast.literal_eval(query_str)
+            if cd.has_key('request'):
+                # Prepare query
+                query_str = cd['request'].replace('"', "'").replace('\n', '')
+                # Convert str to dict
+                # query_dict = ast.literal_eval(query_str)
             query_dict = {
                 "method" : cd['method'],
                 "key": request.user.sessionkey,
@@ -236,6 +443,9 @@ def request_api_page(request):
                 #     # "orderby" : [["field_name", "acs"], ["field_name2", "desc"]]
                 # }
             }
+            if cd.has_key('row_query'):
+                query_dict['params'] = {}
+                query_dict['params']['query'] = cd['row_query']
             # if cd['limit'] or cd['skip']:
             #     query_dict['params'] = {}
             #     if cd['limit']:
@@ -292,7 +502,12 @@ def request_api_page(request):
             
 
     else:
-        form = GetRequestAPIForm()
+        if method:
+            initial_dict = {'method': method}
+        else:
+            initial_dict = {}
+
+        form = GetRequestAPIForm(initial=initial_dict)
 
 
     # from apps.bioface.forms import ExampleForm
@@ -310,6 +525,7 @@ def request_api_page(request):
 
     template_context.update({
         'form': form, 
+        'method': method,
         # 'example_form': example_form,
         # 'items': items
         # 'query_dict': query_dict,

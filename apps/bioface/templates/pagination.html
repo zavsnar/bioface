@@ -1,11 +1,15 @@
-<div class="pagination">
-    <span class="step-links">
+<ul class="pager pagination">
+    <!-- <span class="step-links"> -->
         {% if has_previous %}
-            <button onclick="Dajaxice.apps.bioface.pagination(Dajax.process,{'page':{{ previous_page_number }},'method':'{{ method }}','query':'123'})">previous</button>
+    	<li>
+        	<button onclick="Dajaxice.apps.bioface.pagination(Dajax.process,{'page':{{ previous_page_number }},'method':'{{ method }}','query':'123'})">previous</button>
+    	</li>
         {% endif %}
 
         {% if has_next %}
+        <li>
             <button onclick="Dajaxice.apps.bioface.pagination(Dajax.process,{'page':{{ next_page_number }},'method':'{{ method }}','query':'123'})">next</button>
+        </li>
         {% endif %}
-    </span>
-</div>
+    <!-- </span> -->
+</ul>

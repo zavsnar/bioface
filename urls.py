@@ -9,7 +9,7 @@ from django.contrib.auth.views import login
 from django.contrib import admin
 
 # from sitemaps import scheme as sitemaps
-from apps.bioface.views import signin, registration, logout, request_api_page, alter_index, create_update_item
+from apps.bioface.views import signin, registration, logout, request_api_page, alter_index, create_update_item, create_object, update_object, create_organism, test
 
 admin.autodiscover()
 
@@ -27,7 +27,12 @@ urlpatterns = patterns('',
         url(r'^logout/$', logout, name='logout'),
         url(r'^registration/$', registration, name='registration'),
 
+        url(r'^select/objects/$', request_api_page, kwargs={'method': 'get_objects'}, name='select_objects'),
+        url(r'^select/sequence/$', request_api_page, kwargs={'method': 'get_sequences'}, name='select_sequences'),
         url(r'^create/$', create_update_item, name='create_update_item'),
+        url(r'^create/organism/$', create_organism, name='create_organism'),
+        url(r'^create/object/$', create_object, name='create_object'),
+        url(r'^object/(?P<object_id>\d+)/$', update_object, name='update_object'),
 #         url(r'^terms/$', render, kwargs={'template_name': 'terms.html'}, name='terms'),
 #         url(r'^support/$', render, kwargs={'template_name': 'support.html'}, name='support'),
 
@@ -38,6 +43,7 @@ urlpatterns = patterns('',
 #         url(r'^' + settings.ADMIN_SITE_PREFIX[1:], include(admin.site.urls)),
 #         url(r'^robots\.txt$', get_robots_txt),
 #         url(r'^sitemap\.xml$', cache_page(5*60)(sitemaps_views.sitemap), kwargs={'sitemaps': sitemaps})
+        url(r'^test/$', test, name='test'),
     )
 
 if settings.DEBUG:

@@ -27,9 +27,9 @@
  {% endblock %}
 
 {% block main %}
-<div>
 
-	<div class="row">
+    <!-- <hr> -->
+    <div class="row">
         <form method="post" action="./" class="form-horizontal js-active-form span12 pull-left">
             {% csrf_token %}
             {% for error in form.non_field_errors %}
@@ -42,12 +42,11 @@
             {{ form|bootstrap }}
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Run</button>&nbsp;
+                <button type="submit" class="btn btn-primary">Run</button>
             </div>
         </form>
-	</div>
+    </div>
 
-    
     {% block result_table %}
         {% if objects %}
         <div class="row">
@@ -79,29 +78,7 @@
         </div>
         {% endif %}
     {% endblock %}
-    
 
-    
-    
-
-    {% comment %}
-    <div class="pagination">
-        <span class="step-links">
-            {% if items.has_previous %}
-                <button onclick="Dajaxice.apps.bioface.pagination(Dajax.process,{'p':{{ items.previous_page_number }}})">previous</button>
-            {% endif %}
-
-            <span class="current">
-                Page {{ items.number }} of {{ items.paginator.num_pages }}.
-            </span>
-
-            {% if items.has_next %}
-                <button onclick="Dajaxice.apps.bioface.pagination(Dajax.process,{'p':{{ items.next_page_number }}})">next</button>
-            {% endif %}
-        </span>
-    </div>
-    {% endcomment %}
-</div>
 {% endblock %}
 
 
