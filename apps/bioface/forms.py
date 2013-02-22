@@ -52,7 +52,6 @@ def get_choices(request, cache_key):
 		http_response, content_dict = api_request(query_dict)
 
 		item_list = content_dict['result'].get(cache_key, [])
-		print 444, content_dict
 		choices_list=[('','')]
 		if item_list:
 			for item in item_list:
@@ -95,7 +94,7 @@ class UpdateObjectForm(CreateObjectForm):
 	version = forms.IntegerField(widget=forms.HiddenInput, required=False)
 	# sequences = forms.ComboField(fields=[forms.CharField(max_length=20), forms.EmailField()])
 
-class CreateAttributes(forms.Form):
+class CreateAttributeForm(forms.Form):
 	name = forms.CharField(label='Name')
 	atype = forms.ChoiceField(choices=ATYPE_ATTRIBUTES_CHOISES)
 	descr = forms.CharField(label="Description", widget=forms.Textarea)

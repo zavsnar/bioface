@@ -1,3 +1,7 @@
+.red {
+	color: red;
+}
+
 input.error {
 	border-color: #bd4247;
 }
@@ -5,3 +9,13 @@ input.error {
 span.error {
 	color: #bd4247;
 }
+
+.range-from {
+	margin-left: 25px;
+}
+
+table#table-nominal-id {
+	border: 1px solid gray;
+}
+
+.ui-state-highlight { height: 1.5em; line-height: 1.2em; }

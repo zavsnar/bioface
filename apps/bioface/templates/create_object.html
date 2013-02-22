@@ -143,7 +143,7 @@
 
 
         $('#create_organism').bind('submit', function(event) {
-            Dajaxice.apps.bioface.send_form1(Dajax.process,{'form':$('#create_organism').serialize(true)});
+            Dajaxice.apps.bioface.add_organism(Dajax.process,{'form':$('#create_organism').serialize(true)});
             return false; // dont post it automatically
         });
 

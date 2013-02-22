@@ -121,6 +121,7 @@ def registration(request):
         context_instance=RequestContext(request))
 
 def create_object(request):
+    template_name = 'create_object.html'
     if request.method == 'POST':
         form = CreateObjectForm(request=request, data = request.POST)
         if form.is_valid():
@@ -161,6 +162,7 @@ def create_object(request):
                 messages.success(request, 'Object {0} with ID {1} and Version {2} successfully created.'.format(
                     form.cleaned_data['name'], content_dict['result']['id'], content_dict['result']['version'])
                 )
+                return redirect('update_object')
             elif content_dict.has_key('error'):
                 messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))
 
@@ -171,9 +173,9 @@ def create_object(request):
 
     template_context = {
         'form': form,
-        'add_organism_form': add_organism_form
+        'additional_form': add_organism_form
     }
-    return render_to_response('create_object.html', template_context, context_instance=RequestContext(request))
+    return render_to_response(template_name, template_context, context_instance=RequestContext(request))
 
 
 def update_object(request, object_id = 0):
@@ -238,9 +240,11 @@ def update_object(request, object_id = 0):
         }
         http_response, content_dict = api_request(query_dict)
         if content_dict.has_key('result'):
-            
-            print content_dict['result'].pop('attributes')
-            attr_dict = content_dict['result']['object'].pop('attributes')
+            object_data = content_dict['result']['object']
+            if object_data.has_key('attributes'):
+                attr_dict = content_dict['result']['object'].pop('attributes')
+            else:
+                attr_dict = {}
             # print 7777, attr_dict.values()
 
 
@@ -256,7 +260,7 @@ def update_object(request, object_id = 0):
 
 
 
-            form = UpdateObjectForm(initial=content_dict['result']['object'])
+            form = UpdateObjectForm(request = request, initial=object_data)
         elif content_dict.has_key('error'):
             form = UpdateObjectForm()
             messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))
@@ -269,6 +273,44 @@ def update_object(request, object_id = 0):
     }
 
     return render_to_response('edit-object.html', template_context, context_instance=RequestContext(request))
+
+def create_attribute(request):
+    if request.method == 'POST':
+        form = CreateAttributeForm(data = request.POST)
+        print request.POST
+        if form.is_valid():
+            query_dict = {
+                "method" : "new_atribute",
+                "key": request.user.sessionkey,
+                "params" : {
+                    "data" : {
+                        "name": form.cleaned_data['name'],
+                        "atype": form.cleaned_data['atype'],
+                        "descr": {}
+                    }
+                }
+            }
+
+            http_response, content_dict = api_request(query_dict)
+            
+            if content_dict.has_key('result'):
+            # {u'error': {u'code': -32005,
+            # u'data': u'(IntegrityError) duplicate key value violates unique constraint "objects_name_key"\nDETAIL:  Key (name)=(123) already exists.\n',
+            # u'message': u'not unique'}}
+                messages.success(request, 'Object {0} with ID {1} and Version {2} successfully created.'.format(
+                    form.cleaned_data['name'], content_dict['result']['id'], content_dict['result']['version'])
+                )
+            elif content_dict.has_key('error'):
+                messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))
+
+    else:
+        form = CreateAttributeForm()
+
+    template_context = {
+        'form': form,
+    }
+    return render_to_response('create_attribute.html', template_context, context_instance=RequestContext(request))
+
 
 def create_organism(request):
     if request.method == 'POST':

@@ -1,0 +1,351 @@
+{% extends 'base.html' %}
+{% load bootstrap main_filters dajaxice_templatetags staticfiles %}
+
+{% block subtitle %}Edit My profile{% endblock %}
+
+{% block forestyle %}
+<link href="{{ STATIC_URL }}css/select2.css" rel="stylesheet"/>
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />
+{% endblock %}
+
+{% block forejs %} 
+
+
+    
+ {% endblock %}
+
+{% block main %}
+<!-- <div class="row"> -->
+    <h2>Create Attribute</h2>
+    <hr>
+<!-- </div> -->
+<div class="row">
+    <form method="post" action="./" class="form-horizontal js-active-form span12 pull-left" id="attribute-form-id">
+        {% csrf_token %}
+        {% for error in form.non_field_errors %}
+            <div class="alert alert-error">
+                <a data-dismiss="alert" class="close">×</a>
+                <p>{{ error }}</p>
+            </div>
+        {% endfor %}   
+
+        {% for field in form.hidden_fields %}
+            {{ field }}
+        {% endfor %}
+
+        {% for error in form.non_field_errors %}
+            <div class="alert alert-error">
+                <a data-dismiss="alert" class="close">×</a>
+                <p>{{ error }}</p>
+            </div>
+        {% endfor %}
+
+        {# <!-- Name --> #}
+        <div class="control-group {% if form.name.errors %}error{% endif %}">
+            <label class="control-label" for="{{ form.name.id_for_label }}">{{ form.name.label }} <i class="red">*</i></label>
+            <div class="controls">
+                {{ form.name }}
+                {% for error in form.name.errors %}
+                    <span class="help-inline">{{ error }}</span>
+                {% endfor %}
+            </div>
+        </div>
+
+        {# <!-- Atype --> #}
+        <div class="control-group {% if form.atype.errors %}error{% endif %}">
+            <label class="control-label" for="{{ form.atype.id_for_label }}">{{ form.atype.label }} <i class="red">*</i></label>
+            <div class="controls">
+                {{ form.atype }}
+                {% for error in form.atype.errors %}
+                    <span class="help-inline">{{ error }}</span>
+                {% endfor %}
+            </div>
+        </div>
+
+        <fieldset>
+            <legend>Description</legend>
+
+            {# <!-- Description: Integer --> #}
+            <div class="js-description-form control-group {% if form.atype.errors %}error{% endif %}" id="form-for-integer">
+                <label class="control-label" for="descr-integer">Integer <i class="red">*</i></label>
+                <div class="controls">
+                    <input class="input-small" type="text" name="descr-integer" id="descr-integer" placeholder="default value">
+                    {% for error in form.atype.errors %}
+                        <span class="help-inline">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {# <!-- Description: String --> #}
+            <div class="js-description-form hide control-group {% if form.atype.errors %}error{% endif %}" id="form-for-string">
+                <label class="control-label" for="descr-string">String <i class="red">*</i></label>
+                <div class="controls">
+                    <input class="input-large" type="text" name="descr-string" id="descr-string" placeholder="default value">
+                    {% for error in form.atype.errors %}
+                        <span class="help-inline">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {# <!-- Description: Float --> #}
+            <div class="js-description-form hide control-group {% if form.atype.errors %}error{% endif %}" id="form-for-float">
+                <label class="control-label" for="descr-float">Float <i class="red">*</i></label>
+                <div class="controls">
+                    <input class="input-small" type="text" name="descr-float" id="descr-float" placeholder="default value">
+                    {% for error in form.atype.errors %}
+                        <span class="help-inline">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {# <!-- Description: Range --> #}
+            <div class="js-description-form hide control-group {% if form.atype.errors %}error{% endif %}" id="form-for-range">
+                <label class="control-label" for="descr-range-default">Range <i class="red">*</i></label>
+                <div class="controls">
+                    <input class="input-small" type="text" name="descr-range-default" id="descr-range-default" value="" placeholder="default value">
+                    {% for error in form.atype.errors %}
+                        <span class="help-inline">{{ error }}</span>
+                    {% endfor %}
+                <!-- </div>
+                <div class="controls"> -->
+                    <div class="input-prepend range-from">
+                        <span class="add-on">From</span>
+                        <input class="span1" name="descr-range-from" id="descr-range-from" value="" type="text">
+                    </div>
+                    <div class="input-append">
+                        <span class="add-on">To</span>
+                        <input class="span1" name="descr-range-to" id="descr-range-to" value="" type="text">
+                    </div>
+                    {% for error in form.atype.errors %}
+                        <span class="help-inline">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {# <!-- Description: Nominal --> #}
+            <div class="js-description-form hide control-group {% if form.atype.errors %}error{% endif %}" id="form-for-nominal">
+                <label class="control-label" for="add-nominal-item">Nominal <i class="red">*</i></label>
+                <input class='hidden' type="text" name="descr-nominal" id="descr-nominal" value="">
+                <table class="table table-condensed span2" id="table-nominal-id">
+                    <thead>
+                        <tr>
+                            <th>Value</th>
+                            <th>Default</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="item">
+                            <td class="js-nominal-name"><input name="nominal-value" value="1"></td>
+                            <td><input type="radio" name="descr-nominal-default" value="1"></td>
+                            <td><a class="js-nominal-delete btn btn-mini btn-danger">x</a></td>
+                        </tr>
+                        <tr class="item">
+                            <td class="js-nominal-name"><input name="nominal-value" value="2"></td>
+                            <td><input type="radio" name="descr-nominal-default" value="2"></td>
+                            <td><a class="js-nominal-delete btn btn-mini btn-danger">x</a></td>
+                        </tr>
+                        <tr class="item">
+                            <td class="js-nominal-name"><input name="nominal-value" value="3"></td>
+                            <td><input type="radio" name="descr-nominal-default" value="3"></td>
+                            <td><a class="js-nominal-delete btn btn-mini btn-danger">x</a></td>
+                        </tr>
+                        <tr>
+                            <td><input id="add-nominal-item"></td>
+                            <td></td>
+                            <td><a class="btn btn-mini btn-success" id="submit-add-nominal-item">+</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            {# <!-- Description: Scale --> #}
+            <div class="js-description-form hide control-group {% if form.atype.errors %}error{% endif %}" id="form-for-scale">
+                <label class="control-label" for="add-sacle-item-name">Scale <i class="red">*</i></label>
+                <input class='hidden' type="text" name="descr-scale" id="descr-scale" value="">
+                <table class="table table-condensed span2" id="table-scale-id">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Default</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="sortable">
+                        <tr class="item" id="Mini">
+                            <td>0</td>
+                            <td class="js-scale-name">Mini</td>
+                            <!-- <td class="js-scale-value">1</td> -->
+                            <td><input type="radio" name="descr-scale-default" value="Mini"></td>
+                            <td><a class="btn btn-mini btn-danger">x</a></td>
+                        </tr>
+                        <tr class="item" id="Small">
+                            <td>1</td>
+                            <td class="js-scale-name">Small</td>
+                            <!-- <td class="js-scale-value">2</td> -->
+                            <td><input type="radio" name="descr-scale-default" value="Small"></td>
+                            <td><a class="btn btn-mini btn-danger">x</a></td>
+                        </tr>
+                        <tr class="item" id="Normal">
+                            <td>2</td>
+                            <td class="js-scale-name">Normal</td>
+                            <!-- <td class="js-scale-value">3</td> -->
+                            <td><input type="radio" name="descr-scale-default" value="Normal"></td>
+                            <td><a class="btn btn-mini btn-danger">x</a></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td><input class="input-medium" id="add-sacle-item-name"></td>
+                            <!-- <td><input class="input-mini" id="add-sacle-item-value"></td> -->
+                            <td></td>
+                            <td><a class="btn btn-mini btn-success" id="submit-add-scale-item">+</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </fieldset>
+        <!-- <button type="button" data-toggle="modal"
+            data-target="#myModal1">Launch modal</button> -->
+
+        
+        
+        <div class="form-actions">
+            
+            <button type="submit" class="btn btn-primary">Save</button>&nbsp;
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block endjs %}
+    <script src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
+
+    <script type="text/javascript">
+        $(function() {
+            $("#sortable").sortable({
+                placeholder: "ui-state-highlight",
+                axis: "y",
+                stop: function(event, ui) {
+                    // ui.item.find('td:first').html(ui.item.index());
+                    // alert("New position: " + ui.item.index());
+                    $('#sortable .item').each(function(){
+                        $(this).find('td:first').html($(this).index());
+                    });
+                }
+            });
+
+            $("#sortable").disableSelection();
+        });
+        // $( "#sortable" ).on( "sortchange", function(event, ui) {
+        //         ui.item.find('td:first').html(ui.item.index());
+        //         alert("New position: " + ui.item.index());
+        //     } 
+        // );
+
+    
+        $type_descr = $('#id_atype option:selected').val()
+        $('.js-description-form').hide();
+        $('#form-for-' + $type_descr).show();
+
+        $('#id_atype').change(function(){
+            $type_descr = $('#id_atype option:selected').val()
+            $('.js-description-form').hide();
+            $('#form-for-' + $type_descr).show();
+        })
+        // $('#table-nominal-id tr.item').hover(
+        //     function(){
+        //         $(this).find('td:last a').show();
+        //     },
+        //     function(){
+        //         $(this).find('td:last a').hide();
+        //     }
+        // )
+        
+        // $('#add-nominal-item').forcus()
+        // $('#form-for-nominal .js-check-default').click(function(){
+        //     if ($(this).is(':checked')) {
+        //         $('#form-for-nominal .js-check-default').prop('checked', false);
+        //         $(this).prop('checked', true)
+        //     };
+        // })
+        $('#submit-add-nominal-item').click(function(){
+            $add_nominal = $('#add-nominal-item')
+            if ($add_nominal.val()) {
+                $('#table-nominal-id tr.item:last').after(
+                    '<tr class="item">
+                        <td>' + $add_nominal.val() + '</td>
+                        <td><input type="radio" name="descr-nominal-default" value="' + $add_nominal.val() + '"></td>
+                        <td><a class="js-nominal-delete btn btn-mini btn-danger">x</a></td>
+                    </tr>'
+                    )
+                $add_nominal.val('');
+            };
+        })
+
+        // Delete Button
+        $('#form-for-nominal').delegate('.js-nominal-delete', 'click', function(){
+            $(this).parent().parent().remove()
+        })
+
+
+        // Before Submit
+        $('#attribute-form-id').submit(function(){
+            // nominal_list = []
+            // $(".js-nominal-name").each(function(i, item) {
+            //     // nominal_names = $.map($(item), function(option, i) {
+            //     //     return $(option).html();
+            //     // }).join(", ");
+            //     nominal_list = nominal_list.concat($(item).html())
+            // // }).join(", ")
+            //     // alert(nominal_array);
+            // });
+            // $('#descr-nominal').val(nominal_list.join(", "));
+
+            scale_value = ""
+            $('.js-scale-name').each(function(i, item) {
+                if (i==0) {
+                    scale_value = $(item).html() + ", " + $(item).prev().html()
+                }
+                else {
+                    scale_value = scale_value + "; " + $(item).html() + ", " + $(item).prev().html()
+                }
+                // scale_dict[$(item).html()] = $(item).after().html()
+                // scale_value = scale_value + "; " + $(item).html() + ", " + $(item).next().html()
+            });
+            alert(scale_value);
+            $('#descr-scale').val(scale_value);
+            // return false;
+        })
+
+        function my_js_callback(data){
+            alert(data.message);
+        };
+        function calculate(){
+            Dajaxice.apps.bioface.multiply(Dajax.process,{'a':$('#a').val(),'b':$('#b').val()})
+        };
+
+        function success_adding(id, name){
+            // $('#myModal1').hide();
+            $('#myModal1').modal('hide');
+            $('#id_organism option:last').after('<option value="'+id+'">'+name+'</option>');
+            $('#id_organism option:last').prop('selected', true);
+            return false;
+        };
+
+
+        $('#create_organism').bind('submit', function(event) {
+            Dajaxice.apps.bioface.add_organism(Dajax.process,{'form':$('#create_organism').serialize(true)});
+            return false; // dont post it automatically
+        });
+
+        // function send_form(){
+        //     Dajaxice.apps.bioface.send_form1(Dajax.process,{'form':$('#create_organism').serialize(true)});
+        //     return false;
+        // };
+
+        
+
+    </script>
+{% endblock %}
