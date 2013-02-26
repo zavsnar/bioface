@@ -275,39 +275,91 @@ def update_object(request, object_id = 0):
     return render_to_response('edit-object.html', template_context, context_instance=RequestContext(request))
 
 def create_attribute(request):
+    description_errors=[]
     if request.method == 'POST':
-        form = CreateAttributeForm(data = request.POST)
+        form = CreateAttributeForm(request = request, data = request.POST)
         print request.POST
+        # print 2222, request.POST['descr-nominal']
+        rp = request.POST
+        
         if form.is_valid():
+            atype = rp.get('atype')
+            cd = form.cleaned_data
+            default_name = 'descr_{}_default'.format(atype)
+            default_value = cd.get(default_name, rp.get(default_name))
+            primary = bool(rp.get('primary'))
+
+            if atype == 'integer':
+                description_dict = {'default': int(default_value)}
+            elif atype == 'string':
+                description_dict = {'default': default_value}
+            elif atype == 'float':
+                description_dict = {'default': float(default_value)}
+            elif atype == 'nominal':
+                # default_value = rp.get('descr-nominal-default')
+                nominal_list = rp.getlist('descr_nominal')
+                description_dict = {"default": default_value, "items": nominal_list}
+            elif atype == 'scale':
+                # default_value = rp.get('descr-{}-default'.format(atype))
+                
+                # {"default": str, "scale": [{name: str, weight: int},...]}
+                scale_list=[]
+                for _l in cd.get('descr_{}'.format(atype)).split('; '):
+                    name, weight = _l.split(', ')
+                    scale_list.append({'name': name, 'weight': int(weight)})
+
+                description_dict = {"default": default_value, "scale": scale_list}
+                # scale_dict = map(lambda x: x.split(', '), rp.get('descr-nominal').split('; '))
+            elif atype == 'range':
+                description_dict = {
+                    "default": default_value, 
+                    "upper": cd.get('descr_range_from'), 
+                    "lower": cd.get('descr_range_to')
+                    }
+
+            
             query_dict = {
-                "method" : "new_atribute",
+                "method" : "new_attribute",
                 "key": request.user.sessionkey,
                 "params" : {
                     "data" : {
                         "name": form.cleaned_data['name'],
+                        "organism": int(form.cleaned_data['organism']),
                         "atype": form.cleaned_data['atype'],
-                        "descr": {}
+                        "descr": description_dict,
+                        "primary": primary
                     }
                 }
             }
+            print query_dict
 
             http_response, content_dict = api_request(query_dict)
             
+            print 5555, content_dict
+
             if content_dict.has_key('result'):
             # {u'error': {u'code': -32005,
             # u'data': u'(IntegrityError) duplicate key value violates unique constraint "objects_name_key"\nDETAIL:  Key (name)=(123) already exists.\n',
             # u'message': u'not unique'}}
-                messages.success(request, 'Object {0} with ID {1} and Version {2} successfully created.'.format(
+                messages.success(request, 'Attribute {0} with ID {1} and Version {2} successfully created.'.format(
                     form.cleaned_data['name'], content_dict['result']['id'], content_dict['result']['version'])
                 )
             elif content_dict.has_key('error'):
-                messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))
+                if 'Key ({0})=({1}) already exists.'.format('name', cd['name']) in content_dict['error']['data']:
+                    form.errors['name'] = form.error_class([content_dict['error']['message']])
+                else:
+                    messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))
+                # '(IntegrityError) duplicate key value violates unique constraint "attrdescrs_name_key" DETAIL: Key (name)=(test_attr2) already exists.'
+        else:
+            form.fields['descr_nominal'].value = rp.getlist('descr_nominal')
 
     else:
-        form = CreateAttributeForm()
+        form = CreateAttributeForm(request = request)
+
 
     template_context = {
         'form': form,
+        'description_errors': description_errors,
     }
     return render_to_response('create_attribute.html', template_context, context_instance=RequestContext(request))
 
