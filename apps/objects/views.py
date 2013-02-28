@@ -22,110 +22,13 @@ from django.contrib.auth import authenticate, login, logout as auth_logout
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-from apps.bioface.utils import api_request, API_URL
-from apps.bioface.forms import *
-
-def alter_index(request):
-    template_name = "test_index.html"
-    template_name = "alter_index.html"
-    return render_to_response( template_name, {},
-        context_instance=RequestContext(request))
-
-def signin(request):
-    # https://10.0.1.204:5000
-    # a@a.ru 123
-
-    if request.method == 'POST':
-        form = AuthenticationForm(data = request.POST)
-        if form.is_valid():
-            username = request.POST['username']
-            password = request.POST['password']
-
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                if user.is_active:
-
-                    # http = httplib2.Http(disable_ssl_certificate_validation=True)
-               
-                    query = {
-                        "method" : "login",
-                        "params" : {
-                            "email": username,
-                            "password": password
-                            }
-                        }
-                    
-                    # response, content = http.request(API_URL, 'POST', body = json.dumps(query), headers = headers)
-
-                    # response = json.loads(content)
-
-                    # Login in service by API
-                    http_response, content_dict = api_request(query)
-
-                    if not content_dict.has_key('error'):
-                        sessionkey = content_dict['result']['key']
-
-                        # Django login
-                        login(request, user)
-                        user.sessionkey = sessionkey
-                        user.save()
-                        messages.success(request, "You successfully logged.")
-                        return redirect('/')
-                    else:
-                        msg = content_dict['error']['message']
-                        messages.error(request, msg)
-                        # print 1111, form._errors
-                        # form._errors[forms.NON_FIELD_ERRORS] = form.error_class( (msg,))
-                        
-    else:
-        form = AuthenticationForm()
-
-    return render_to_response("login.html", {'form': form},
-        context_instance=RequestContext(request))
-
-
-def logout(request):
-    http = httplib2.Http(disable_ssl_certificate_validation=True)
-               
-    query = {
-        "method" : "logout",
-        "params": {
-            "key": request.user.sessionkey
-            }
-    }
-    response, content = http.request(API_URL, 'POST', body = json.dumps(query), headers = headers)
-    
-    response = json.loads(content)
-    if response['result'] == "bye":
-        redirect_url = request.GET.get('next') if request.GET.get('next', None) else '/'
-        auth_logout(request)
-    else:
-        messages.error(request, response)
-
-    return redirect(redirect_url)
-
-def registration(request):
-    if request.method == 'POST':
-        form = RegistrationForm(request.POST)
-        if form.is_valid():
-            new_user = form.save()
-            # logout( request )
-            new_user = authenticate(username=request.POST['username'],
-                                    password=request.POST['password1'])
-            auth_login(request, new_user)
-            return redirect("/")
-    else:
-        form = RegistrationForm()
-
-        
-    return render_to_response("registration.html", {'form': form},
-        context_instance=RequestContext(request))
+from apps.bioface.utils import api_request
+from apps.objects.forms import *
 
 def create_object(request):
     template_name = 'create_object.html'
     if request.method == 'POST':
         form = CreateObjectForm(request=request, data = request.POST)
-        print 4444, request.POST['tags']
         if form.is_valid():
             query_dict = {
                 "method" : "add_object",
@@ -164,7 +67,7 @@ def create_object(request):
                 messages.success(request, 'Object {0} with ID {1} and Version {2} successfully created.'.format(
                     form.cleaned_data['name'], content_dict['result']['id'], content_dict['result']['version'])
                 )
-                return redirect('update_object')
+                return redirect('update_object', object_id=content_dict['result']['id'])
             elif content_dict.has_key('error'):
                 messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))
 
@@ -276,98 +179,6 @@ def update_object(request, object_id = 0):
 
     return render_to_response('edit-object.html', template_context, context_instance=RequestContext(request))
 
-def create_attribute(request):
-    description_errors=[]
-    if request.method == 'POST':
-        form = CreateAttributeForm(request = request, data = request.POST)
-        print request.POST
-        # print 2222, request.POST['descr-nominal']
-        rp = request.POST
-        
-        if form.is_valid():
-            atype = rp.get('atype')
-            cd = form.cleaned_data
-            default_name = 'descr_{}_default'.format(atype)
-            default_value = cd.get(default_name, rp.get(default_name))
-            primary = bool(rp.get('primary'))
-
-            if atype == 'integer':
-                description_dict = {'default': int(default_value)}
-            elif atype == 'string':
-                description_dict = {'default': default_value}
-            elif atype == 'float':
-                description_dict = {'default': float(default_value)}
-            elif atype == 'nominal':
-                # default_value = rp.get('descr-nominal-default')
-                nominal_list = cd.get('descr_nominal')
-                description_dict = {"default": default_value, "items": nominal_list}
-            elif atype == 'scale':
-                # default_value = rp.get('descr-{}-default'.format(atype))
-                
-                # {"default": str, "scale": [{name: str, weight: int},...]}
-                scale_list=[]
-                for i, scale in enumerate(cd.get('descr_scale')):
-                    scale_list.append({'name': scale, 'weight': i})
-                
-                # for _l in cd.get('descr_{}'.format(atype)).split('; '):
-                #     name, weight = _l.split(', ')
-                #     scale_list.append({'name': name, 'weight': int(weight)})
-
-                description_dict = {"default": default_value, "scale": scale_list}
-                # scale_dict = map(lambda x: x.split(', '), rp.get('descr-nominal').split('; '))
-            elif atype == 'range':
-                description_dict = {
-                    "default": default_value, 
-                    "upper": cd.get('descr_range_from'), 
-                    "lower": cd.get('descr_range_to')
-                    }
-
-            query_dict = {
-                "method" : "new_attribute",
-                "key": request.user.sessionkey,
-                "params" : {
-                    "data" : {
-                        "name": form.cleaned_data['name'],
-                        "organism": int(form.cleaned_data['organism']),
-                        "atype": form.cleaned_data['atype'],
-                        "descr": description_dict,
-                        "primary": primary
-                    }
-                }
-            }
-            print 333, query_dict
-
-            http_response, content_dict = api_request(query_dict)
-            
-            print 5555, content_dict
-
-            if content_dict.has_key('result'):
-            # {u'error': {u'code': -32005,
-            # u'data': u'(IntegrityError) duplicate key value violates unique constraint "objects_name_key"\nDETAIL:  Key (name)=(123) already exists.\n',
-            # u'message': u'not unique'}}
-                messages.success(request, 'Attribute {0} with ID {1} and Version {2} successfully created.'.format(
-                    form.cleaned_data['name'], content_dict['result']['id'], content_dict['result']['version'])
-                )
-            elif content_dict.has_key('error'):
-                if 'Key ({0})=({1}) already exists.'.format('name', cd['name']) in content_dict['error']['data']:
-                    form.errors['name'] = form.error_class([content_dict['error']['message']])
-                else:
-                    messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))
-                # '(IntegrityError) duplicate key value violates unique constraint "attrdescrs_name_key" DETAIL: Key (name)=(test_attr2) already exists.'
-        else:
-            form.fields['descr_nominal'].value = rp.getlist('descr_nominal')
-            form.fields['descr_scale'].value = rp.getlist('descr_scale')
-
-    else:
-        form = CreateAttributeForm(request = request)
-
-
-    template_context = {
-        'form': form,
-        'description_errors': description_errors,
-    }
-    return render_to_response('create_attribute.html', template_context, context_instance=RequestContext(request))
-
 
 def create_organism(request):
     if request.method == 'POST':
@@ -418,50 +229,6 @@ def create_organism(request):
         'form': form,
     }
     return render_to_response('create_object.html', template_context, context_instance=RequestContext(request))
-
-@login_required
-def create_update_item(request):
-    template_context = {}
-    if request.method == 'POST':
-        prepare_form = QueryMethodForm(data = request.POST)
-        form = add_update_segment_form(request=request, data = request.POST)
-
-        if form.is_valid():
-            cd = form.cleaned_data
-            # Prepare query
-            query_str = cd['request'].replace('"', "'").replace('\n', '')
-            # Convert str to dict
-            # query_dict = ast.literal_eval(query_str)
-            query_dict = {
-                "method" : cd['method'],
-                "key": request.user.sessionkey,
-                # "params" : {
-                #     # "query" : "reference_id = id",
-                #     "limit" : cd['limit'],
-                #     "skip" : cd['skip'],
-                #     # "orderby" : [["field_name", "acs"], ["field_name2", "desc"]]
-                # }
-            }
-            template_name, template_context = get_pagination_page(page, query_dict)
-
-            template_context.update({
-                'query_dict': query_dict,
-                })
-    else:
-        prepare_form = QueryMethodForm()
-        # form = add_update_segment_form(request=request)
-
-    template_context.update({
-        # 'form': form, 
-        'prepare_form': prepare_form
-        })
-
-    return render_to_response('create_update_item.html', template_context, context_instance=RequestContext(request))
-    # return render_to_response('test.html', template_context, context_instance=RequestContext(request))
-
-
-def get_item_by_api():
-    template_name = 'item_detail.html'
 
 
 def get_item_list_by_api(item_name, content_dict):
@@ -583,7 +350,7 @@ def get_objects(request):
 
     template_context.update({
         'form': form, 
-        # 'method': method,
+        'method': 'get_objects',
         # 'example_form': example_form,
         # 'items': items
         # 'query_dict': query_dict,

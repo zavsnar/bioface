@@ -1,0 +1,87 @@
+{% extends 'request_page.html' %}
+{% load bootstrap main_filters %}
+
+{% block result_table %}
+    <div class="row">
+    	{% if items %}
+    		{% include "result_list_paginated.html" %}
+
+    		{% comment %}
+            <table class="table table-bordered">
+                <caption><h4>{{ item_name }}</h4></caption>
+                <thead>
+                    <tr>
+                        <!-- <th>Object Name</th> -->
+                        {% for attr_name in attr_name_list %}
+                            <th>{{ attr_name }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>    
+                <tbody>
+                    {% for item in items %}
+                        <tr>
+                            {% for attr_name in attr_name_list %}
+                            	{% with item|get:attr_name as value %}
+                            		<th>
+                            		{% if value == None %}
+                            		{% elif value|is_true %}
+                            			<input type="checkbox" disabled="disabled" checked="checked" />
+                            		{% elif value|is_false %}
+                            			<input type="checkbox" disabled="disabled" />
+                            		{% else %}
+                                		{{ value }}
+                                	{% endif %}
+                                	</th>
+                                {% endwith %}
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            
+            <div class="pagination">
+			    <span class="step-links">
+			        {% if items.has_previous %}
+			            <a href="?page={{ items.previous_page_number }}">previous</a>
+			        {% endif %}
+
+			        <span class="current">
+			            Page {{ items.number }} of {{ items.paginator.num_pages }}.
+			        </span>
+
+			        {% if items.has_next %}
+			            <a href="?page={{ items.next_page_number }}">next</a>
+			        {% endif %}
+			    </span>
+			</div>
+
+
+			{% block pagination %}
+				<div class="pagination">
+				    <span class="step-links">
+				        {% if items.has_previous %}
+				            <a href="#" onclick="Dajaxice.apps.bioface.pagination(Dajax.process,{'p':{{ items.previous_page_number }}})">previous</a>
+				        {% endif %}
+
+				        <span class="current">
+				            Page {{ items.number }} of {{ items.paginator.num_pages }}.
+				        </span>
+
+				        {% if items.has_next %}
+				            <a href="#" onclick="Dajaxice.apps.bioface.pagination(Dajax.process,{'p':{{ items.next_page_number }}})">next</a>
+				        {% endif %}
+				    </span>
+				</div>
+			{% endblock %}
+
+			{% endcomment %}
+
+        {% else %}
+        	<div class="span4">
+        		<p>List is empty</p>
+        	</div>
+        {% endif %}
+        <!-- <p>{{ response }}</p> -->
+    </div>
+{% endblock %}

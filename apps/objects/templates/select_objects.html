@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% load bootstrap main_filters dajaxice_templatetags staticfiles %}
+
+{% block subtitle %}Edit My profile{% endblock %}
+
+{% block forestyle %}
+<link href="{{ STATIC_URL }}css/select2.css" rel="stylesheet"/>
+{% endblock %}
+
+{% block forejs %} 
+ {% endblock %}
+
+{% block main %}
+<div>
+
+	<div class="row">
+        <form method="post" action="./" class="form-horizontal js-active-form span12 pull-left">
+            {% csrf_token %}
+            {% for error in form.non_field_errors %}
+                <div class="alert alert-error">
+                    <a data-dismiss="alert" class="close">×</a>
+                    <p>{{ error }}</p>
+                </div>
+            {% endfor %}
+            
+            {% for field in form.hidden_fields %}
+                {{ field }}
+            {% endfor %}
+
+            {% for error in form.non_field_errors %}
+                <div class="alert alert-error">
+                    <a data-dismiss="alert" class="close">×</a>
+                    <p>{{ error }}</p>
+                </div>
+            {% endfor %}
+
+            {# <!-- method --> #}
+            <div class="control-group {% if form.method.errors %}error{% endif %}">
+                <label class="control-label" for="{{ form.method.id_for_label }}">{{ form.method.label }} <i class="red">*</i></label>
+                <div class="controls">
+                    {{ form.method }}
+                    {% for error in form.method.errors %}
+                        <span class="help-inline">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {# <!-- Organism --> #}
+            <div class="control-group {% if form.organism.errors %}error{% endif %}">
+                <label class="control-label" for="{{ form.organism.id_for_label }}">{{ form.organism.label }} <i class="red">*</i></label>
+                <div class="controls">
+                    {{ form.organism }}
+                    {% for error in form.organism.errors %}
+                        <span class="help-inline">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {# <!-- display_fields --> #}
+            <div class="control-group {% if form.display_fields.errors %}error{% endif %}">
+                <label class="control-label" for="{{ form.display_fields.id_for_label }}">{{ form.display_fields.label }}</label>
+                <div class="controls list-inline">
+                    {{ form.display_fields }}
+                    {% for error in form.display_fields.errors %}
+                        <span class="help-inline">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {# <!-- attributes_list --> #}
+            <div class="control-group {% if form.attributes_list.errors %}error{% endif %}">
+                <label class="control-label" for="{{ form.attributes_list.id_for_label }}">{{ form.attributes_list.label }}</label>
+                <div class="controls">
+                    {{ form.attributes_list }}
+                    {% for error in form.attributes_list.errors %}
+                        <span class="help-inline">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Run</button>&nbsp;
+            </div>
+        </form>
+	</div>
+
+    
+    {% if objects %}
+    <div class="row">
+        <div class="span8">
+            <table class="table table-bordered">
+                <caption>Result Table</caption>
+                <thead>
+                    <tr>
+                        <th>Object Name</th>
+                        {% for attribute in attributes %}
+                            <th>{{ attribute.name }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>    
+                <tbody>
+                    {% for object in objects %}
+                        <tr>
+                            <td>{{ object.name }}</td>
+                            {% for attribute in attributes %}
+                                <td>{{ object.attributes }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% include "pagination.html" %}
+            <p>{{ response }}</p>
+        </div>
+    </div>
+    {% endif %}
+    
+
+</div>
+{% endblock %}
+
+
+{% block endjs %}
+
+{% dajaxice_js_import %}
+<script type="text/javascript" src='{% static "/static/dajax/jquery.dajax.core.js" %}'></script>
+<!-- <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script src="{{ STATIC_URL }}js/bootstrap.min.js"></script> -->
+<script src="{{ STATIC_URL }}js/select2.min.js"></script>
+
+<script type="text/javascript">
+    // function my_js_callback(data){
+    //     alert(data.message);
+    // };
+    // function calculate(){
+    //     Dajaxice.apps.bioface.multiply(Dajax.process,{'a':$('#a').val(),'b':$('#b').val()})
+    // };
+
+    // function send_form(){
+    //     Dajaxice.apps.bioface.send_form(Dajax.process,{'form':$('#my_form').serialize(true)});
+    // }
+
+
+    $(document).ready(function () {
+        $('#id_attributes_list').select2({
+            // multiple: true,
+            maximumSelectionSize: 10,
+            minimumInputLength: 0,
+            // query: function (query){
+            //         var data = {results: []};
+
+            //         $.each(preload_data, function(){
+            //         if(query.term.length == 0 || this.text.toUpperCase().indexOf(query.term.toUpperCase()) >= 0 ){
+            //         data.results.push({id: this.id, text: this.text });
+            //         }
+            //     });
+
+            //     query.callback(data);
+            // }
+        });
+        // $('#id_attributes_list').select2('data', preload_data )
+    })
+
+</script>
+{% endblock %}

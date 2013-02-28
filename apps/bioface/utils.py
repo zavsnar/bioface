@@ -30,3 +30,30 @@ def ajax_login_required(view_func):
     wrap.__doc__ = view_func.__doc__
     wrap.__dict__ = view_func.__dict__
     return wrap
+
+def get_choices(request, cache_key, key='id'):
+	# if cache.has_key(cache_key):
+	# 	choices_list = cache.get(cache_key)
+	# else:
+	if cache_key:
+		method = 'get_{}'.format(cache_key)
+		query_dict = {
+            "method" : method,
+            "key": request.user.sessionkey,
+        }
+
+		http_response, content_dict = api_request(query_dict)
+
+		item_list = content_dict['result'].get(cache_key, [])
+		choices_list=[('','')]
+		if item_list:
+			for item in item_list:
+				if item.has_key('name'):
+					title = item['name']
+				elif item.has_key('tag'):
+					title = item['tag']
+				choices_list.append((item[key], title))
+			# cache.set(cache_key, choices_list, 30)
+
+		# print choices_list
+	return choices_list

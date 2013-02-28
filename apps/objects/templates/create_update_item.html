@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% load bootstrap main_filters dajaxice_templatetags staticfiles %}
+
+{% block subtitle %}Edit My profile{% endblock %}
+
+{% block forestyle %}
+<link href="{{ STATIC_URL }}css/select2.css" rel="stylesheet"/>
+{% endblock %}
+
+{% block forejs %} 
+
+
+    
+ {% endblock %}
+
+{% block main %}
+<div>
+
+	<div class="row">
+        <div class="span2">
+            <select>
+
+
+
+            </select>
+
+            {{ prepare_form|bootstrap }}</div>            
+            
+        <div id="custom-form">
+
+        </div>
+	</div>
+
+</div>
+{% endblock %}
+
+
+{% block endjs %}
+
+{% dajaxice_js_import %}
+
+<script type="text/javascript" src='{% static "/static/dajax/jquery.dajax.core.js" %}'></script>
+
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+        <script src="{{ STATIC_URL }}js/bootstrap.min.js"></script>
+
+    <script type="text/javascript">
+        function my_js_callback(data){
+            alert(data.message);
+        };
+        function calculate(){
+            Dajaxice.apps.bioface.multiply(Dajax.process,{'a':$('#a').val(),'b':$('#b').val()})
+        };
+
+        function send_form(){
+            Dajaxice.apps.bioface.send_form(Dajax.process,{'form':$('#my_form').serialize(true)});
+        }
+
+    </script>
+
+
+    <script src="{{ STATIC_URL }}js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() { $("select").select2(); });
+        $(".select_method").change(function() {
+            Dajaxice.apps.bioface.pagination(Dajax.process,{'p':{{ items.previous_page_number }}});
+        })
+    </script>
+{% endblock %}

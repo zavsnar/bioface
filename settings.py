@@ -137,6 +137,8 @@ INSTALLED_APPS = (
     'dajaxice',
     'dajax',
 
+    'django_select2',
+
     'django_extensions',
     # 'runfcgi',
     # 'widget_tweaks',
@@ -152,6 +154,8 @@ INSTALLED_APPS = (
     # 'apps.financial_accounts',
     # 'apps.eway_au',
     'apps.bioface',
+    'apps.objects',
+    # 'apps.attributes',
 )
 
 LOGIN_URL = '/login/'
@@ -165,6 +169,8 @@ AUTH_USER_MODEL = 'bioface.CustomUser'
 FIXTURE_DIRS = (
     join(SOURCE_ROOT, 'fixtures'),
 )
+
+AUTO_RENDER_SELECT2_STATICS = False
 
 # STATICFILES_STORAGE = 'pipeline.storage.PipelineStorage'
 

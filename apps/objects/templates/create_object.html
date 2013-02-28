@@ -5,6 +5,7 @@
 
 {% block forestyle %}
 <link href="{{ STATIC_URL }}css/select2.css" rel="stylesheet"/>
+
 {% endblock %}
 
 {% block forejs %} 
@@ -52,6 +53,17 @@
         <div class="controls">
             {{ form.lab_id }}
             {% for error in form.lab_id.errors %}
+                <span class="help-inline">{{ error }}</span>
+            {% endfor %}
+        </div>
+    </div>
+
+    {# <!-- Tags --> #}
+    <div class="control-group {% if form.tags.errors %}error{% endif %}">
+        <label class="control-label" for="{{ form.tags.id_for_label }}">{{ form.tags.label }}</label>
+        <div class="controls">
+            <input id="id_tags" name="tags" style="width: 220px;" value="{% firstof form.tags.value %}">
+            {% for error in form.tags.errors %}
                 <span class="help-inline">{{ error }}</span>
             {% endfor %}
         </div>
@@ -125,6 +137,7 @@
 
     {% dajaxice_js_import %}
     <script type="text/javascript" src='{% static "/static/dajax/jquery.dajax.core.js" %}'></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/select2.min.js"></script>
     <script type="text/javascript">
         function my_js_callback(data){
             alert(data.message);
@@ -152,7 +165,18 @@
         //     return false;
         // };
 
+        // $('#id_tags').select2({tags:["1","2","3"]})
+        $('#id_tags').select2({tags:[{% for id, value in form.fields.tags.choices %}"{{value}}", {% endfor %}]})
         
 
+        // $(document).ready(function () {
+            // $('#id_tags').select2({tags:["1","2","3"]});
+          // $("#id_tags").select2({
+          //     tags:["red", "green", "blue"],
+          //     maximumInputLength: 10
+          // });
+        // });
+          
     </script>
+
 {% endblock %}
