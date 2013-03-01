@@ -9,8 +9,8 @@ from django.core.context_processors import csrf
 from django.template.loader import render_to_string
 
 # from apps.bioface.utils import ajax_login_required
-from apps.bioface.forms import CreateOrganismForm
-from apps.bioface.utils import api_request
+from apps.bioface.forms import CreateOrganismForm, SelectObjects
+from apps.bioface.utils import api_request, get_choices
 
 def add_ajax_form(request, form, query_dict, html_selector):
 	dajax = Dajax()
@@ -71,6 +71,32 @@ def add_organism(request, form):
 	return add_ajax_form(request = request, form=form, 
 		query_dict=query_dict, html_selector='#create_organism')
 
+
+@dajaxice_register
+def update_attributes_from_organism(request, organism_id):
+	form = SelectObjects(request = request)
+	form.fields['attributes_list'].choices = get_choices(request, cache_key='attributes', key='name', query="organism = {}".format(organism_id))
+	render = form.fields['attributes_list'].widget.render(name='attributes_list', value=None)
+	print render
+	# raise
+	# query_dict = {
+	#     "method" : method,
+	#     "key": request.user.sessionkey,
+	#     # "params" : {
+	#     #     # "query" : "reference_id = id",
+	#     #     "limit" : cd['limit'],
+	#     #     "skip" : cd['skip'],
+	#     #     # "orderby" : [["field_name", "acs"], ["field_name2", "desc"]]
+	#     # }
+	# }
+
+	# template_name, template_context = get_pagination_page(page, query_dict)
+	# render = render_to_string('result_list_paginated.html', template_context)
+
+	dajax = Dajax()
+	dajax.assign('#attribute_container', 'innerHTML', render)
+	dajax.script('create_select();')
+	return dajax.json()
 
 from apps.bioface.views import get_pagination_page
 

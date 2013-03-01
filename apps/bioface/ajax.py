@@ -13,6 +13,8 @@ from apps.bioface.forms import CreateOrganismForm
 from apps.bioface.utils import api_request
 from forms import ExampleForm
 
+import ast
+
 @dajaxice_register
 def assign_test(request):
     dajax = Dajax()
@@ -178,6 +180,9 @@ from apps.bioface.views import get_pagination_page
 @dajaxice_register
 # @ajax_login_required
 def pagination(request, page, method, query):
+	query_dict = ast.literal_eval(query)
+	print query_dict
+	raise
 	query_dict = {
 	    "method" : method,
 	    "key": request.user.sessionkey,

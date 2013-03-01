@@ -282,6 +282,9 @@ def get_pagination_page(page, query_dict):
 def test(request):
     return render_to_response('test.html', {}, context_instance=RequestContext(request))
 
+from ajaxuploader.views import AjaxFileUploader
+import_uploader = AjaxFileUploader()
+
 @login_required
 def get_objects(request):
     template_context = {}
@@ -302,14 +305,13 @@ def get_objects(request):
 
         if form.is_valid():
             cd = form.cleaned_data
-            print 222, cd['attributes_list']
             if cd.has_key('request'):
                 # Prepare query
                 query_str = cd['request'].replace('"', "'").replace('\n', '')
                 # Convert str to dict
                 # query_dict = ast.literal_eval(query_str)
             query_dict = {
-                "method" : cd['method'],
+                "method" : 'get_objects',
                 "key": request.user.sessionkey,
                 # "params" : {
                 #     # "query" : "reference_id = id",
@@ -321,20 +323,42 @@ def get_objects(request):
             if any( (lambda x: x in cd, ('row_query', 'attributes_list')) ):
                 query_dict['params'] = {}
 
-            if cd.has_key('row_query'):
-                query_dict['params']['query'] = cd['row_query']
+            
+            if cd['organism']:
+                row_query = 'organism = {}'.format(cd['organism'])
             if cd.has_key('attributes_list') and cd['attributes_list']:
                 query_dict['params']['attributes_list'] = cd['attributes_list']
+                attr_list = cd['attributes_list']
+
+            if row_query:
+                query_dict['params']['query'] = row_query
+
+            if request.GET.has_key('order_by'):
+                order_field = request.GET['order_by']
+                query_dict['params']['orderby'] = [[order_field, "acs"],]
 
             print 4444, query_dict
 
             http_response, content_dict = api_request(query_dict)
 
+            if cd['display_fields']:
+                fields = cd['display_fields']
+                object_list = []
+                for obj in content_dict['result']['objects']:
+                    # for field in fields:
+                        # obj[field]
+                    object_list.append(
+                        {'fields' :[ obj[field] for field in fields ],
+                        'attrs': [ obj['attributes'][attr] for attr in attr_list ]})
+                        # print 1111, obj, field, obj[field]
+
             print 777, content_dict
             if not content_dict.has_key('error'):
                 template_context = {
-                    'attributes': content_dict['result']['attributes'],
-                    'objects': content_dict['result']['objects']
+                    'fields': fields,
+                    'attributes': attr_list,
+                    'objects': content_dict['result']['objects'],
+                    'object_list': object_list
                 }
 
             else:   
@@ -342,18 +366,16 @@ def get_objects(request):
                 messages.error(request, 'API ERROR: {}'.format(msg))
 
             template_context.update({
-                'query_dict': query_dict,
+                'query_dict': str(query_dict),
                 })
-
+        else:
+            print 55555
     else:
         form = SelectObjects(request=request)
 
     template_context.update({
         'form': form, 
         'method': 'get_objects',
-        # 'example_form': example_form,
-        # 'items': items
-        # 'query_dict': query_dict,
         })
 
     return render_to_response("select_objects.html", template_context, context_instance=RequestContext(request))

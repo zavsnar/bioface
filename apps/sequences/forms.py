@@ -12,6 +12,10 @@ from django_select2.widgets import *
 
 from apps.bioface.utils import api_request, get_choices
 
+class ExampleForm(forms.Form):
+    username = forms.CharField(max_length=30, label=u'Username')
+    email = forms.EmailField(label=u'Email address')
+
 METHODS_FOR_CALL_ITEM = ("get_object", "get_attribute", "get_tag", "get_tags_version", "get_sequence", "get_reference",
     "get_segment", "get_alignment", "get_annotation")
 METHODS_FOR_CALL_ITEMS = ("get_attributes", "get_tags", "get_sequences", "get_references", 
@@ -24,23 +28,21 @@ CREATE_METHOD_CHOISES = [ (i, i.replace('add_', '')) for i in METHODS_FOR_CREATE
 GET_METHOD_CHOISES = zip(METHODS_FOR_CALL_ITEMS, METHODS_FOR_CALL_ITEMS)
 # METHOD_CHOISES.append(("get_objects", "get_objects"))
 
-class GetRequestAPIForm(forms.Form):
-    # request = forms.CharField(widget=forms.Textarea, required=False)
-    method = forms.ChoiceField(choices = GET_METHOD_CHOISES)
-    # row_query = forms.CharField(required=False)
-    # limit = forms.IntegerField(required=False)
-    # skip = forms.IntegerField(required=False)
+ATYPE_ATTRIBUTES = ("integer", "string", "float", "scale", "nominal", "range")
+ATYPE_ATTRIBUTES_CHOISES = zip(ATYPE_ATTRIBUTES, ATYPE_ATTRIBUTES)
+ATTRIBUTES_STATE = ((1, 'Primary attribute'),(0, 'Secondary attribute'))
 
-OBJECT_FIELDS = ('name', 'comment', 'lab_id', 'user_id', 'created', 'creator', 'modified', 'source', 'organism', 'id', 'version')
-OBJECT_FIELDS_CHOICES = zip(OBJECT_FIELDS, OBJECT_FIELDS)
-
+# "params" : {
+#     "query" : "field > 12 and (field2 = green and field64 > big)",
+#     "limit" : int,
+#     "skip": int,
+#     "orderby" : [["field_name", "asc"], ["field_name2", "desc"]]
+#     "attributes_list": ["attribute_name1", "attribute_name2",  ]
+# }
 class SelectObjects(forms.Form):
     # request = forms.CharField(widget=forms.Textarea, required=False)
-    # method = forms.ChoiceField(choices = GET_METHOD_CHOISES, initial = 'get_objects')
-    organism = forms.ChoiceField(widget=forms.Select(attrs={'style': 'width:220px'}))
-    display_fields = forms.MultipleChoiceField(required=False, widget=forms.CheckboxSelectMultiple(), choices=OBJECT_FIELDS_CHOICES, initial=('name',))
+    method = forms.ChoiceField(choices = GET_METHOD_CHOISES, initial = 'get_objects')
     attributes_list = forms.MultipleChoiceField(required=False, widget=forms.SelectMultiple(attrs={'style': 'width:220px'}))
-    
     # row_query = forms.CharField(required=False)
     # limit = forms.IntegerField(required=False)
     # skip = forms.IntegerField(required=False)
@@ -48,29 +50,18 @@ class SelectObjects(forms.Form):
     def __init__(self, request, *args, **kwargs):
 		super(SelectObjects, self).__init__(*args, **kwargs)
 		self.fields['attributes_list'].choices = get_choices(request, cache_key='attributes', key='name')
-		self.fields['organism'].choices = get_choices(request, cache_key='organisms')
 
-class QueryMethodForm(forms.Form):
-		method = forms.MultipleChoiceField(label='Add', choices=CREATE_METHOD_CHOISES, 
-	    	required=False, widget=forms.SelectMultiple(attrs={'style': 'width:220px', 'class': 'select_method'}))
-
-class CreateOrganismForm(forms.Form):
+class CreateSequenceForm(forms.Form):
 	name = forms.CharField(label='Name')
-
-# def create_object_form(request, *args, **kwargs):
-class CreateObjectForm(forms.Form):
-	name = forms.CharField(label='Name')
-	lab_id = forms.CharField(label='laboratory ID', required=False)
+	object_id = forms.ChoiceField(widget=forms.Select(attrs={'style': 'width:220px'}))
 	tags = forms.CharField(required=False)
-	organism = forms.ChoiceField(widget=forms.Select(attrs={'style': 'width:220px'}))
 	source = forms.CharField(required=False)
 	comment = forms.CharField(required=False)
 
 	def __init__(self, request, *args, **kwargs):
 		super(CreateObjectForm, self).__init__(*args, **kwargs)
 		self.request = request
-		self.fields['organism'].choices = get_choices(request, cache_key='organisms')
-		self.fields['tags'].choices = get_choices(request, cache_key='tags')
+		self.fields['object_id'].choices = get_choices(request, cache_key='object')
 
 	def clean_tags(self):
 		tags=[]
@@ -108,9 +99,3 @@ class CreateObjectForm(forms.Form):
 		print 7777, self.cleaned_data['tags']
 		return self.cleaned_data['tags']
 	# return CreateObjectForm(*args, **kwargs)
-
-
-class UpdateObjectForm(CreateObjectForm):
-	id = forms.IntegerField(widget=forms.HiddenInput, required=False)
-	version = forms.IntegerField(widget=forms.HiddenInput, required=False)
-	# sequences = forms.ComboField(fields=[forms.CharField(max_length=20), forms.EmailField()])

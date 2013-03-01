@@ -137,6 +137,8 @@ INSTALLED_APPS = (
     'dajaxice',
     'dajax',
 
+    'ajaxuploader',
+
     'django_select2',
 
     'django_extensions',
@@ -155,6 +157,7 @@ INSTALLED_APPS = (
     # 'apps.eway_au',
     'apps.bioface',
     'apps.objects',
+    'apps.sequences',
     # 'apps.attributes',
 )
 

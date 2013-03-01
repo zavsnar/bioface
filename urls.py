@@ -29,6 +29,7 @@ urlpatterns = patterns('',
         url(r'^registration/$', registration, name='registration'),
 
         url(r'^', include('apps.objects.urls')),
+        url(r'^', include('apps.sequences.urls')),
 
         # url(r'^select/objects/$', get_objects, name='select_objects'),
         url(r'^select/sequence/$', request_api_page, kwargs={'method': 'get_sequences'}, name='select_sequences'),

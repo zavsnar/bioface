@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% load bootstrap main_filters dajaxice_templatetags staticfiles %}
+
+{% block subtitle %}Edit My profile{% endblock %}
+
+{% block forestyle %}
+<link href="{{ STATIC_URL }}css/select2.css" rel="stylesheet"/>
+<link href="{{ STATIC_URL }}ajaxuploader/css/fileuploader.css" media="screen" rel="stylesheet" type="text/css" />
+{% endblock %}
+
+{% block forejs %} 
+
+
+    
+ {% endblock %}
+
+{% block main %}
+<div id="file-uploader">       
+            <noscript>          
+                <p>Please enable JavaScript to use file uploader.</p>
+            </noscript>         
+        </div>
+<form method="post" action="./" class="form-horizontal js-active-form span12 pull-left">
+    {% csrf_token %}
+    {% for error in form.non_field_errors %}
+        <div class="alert alert-error">
+            <a data-dismiss="alert" class="close">×</a>
+            <p>{{ error }}</p>
+        </div>
+    {% endfor %}   
+
+    {% for field in form.hidden_fields %}
+        {{ field }}
+    {% endfor %}
+
+    {% for error in form.non_field_errors %}
+        <div class="alert alert-error">
+            <a data-dismiss="alert" class="close">×</a>
+            <p>{{ error }}</p>
+        </div>
+    {% endfor %}
+
+    {# <!-- Name --> #}
+    <div class="control-group {% if form.name.errors %}error{% endif %}">
+        <label class="control-label" for="{{ form.name.id_for_label }}">{{ form.name.label }} <i class="red">*</i></label>
+        <div class="controls">
+            {{ form.name }}
+            {% for error in form.name.errors %}
+                <span class="help-inline">{{ error }}</span>
+            {% endfor %}
+        </div>
+    </div>
+
+    {# <!-- laboratory ID --> #}
+    <div class="control-group {% if form.lab_id.errors %}error{% endif %}">
+        <label class="control-label" for="{{ form.lab_id.id_for_label }}">{{ form.lab_id.label }}</label>
+        <div class="controls">
+            {{ form.lab_id }}
+            {% for error in form.lab_id.errors %}
+                <span class="help-inline">{{ error }}</span>
+            {% endfor %}
+        </div>
+    </div>
+
+    {# <!-- Tags --> #}
+    <div class="control-group {% if form.tags.errors %}error{% endif %}">
+        <label class="control-label" for="{{ form.tags.id_for_label }}">{{ form.tags.label }}</label>
+        <div class="controls">
+            <input id="id_tags" name="tags" style="width: 220px;" value="{% firstof form.tags.value %}">
+            {% for error in form.tags.errors %}
+                <span class="help-inline">{{ error }}</span>
+            {% endfor %}
+        </div>
+    </div>
+
+    {# <!-- Organism --> #}
+    <div class="control-group {% if form.organism.errors %}error{% endif %}">
+        <label class="control-label" for="{{ form.organism.id_for_label }}">{{ form.organism.label }} <i class="red">*</i></label>
+        <div class="controls">
+            {{ form.organism }}
+            <a class="btn btn-success" data-toggle="modal" data-target="#myModal1">add</a>
+            {% for error in form.organism.errors %}
+                <span class="help-inline">{{ error }}</span>
+            {% endfor %}
+        </div>
+    </div>
+
+    {# <!-- Source --> #}
+    <div class="control-group {% if form.source.errors %}error{% endif %}">
+        <label class="control-label" for="{{ form.source.id_for_label }}">{{ form.source.label }}</label>
+        <div class="controls">
+            {{ form.source }}
+            {% for error in form.source.errors %}
+                <span class="help-inline">{{ error }}</span>
+            {% endfor %}
+        </div>
+    </div>
+
+    {# <!-- Comment --> #}
+    <div class="control-group {% if form.comment.errors %}error{% endif %}">
+        <label class="control-label" for="{{ form.comment.id_for_label }}">{{ form.comment.label }}</label>
+        <div class="controls">
+            {{ form.comment }}
+            {% for error in form.comment.errors %}
+                <span class="help-inline">{{ error }}</span>
+            {% endfor %}
+        </div>
+    </div>
+
+
+    <!-- <button type="button" data-toggle="modal"
+        data-target="#myModal1">Launch modal</button> -->
+
+    
+    
+    <hr/>
+    <div class="form-actions">
+        
+        <button type="submit" class="btn btn-primary">Save</button>&nbsp;
+    </div>
+</form>
+
+<div id="create_modal_form">
+    <div class="modal" id="myModal1" tabindex="-1" role="dialog"
+         aria-labelledby="myModal1Label" aria-hidden="true" style="display: none">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="myModal1Label">Add Organism</h3>
+        </div>
+        <div class="modal-body">
+            <form method="POST" id="create_organism" action="">
+            {% include 'create_organism.html' %}
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block endjs %}
+    <script src="{{ STATIC_URL }}js/fileuploader.js" ></script>
+    <script>
+        $(function(){
+        var uploader = new qq.FileUploader({
+            action: "{% url 'my_ajax_upload' %}",
+            element: $('#file-uploader')[0],
+            multiple: true,
+            onComplete: function(id, fileName, responseJSON) {
+                alert(JSON.stringify(responseJSON))
+                if(responseJSON.success) {
+                    alert("success!");
+                } else {
+                    alert("upload failed!");
+                }
+            },
+            onAllComplete: function(uploads) {
+                // uploads is an array of maps
+                // the maps look like this: {file: FileObject, response: JSONServerResponse}
+                alert("All complete!");
+            },
+            params: {
+                'csrf_token': '{{ csrf_token }}',
+                'csrf_name': 'csrfmiddlewaretoken',
+                'csrf_xname': 'X-CSRFToken',
+            },
+        });
+        });
+    </script>
+{% endblock %}
