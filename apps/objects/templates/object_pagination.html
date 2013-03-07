@@ -1,0 +1,29 @@
+<table class="table table-bordered">
+    <caption>Result Table</caption>
+    <thead>
+        <tr>
+            <th>Object Name</th>
+            {% for field in display_fields %}
+                <th>{{ field }}</th>
+            {% endfor %}
+            {% for attribute_name in attributes %}
+                <th>{{ attribute_name }}</th>
+            {% endfor %}
+        </tr>
+    </thead>    
+    <tbody>
+        {% for obj in object_list %}
+            <tr>
+                <td><a href="{{ obj.url }}">{{ obj.object_name }}</a></td>
+                {% for field in obj.fields %}
+                    <td>{{ field }}</td>
+                {% endfor %}
+                {% for attr in obj.attrs %}
+                    <td>{{ attr }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% include "object_pagination_controls.html" %}

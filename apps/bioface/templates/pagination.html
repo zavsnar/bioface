@@ -1,15 +1,14 @@
 <ul class="pager pagination">
     <!-- <span class="step-links"> -->
-        <button onclick='Dajaxice.apps.bioface.pagination(Dajax.process,{"page":1,"method":"{{ method }}","query":"{{ query_dict }}" })'>next</button>
         {% if has_previous %}
     	<li>
-        	<button onclick="Dajaxice.apps.bioface.pagination(Dajax.process,{'page':{{ previous_page_number }},'method':'{{ method }}','query':{{ query_dict }} })">previous</button>
+        	<button onclick="Dajaxice.apps.bioface.pagination(Dajax.process,{'page':{{ previous_page_number }},'paginate_by':{{ paginate_by }},'query_dict':{{ query_dict }} })">previous</button>
     	</li>
         {% endif %}
 
         {% if has_next %}
         <li>
-            <button onclick="Dajaxice.apps.bioface.pagination(Dajax.process,{'page':{{ next_page_number }},'method':'{{ method }}','query':{{ query_dict }} })">next</button>
+            <button onclick="Dajaxice.apps.bioface.pagination(Dajax.process,{'page':{{ next_page_number }},'paginate_by':{{ paginate_by }},'query_dict':{{ query_dict }} })">next</button>
         </li>
         {% endif %}
     <!-- </span> -->

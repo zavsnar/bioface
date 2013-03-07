@@ -27,15 +27,11 @@
     {{ form|bootstrap }}
     
 
-    {% for form in formset %}
-        {{ form|bootstrap }}
-        <hr/>
-    {% endfor %}
 
     <div class="tabbable"> <!-- Only required for left/right tabs -->
         <ul class="nav nav-tabs">
             <li class="active"><a href="#tab1" data-toggle="tab">Attributes</a></li>
-            <li><a href="#tab2" data-toggle="tab">Section 2</a></li>
+            <li><a href="#tab2" data-toggle="tab">Sequences</a></li>
         </ul>
         <div class="tab-content">
             <div class="tab-pane active" id="tab1">
@@ -55,11 +51,11 @@
                         </div>
                     {% endif %}
                 {% endfor %}
-                <a class="btn btn-primary pull-right">Add</a>&nbsp;
+                <!-- <a class="btn btn-primary pull-right">Add</a>&nbsp; -->
                 
             </div>
             <div class="tab-pane" id="tab2">
-                <p>Howdy, I'm in Section 2.</p>
+                <p>List of sequences.</p>
             </div>
         </div>
     </div>
@@ -76,11 +72,15 @@
 {% endblock %}
 
 {% block endjs %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/select2.min.js"></script>
+    
     <script type="text/javascript">
         $(".show-hide").hide();
         function toggle_filter() {
             $(".show-hide").toggle("hide");
         };
+
+        $('#id_tags').select2({tags:[{% for id, value in form.fields.tags.choices %}"{{value}}", {% endfor %}]})
 
     </script>
 {% endblock %}

@@ -141,6 +141,8 @@ INSTALLED_APPS = (
 
     'django_select2',
 
+    'jsonfield',
+
     'django_extensions',
     # 'runfcgi',
     # 'widget_tweaks',

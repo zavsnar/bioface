@@ -3,6 +3,7 @@ import httplib2
 import json
 
 from django.shortcuts import render, render_to_response, redirect
+from django.core.cache import cache
 
 API_URL = 'https://10.0.1.204:5000/api/v1/'
 
@@ -14,8 +15,8 @@ def api_request(query_dict):
     http_response, content = http.request(API_URL, 'POST', body = json.dumps(query_dict), headers = headers)
     content_dict = json.loads(content)
     if content_dict.has_key('error'):
-    	if content_dict['error']['message'] == 'invalid session':
-    		return redirect('signin')
+        if content_dict['error']['message'] == 'invalid session':
+            return redirect('signin')
 
     return http_response, content_dict
 
@@ -31,34 +32,41 @@ def ajax_login_required(view_func):
     wrap.__dict__ = view_func.__dict__
     return wrap
 
-def get_choices(request, cache_key='test', key='id', query=None):
-	# if cache.has_key(cache_key):
-	# 	choices_list = cache.get(cache_key)
-	# else:
-	# choices_list = (('',''),)
-	if cache_key:
+def get_choices(request, item_name, cache_key='', key='id', query=''):
+    # choices_list = []
+    
+    if not cache_key:
+        cache_key = item_name
+    # if cache.has_key(cache_key):
+    print "CACHE ", cache_key
+    choices_list = cache.get(cache_key, [])
+    # else:
+    # choices_list = (('',''),)
+    # if cache_key:
 
-		method = 'get_{}'.format(cache_key)
-		query_dict = {
+    if not choices_list:
+        method = 'get_{}'.format(item_name)
+        query_dict = {
             "method" : method,
             "key": request.user.sessionkey,
         }
 
-		if query:
-			query_dict['params'] = {}
-			query_dict['params']['query'] = query
-		http_response, content_dict = api_request(query_dict)
+        if query:
+            query_dict['params'] = {}
+            query_dict['params']['query'] = query
+        http_response, content_dict = api_request(query_dict)
 
-		item_list = content_dict['result'].get(cache_key, [])
-		choices_list=[]
-		if item_list:
-			for item in item_list:
-				if item.has_key('name'):
-					title = item['name']
-				elif item.has_key('tag'):
-					title = item['tag']
-				choices_list.append((item[key], title))
-			# cache.set(cache_key, choices_list, 30)
+        item_list = content_dict['result'].get(item_name, [])
+        # choices_list=[]
+        if item_list:
+            for item in item_list:
+                if item.has_key('name'):
+                    title = item['name']
+                elif item.has_key('tag'):
+                    title = item['tag']
+                choices_list.append((item[key], title))
+            cache.set(cache_key, choices_list, 3600)
 
-		# print choices_list
-	return choices_list
+        # print choices_list
+    # print 1111, choices_list
+    return choices_list

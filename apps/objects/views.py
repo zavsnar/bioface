@@ -5,6 +5,7 @@ from __future__ import absolute_import
 
 import urllib
 import httplib2 
+import socket
 import json
 
 import ast
@@ -13,6 +14,7 @@ from django.conf import settings
 from django import forms
 from django.forms.formsets import formset_factory
 from django.http import StreamingHttpResponse
+from django.core.urlresolvers import reverse
 from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.shortcuts import render, render_to_response, redirect
@@ -21,6 +23,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout as auth_logout
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.utils.safestring import mark_safe
 
 from apps.bioface.utils import api_request
 from apps.objects.forms import *
@@ -84,91 +87,87 @@ def create_object(request):
 
 
 def update_object(request, object_id = 0):
+    query_dict = {
+        "method" : "get_object",
+        "key": request.user.sessionkey,
+        "params" : {
+            "id" : int(object_id)
+            # "attributes_list": ["attribute_id1", "attribute_id2",  ]
+        }
+    }
+    http_response, content_dict = api_request(query_dict)
+    if content_dict.has_key('result'):
+        object_data = content_dict['result']['object']
+        print 7777, object_data
+        if object_data.has_key('attributes'):
+            attr_dict = content_dict['result']['object'].pop('attributes')
+        else:
+            attr_dict = {}
 
-    if request.method == 'POST':
-        form = UpdateObjectForm(data = request.POST)
-        if form.is_valid():
-            cd = form.cleaned_data
-            query_dict = {
-                "method" : "update_object",
-                "key": request.user.sessionkey,
-                "params" : {
-                    "id" : cd.pop('id'),
-                    "version" : cd.pop('version'),
-                    "attributes_autoexpand" : True,
-                    "data" : {
-                        "fields": {
-                        #     "name" : name, //str
-                        #     "lab_id":  Лабораторный идентификатор, //str
-                        #     "organism": организм, //str
-                        #     "source": источник, //str
-                        #     "comment": comment, //str
-                        #     "refs": ["id1", "id2"], //список id референсов
-                        #     "tags": ["id", "id"], 
-                        },
-                        "attributes": [
-                        #     ["attribute_id", "value1"],
-                        #     etc...
-                        ]
+        if request.method == 'POST':
+            form = UpdateObjectForm(request=request, data = request.POST)
+            print 3333, request.POST
+            if form.is_valid():
+                cd = form.cleaned_data
+                print 77777, cd
+                query_dict = {
+                    "method" : "update_object",
+                    "key": request.user.sessionkey,
+                    "params" : {
+                        "id" : cd.pop('id'),
+                        "version" : cd.pop('version'),
+                        "attributes_autoexpand" : True,
+                        "data" : {
+                            "fields": {
+                            #     "name" : name, //str
+                            #     "lab_id":  Лабораторный идентификатор, //str
+                            #     "organism": организм, //str
+                            #     "source": источник, //str
+                            #     "comment": comment, //str
+                            #     "refs": ["id1", "id2"], //список id референсов
+                            #     "tags": ["id", "id"], 
+                            },
+                            "attributes": [
+                            #     ["attribute_id", "value1"],
+                            #     etc...
+                            ]
+                        }
                     }
                 }
-            }
 
-            obj_fields = query_dict['params']['data']['fields']
-            for key, value in form.cleaned_data.items():
-                print key, value
-                if value:
-                    obj_fields[key] = value
+                obj_fields = query_dict['params']['data']['fields']
+                for key, value in form.cleaned_data.items():
+                    print key, value
+                    if value:
+                        obj_fields[key] = value
 
-            http_response, content_dict = api_request(query_dict)
-            
-            if content_dict.has_key('result'):
-            # {u'error': {u'code': -32005,
-            # u'data': u'(IntegrityError) duplicate key value violates unique constraint "objects_name_key"\nDETAIL:  Key (name)=(123) already exists.\n',
-            # u'message': u'not unique'}}
-                messages.success(request, 'Object {0} with ID {1} and Version {2} successfully updated.'.format(
-                    form.cleaned_data['name'], content_dict['result']['id'], content_dict['result']['version'])
-                )
-            elif content_dict.has_key('error'):
-                messages.error(request, 'ERROR: {}'.format(content_dict['error']))
+                print 1111, query_dict
+                http_response, content_dict = api_request(query_dict)
+                print 2222, content_dict
+                
+                if content_dict.has_key('result'):
+                # {u'error': {u'code': -32005,
+                # u'data': u'(IntegrityError) duplicate key value violates unique constraint "objects_name_key"\nDETAIL:  Key (name)=(123) already exists.\n',
+                # u'message': u'not unique'}}
+                    messages.success(request, 'Object {0} with ID {1} and Version {2} successfully updated.'.format(
+                        form.cleaned_data['name'], content_dict['result']['id'], content_dict['result']['version'])
+                    )
+                elif content_dict.has_key('error'):
+                    messages.error(request, 'ERROR: {}'.format(content_dict['error']))
+
         else:
-            print 55555
+                # obj_fields = query_dict['params']['data']['fields']
+                # for key, value in form.cleaned_data.items():
+                #     obj_fields[key] = value
 
-    else:
-        query_dict = {
-            "method" : "get_object",
-            "key": request.user.sessionkey,
-            "params" : {
-                "id" : int(object_id)
-                # "attributes_list": ["attribute_id1", "attribute_id2",  ]
-            }
-        }
-        http_response, content_dict = api_request(query_dict)
-        if content_dict.has_key('result'):
-            object_data = content_dict['result']['object']
-            if object_data.has_key('attributes'):
-                attr_dict = content_dict['result']['object'].pop('attributes')
-            else:
-                attr_dict = {}
-            # print 7777, attr_dict.values()
+                # sequense_form = InlineSequenseForm(initial={})
+                # formset = formset_factory(InlineSequenseForm, extra=2, can_delete=True)
 
+                form = UpdateObjectForm(request = request, initial=object_data)
 
-            # print 3333, content_dict['result']['object']
-            # raise
-
-            # obj_fields = query_dict['params']['data']['fields']
-            # for key, value in form.cleaned_data.items():
-            #     obj_fields[key] = value
-
-            # sequense_form = InlineSequenseForm(initial={})
-            # formset = formset_factory(InlineSequenseForm, extra=2, can_delete=True)
-
-
-
-            form = UpdateObjectForm(request = request, initial=object_data)
-        elif content_dict.has_key('error'):
-            form = UpdateObjectForm()
-            messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))
+    elif content_dict.has_key('error'):
+        form = UpdateObjectForm(request=request)
+        messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))
 
 
     template_context = {
@@ -247,37 +246,39 @@ def get_item_list_by_api(item_name, content_dict):
     return template_name, template_context
 
 
-def get_pagination_page(page, query_dict):
-    item_count = 5
+def get_pagination_page(page, query_dict, paginate_by=5):
     item_name = query_dict['method'].replace('get_', '')
     if not query_dict.has_key('params'):
         query_dict['params'] = {}
 
     # Monkey patch. Need for test exist next page, or not
-    query_dict['params']['limit'] = item_count+1
+    query_dict['params']['limit'] = paginate_by+1
 
-    query_dict['params']['skip'] = item_count * (page-1)
+    query_dict['params']['skip'] = paginate_by * (page-1)
     http_response, content_dict = api_request(query_dict)
-    template_name, template_context = get_item_list_by_api(item_name, content_dict)
-    items = template_context['items']
-    if len(items) > item_count:
-        next_page = True
-        template_context['items'] = template_context['items'][:-1]
-    else:
-        next_page = False
 
-    previous_page = True if page > 1 else False
+    return content_dict
+    
+    # template_name, template_context = get_item_list_by_api(item_name, content_dict)
+    # items = template_context['items']
+    # if len(items) > paginate_by:
+    #     next_page = True
+    #     template_context['items'] = template_context['items'][:-1]
+    # else:
+    #     next_page = False
 
-    template_context.update({
-        'has_next': next_page,
-        'has_previous': previous_page,
-        'next_page_number': page+1,
-        'previous_page_number': page-1,
-        'method': query_dict['method']
-        # 'query': query_dict['params'],
-    })
+    # previous_page = True if page > 1 else False
 
-    return template_name, template_context
+    # template_context.update({
+    #     'has_next': next_page,
+    #     'has_previous': previous_page,
+    #     'next_page_number': page+1,
+    #     'previous_page_number': page-1,
+    #     'method': query_dict['method']
+    #     # 'query': query_dict['params'],
+    # })
+
+    # return template_name, template_context
 
 def test(request):
     return render_to_response('test.html', {}, context_instance=RequestContext(request))
@@ -287,86 +288,123 @@ import_uploader = AjaxFileUploader()
 
 @login_required
 def get_objects(request):
+    paginate_by = 10
     template_context = {}
+    response_api_query_dict = {'': []}
+    fields = OBJECT_FIELDS
     template_name = "select_objects.html"
     if request.method == 'POST':
-        # {
-        # "method" : "get_objects",
-        # "key": sessionkey,
-        # "params" : {
-        #     "query" : "field > 12 and (field2 = green and field64 > big)",
-        #     "limit" : int,
-        #     "skip": int,
-        #     "orderby" : [["field_name", "asc"], ["field_name2", "desc"]]
-        #     "attributes_list": ["attribute_name1", "attribute_name2",  ]
-        # }
-        # }
         form = SelectObjects(request=request, data = request.POST)
+        
+        api_query_dict = ast.literal_eval(request.POST['row_query_dict'])
+        row_query_str = request.POST['row_query_str']
+        logic_operation = request.POST.get('select_operand')
+        
+        if api_query_dict:
+            response_api_query_dict={}
+            for key, q in api_query_dict.items():
+                if key:
+                    q[1] = mark_safe(q[1])
+                    response_api_query_dict[int(key)] = q
+            print 44444, response_api_query_dict
+        attributes_from_organism = [ value[1] for value in form.fields['attributes_list'].choices ]
 
+        template_context.update({
+            'logic_operation': logic_operation,
+            'row_query_str': row_query_str,
+            'attributes_from_organism': attributes_from_organism,
+        })
         if form.is_valid():
             cd = form.cleaned_data
-            if cd.has_key('request'):
-                # Prepare query
-                query_str = cd['request'].replace('"', "'").replace('\n', '')
-                # Convert str to dict
                 # query_dict = ast.literal_eval(query_str)
             query_dict = {
                 "method" : 'get_objects',
                 "key": request.user.sessionkey,
                 # "params" : {
-                #     # "query" : "reference_id = id",
-                #     "limit" : cd['limit'],
-                #     "skip" : cd['skip'],
-                #     # "orderby" : [["field_name", "acs"], ["field_name2", "desc"]]
+                #     "query" : "field > 12 and (field2 = green and field64 > big)",
+                #     "limit" : int,
+                #     "skip": int,
+                #     "orderby" : [["field_name", "asc"], ["field_name2", "desc"]]
+                #     "attributes_list": ["attribute_name1", "attribute_name2",  ]
                 # }
             }
-            if any( (lambda x: x in cd, ('row_query', 'attributes_list')) ):
-                query_dict['params'] = {}
 
-            
-            if cd['organism']:
-                row_query = 'organism = {}'.format(cd['organism'])
-            if cd.has_key('attributes_list') and cd['attributes_list']:
+            query_dict['params'] = {}
+
+            # if cd['organism']:
+            row_query = 'organism = {}'.format(cd['organism'])
+
+            if row_query_str:
+                prep_row_query_str = row_query_str.replace(' AND ', ' & ').replace(' OR ', ' | ')
+                row_query = row_query + ' & ' + prep_row_query_str
+                print 9999, row_query
+
+            attr_list=[]
+            if cd['attributes_list']:
                 query_dict['params']['attributes_list'] = cd['attributes_list']
                 attr_list = cd['attributes_list']
 
-            if row_query:
-                query_dict['params']['query'] = row_query
+            query_dict['params']['query'] = row_query
 
             if request.GET.has_key('order_by'):
                 order_field = request.GET['order_by']
                 query_dict['params']['orderby'] = [[order_field, "acs"],]
 
-            print 4444, query_dict
+            try:
+                content_dict = get_pagination_page(page=1, paginate_by=paginate_by, query_dict=query_dict)
+            except socket.error:
+                # TODO
+                messages.error(request, 'Oops! Not connected to server.')
+                return render_to_response("select_objects.html", template_context, context_instance=RequestContext(request))
 
-            http_response, content_dict = api_request(query_dict)
 
-            if cd['display_fields']:
-                fields = cd['display_fields']
+            if content_dict.has_key('result'):
+                if len(cd['display_fields']):
+                    display_fields = cd['display_fields']
+                else:
+                    display_fields = fields
+                print display_fields, ['name'].extend(cd['display_fields']), fields
+
                 object_list = []
                 for obj in content_dict['result']['objects']:
-                    # for field in fields:
-                        # obj[field]
                     object_list.append(
-                        {'fields' :[ obj[field] for field in fields ],
+                        {'object_name': obj['name'],
+                        'url': reverse('update_object', kwargs={'object_id': obj['id']}),
+                        'fields' :[ obj[field] for field in display_fields ],
                         'attrs': [ obj['attributes'][attr] for attr in attr_list ]})
-                        # print 1111, obj, field, obj[field]
 
-            print 777, content_dict
-            if not content_dict.has_key('error'):
-                template_context = {
+                # Monkey patch. If list of objects longer items per page, that show next button
+                if len(object_list) > paginate_by:
+                    next_page = True
+                    object_list = object_list[:-1]
+                else:
+                    next_page = False
+
+                previous_page = False
+
+                display_fields_str = mark_safe(json.dumps(display_fields))
+                template_context.update({
                     'fields': fields,
+                    'display_fields': display_fields,
+                    'display_fields_str': display_fields_str,
                     'attributes': attr_list,
-                    'objects': content_dict['result']['objects'],
-                    'object_list': object_list
-                }
+                    'object_list': object_list,
+
+                    'has_next': next_page,
+                    'has_previous': previous_page,
+                    'next_page_number': 2,
+                    # 'previous_page_number': 1,
+                    'paginate_by': paginate_by,    
+                })
 
             else:   
                 msg = content_dict['error']['message']
-                messages.error(request, 'API ERROR: {}'.format(msg))
+                messages.error(request, 'API ERROR: {}. {}'.format(msg, content_dict['error']['data']))
 
+            query_dict_str = mark_safe(json.dumps(query_dict))
             template_context.update({
-                'query_dict': str(query_dict),
+                'query_str': row_query,
+                'query_dict_str': query_dict_str
                 })
         else:
             print 55555
@@ -376,126 +414,8 @@ def get_objects(request):
     template_context.update({
         'form': form, 
         'method': 'get_objects',
+        'fields': fields,
+        'api_query_dict': response_api_query_dict,
         })
 
     return render_to_response("select_objects.html", template_context, context_instance=RequestContext(request))
-
-@login_required
-def request_api_page(request, method=None):
-    response=''
-    template_context={}
-    template_name = "request_page.html"
-    # template_name = "index.html"
-    # template_name = "test.html"
-    if request.method == 'POST':
-        form = GetRequestAPIForm(data = request.POST)
-
-        if form.is_valid():
-            cd = form.cleaned_data
-            if cd.has_key('request'):
-                # Prepare query
-                query_str = cd['request'].replace('"', "'").replace('\n', '')
-                # Convert str to dict
-                # query_dict = ast.literal_eval(query_str)
-            query_dict = {
-                "method" : cd['method'],
-                "key": request.user.sessionkey,
-                # "params" : {
-                #     # "query" : "reference_id = id",
-                #     "limit" : cd['limit'],
-                #     "skip" : cd['skip'],
-                #     # "orderby" : [["field_name", "acs"], ["field_name2", "desc"]]
-                # }
-            }
-            if cd.has_key('row_query'):
-                query_dict['params'] = {}
-                query_dict['params']['query'] = cd['row_query']
-            # if cd['limit'] or cd['skip']:
-            #     query_dict['params'] = {}
-            #     if cd['limit']:
-            #         query_dict['params']['limit'] = cd['limit']
-            #     if cd['skip']:
-            #         query_dict['params']['skip'] = cd['skip']
-
-            # print query_dict
-            # query_dict['key'] = request.user.sessionkey
-            page = request.GET.get('page', 1)
-            template_name, template_context = get_pagination_page(page, query_dict)
-
-            # http_response, content_dict = api_request(request, query_dict)
-            # if not content_dict.has_key('error'):
-            #     # item_name = query_dict['method'].replace('get_', '')
-            #     # if query_dict['method'] in METHODS_FOR_CALL_ITEM:
-            #     #     get_item_by_api()
-            #     # # elif query_dict['method'] == "get_objects":
-            #     # #     template_context = {
-            #     # #         'attributes': content_dict['result']['attributes'],
-            #     # #         'objects': content_dict['result']['objects']
-            #     # #     }
-            #     # elif query_dict['method'] in METHODS_FOR_CALL_ITEMS:
-                    
-            #     #     template_name, template_context = get_item_list_by_api(item_name, content_dict)
-
-
-                
-            # else:   
-            #     msg = content_dict['error']['message']
-            #     messages.error(request, 'API ERROR: {}'.format(msg)) 
-            
-            # template_context['response'] = content_dict
-
-            # page = request.GET.get('page', 1)
-
-
-            # paginator = Paginator(template_context['items'], 5) # Show 25 items per page
-
-            # try:
-            #     items = paginator.page(page)
-            # except PageNotAnInteger:
-            #     # If page is not an integer, deliver first page.
-            #     items = paginator.page(1)
-            # except EmptyPage:
-            #     # If page is out of range (e.g. 9999), deliver last page of results.
-            #     items = paginator.page(paginator.num_pages)
-
-            # template_context['items'] = items
-
-            template_context.update({
-                'query_dict': query_dict,
-                })
-            
-
-    else:
-        if method:
-            initial_dict = {'method': method}
-        else:
-            initial_dict = {}
-
-        form = GetRequestAPIForm(initial=initial_dict)
-
-
-    # from apps.bioface.forms import ExampleForm
-
-    # example_form = ExampleForm()
-
-    # from apps.bioface.ajax import get_pagination_page
-    # page = request.GET.get('page')
-
-    # if page:
-    #     items = get_pagination_page(page)
-    # else:
-    #     # If page is not an integer, deliver first page.
-    #     items = get_pagination_page(1)
-
-    template_context.update({
-        'form': form, 
-        'method': method,
-        # 'example_form': example_form,
-        # 'items': items
-        # 'query_dict': query_dict,
-        })
-
-    # content_stream = render_to_string(template_name, template_context, context_instance=RequestContext(request))
-
-    # return StreamingHttpResponse(streaming_content = content_stream)
-    return render_to_response(template_name, template_context, context_instance=RequestContext(request))

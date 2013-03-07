@@ -1,0 +1,46 @@
+<ul class="pager pagination">
+    <!-- <span class="step-links"> -->
+        {% if has_previous %}
+        <li>
+            <button class="js_prev_button" onclick="prev_page()">previous</button>
+        </li>
+        {% endif %}
+
+        {% if has_next %}
+        <li>
+            <button class="js_next_button" onclick="this.disabled=true; next_page();">next</button>
+        </li>
+        {% endif %}
+    <!-- </span> -->
+</ul>
+
+<script type="text/javascript">
+    data = {
+        'display_fields':{{ display_fields_str }},
+        'query_dict':{{ query_dict_str }}
+    }
+
+    function next_page(){
+        $('.js_prev_button').attr('disabled', true)
+        $('.js_next_button').attr('disabled', true)
+        $('.preloader').show();
+        Dajaxice.apps.objects.pagination(Dajax.process, {
+            'page':{% firstof next_page_number '1' %},
+            'paginate_by':{{ paginate_by }}, 
+            'data':JSON.stringify(data)
+        });
+      return false;
+    }
+
+    function prev_page(){
+        $('.js_prev_button').attr('disabled', true)
+        $('.js_next_button').attr('disabled', true)
+        $('.preloader').show();
+        Dajaxice.apps.objects.pagination(Dajax.process, {
+            'page':{% firstof previous_page_number '1' %},
+            'paginate_by':{{ paginate_by }}, 
+            'data':JSON.stringify(data)
+        });
+      return false;
+    }
+</script>

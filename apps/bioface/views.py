@@ -54,7 +54,7 @@ def signin(request):
                             "password": password
                             }
                         }
-                    
+
                     # response, content = http.request(API_URL, 'POST', body = json.dumps(query), headers = headers)
 
                     # response = json.loads(content)
@@ -70,7 +70,9 @@ def signin(request):
                         user.sessionkey = sessionkey
                         user.save()
                         messages.success(request, "You successfully logged.")
-                        return redirect('/')
+                        redirect_url = request.GET.get('next') if request.GET.get('next', None) else '/'
+                        print request.GET.get('next', None)
+                        return redirect(redirect_url)
                     else:
                         msg = content_dict['error']['message']
                         messages.error(request, msg)
@@ -85,6 +87,7 @@ def signin(request):
 
 
 def logout(request):
+    headers = {'Content-type': 'application/json'}
     http = httplib2.Http(disable_ssl_certificate_validation=True)
                
     query = {

@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load bootstrap main_filters dajaxice_templatetags staticfiles %}
+{% load bootstrap main_filters dajaxice_templatetags staticfiles jsonify %}
 
 {% block subtitle %}Edit My profile{% endblock %}
 
@@ -9,6 +9,10 @@
 
 {% block forejs %} 
  {% endblock %}
+
+{% block content_title %}
+    <h1>Select Objects</h1>
+{% endblock %}
 
 {% block main %}
 <div>
@@ -57,15 +61,137 @@
             </div>
 
             {# <!-- attributes_list --> #}
-            <div class="control-group {% if form.attributes_list.errors %}error{% endif %}">
+            <div class="control-group {% if form.attributes_list.errors %}error{% endif %}" id="js_attribute_container">
                 <label class="control-label" for="{{ form.attributes_list.id_for_label }}">{{ form.attributes_list.label }}</label>
-                <div class="controls" id="attribute_container">
+                <div class="controls">
                     {{ form.attributes_list }}
                     {% for error in form.attributes_list.errors %}
                         <span class="help-inline">{{ error }}</span>
                     {% endfor %}
                 </div>
             </div>
+
+            <div id="js_query_block">
+                <div class="row control-group">
+                    <div class="offset4 span4">
+                        <div class="btn-group" data-toggle="buttons-radio">
+                          <!-- <a class="btn btn-primary js_select_operand active" data-operand="ALL">ALL</a>
+                          <a class="btn btn-primary js_select_operand" data-operand="ANY">ANY</a>
+                          <a class="btn btn-primary js_select_operand" data-operand="NONE">NO ONE</a> -->
+                            <label class='btn btn-info  {% if logic_operation == "ALL" or not logic_operation %}active{% endif %}'>
+                                <input type="radio" name="select_operand" class="js_select_operand hidden" value="ALL" {% if logic_operation == "ALL" or not logic_operation %}checked{% endif %}>
+                                ALL
+                            </label>
+                            <label class='btn btn-info  {% if logic_operation == "ANY" %}active{% endif %}'>
+                                <input type="radio" name="select_operand" class="js_select_operand hidden" value="ANY" {% if logic_operation == "ANY" %}checked{% endif %}>
+                                ANY
+                            </label>
+                            <label class='btn btn-info {% if logic_operation == "NONE" %}active{% endif %}'>
+                                <input type="radio" name="select_operand" class="js_select_operand hidden" value="NONE" {% if logic_operation == "NONE" %}checked{% endif %}>
+                                NO ONE
+                            </label>  
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="span8 controls">
+                        <table class="table" id="js_query_table">
+                          <tbody>
+                            {% for pk, query_item in api_query_dict.items %}
+                                <tr class="js_query_tr" data-pk="{% firstof pk '0' %}">
+                                  <td>
+                                        <select style="width:300px" class="js_query_field js_query">
+                                           <optgroup label="Fields">
+                                                <option value="name">name</option>
+                                                {% for field in fields %}
+                                                    <option value="{{ field }}" {% if query_item.0 == field %}selected{% endif %}>{{ field }}</option>
+                                                {% endfor %}
+                                           </optgroup>
+                                           <optgroup label="Attributes" class="js_query_attr_list">
+                                                {% for attr in attributes_from_organism %}
+                                                    <option value="attr.{{ attr }}" {% if query_item.0 == "attr."|add:attr %}selected{% endif %}>{{ attr }}</option>
+                                                {% endfor %}
+                                           </optgroup>
+                                          </select>
+                                        <!-- <div class="btn-group"> -->
+                                            <select name="query_field" style="width: 80px;" class="js_query_operation js_query">
+                                                <option value="=" {% if query_item.1 == '=' %}selected{% endif %}>=</option>
+                                                <option value="!=" {% if query_item.1 == '!=' %}selected{% endif %}>!=</option>
+                                                <option value=">=" {% if query_item.1 == '>=' %}selected{% endif %}>&gt;=</option>
+                                                <option value="<=" {% if query_item.1 == '<=' %}selected{% endif %}>&lt;=</option>
+                                                <option value=">" {% if query_item.1 == '>' %}selected{% endif %}>&gt;</option>
+                                                <option value="<" {% if query_item.1 == '<' %}selected{% endif %}>&lt;</option>
+                                                <!-- <option value="in">IN</option> -->
+                                            </select>
+
+                                        <!-- </div> -->
+                                        <input class="span2 js_query_value js_query" type="text" value="{% firstof query_item.2 %}">
+                                  </td>
+                                  <td>
+                                        <a class="btn btn-danger js_del_query_item">x</a>
+                                  </td>
+                                </tr>
+                            {% endfor %}
+
+                            {#<!-- Reference query item. Hidden. -->#}
+                            <tr id="js_reference_query_item" style="display: none">
+                              <td>
+                                    <select style="width:300px" class="js_query_field js_query">
+                                       <optgroup label="Fields">
+                                            <option value="name">name</option>
+                                            {% for field in fields %}
+                                                <option value="{{ field }}">{{ field }}</option>
+                                            {% endfor %}
+                                       </optgroup>
+                                       <optgroup label="Attributes" class="js_query_attr_list">
+                                            {% for attr in attributes_from_organism %}
+                                                    <option value="attr.{{ attr }}">{{ attr }}</option>
+                                                {% endfor %}
+                                       </optgroup>
+                                      </select>
+                                    <!-- <div class="btn-group"> -->
+                                        <select name="query_field" style="width: 80px;" class="js_query_operation js_query">
+                                            <option value="=">=</option>
+                                            <option value="!=">!=</option>
+                                            <option value="&gt;=">&gt;=</option>
+                                            <option value="&lt;=">&lt;=</option>
+                                            <option value="&gt;">&gt;</option>
+                                            <option value="&lt;">&lt;</option>
+                                            <!-- <option value="in">IN</option> -->
+                                        </select>
+
+                                    <!-- </div> -->
+                                    <input class="span2 js_query_value js_query" type="text">
+                              </td>
+                              <td>
+                                    <a class="btn btn-danger js_del_query_item">x</a>
+                              </td>
+                            </tr>
+                            {# <!-- --> #}
+
+                            <tr>
+                                <td></td>
+                                <td>
+                                    <a class="btn btn-success" id="js_add_query_item">+</a>
+                                </td>
+                                
+                            </tr>
+                          </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="control-group {% if form.attributes_list.errors %}error{% endif %}">
+                    <label class="control-label" for="{{ form.attributes_list.id_for_label }}">Row Query</label>
+                    <div class="controls">
+                        <input class="span8" name="row_query_str" id="js_row_query" type="text" value="{{ row_query_str }}">
+                        <input class="hidden" name="row_query_dict" id="js_row_query_dict" type="text">
+                    </div>
+                </div>
+
+            </div>
+
 
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">Run</button>&nbsp;
@@ -74,64 +200,68 @@
 	</div>
 
     
-    {% if objects %}
-    <div class="row">
-        <div class="span8">
-            {% comment %}
-            <table class="table table-bordered">
-                <caption>Result Table</caption>
-                <thead>
-                    <tr>
-                        <th>Object Name</th>
-                        {% for field in fields %}
-                            <th>{{ field }}</th>
-                        {% endfor %}
-                    </tr>
-                </thead>    
-                <tbody>
-                    {% for object in objects %}
+    {% if object_list %}
+    <div class="object_result_table">
+        <div class="preloader" style="display: none"></div>
+        <div class="row">
+            <div class="span12" id="js_object_result_table">
+                {% comment %}
+                <table class="table table-bordered">
+                    <caption>Result Table</caption>
+                    <thead>
                         <tr>
-                            <td>{{ object.name }}</td>
-                            {% for attribute in object.items %}
-                                <td>{{ object.attributes }}</td>
-                            {% endfor %}
-                            {% for attribute in attributes %}
-                                <td>{{ object.attributes }}</td>
+                            <th>Object Name</th>
+                            {% for field in fields %}
+                                <th>{{ field }}</th>
                             {% endfor %}
                         </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% endcomment %}
+                    </thead>    
+                    <tbody>
+                        {% for object in objects %}
+                            <tr>
+                                <td>{{ object.name }}</td>
+                                {% for attribute in object.items %}
+                                    <td>{{ object.attributes }}</td>
+                                {% endfor %}
+                                {% for attribute in attributes %}
+                                    <td>{{ object.attributes }}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% endcomment %}
 
-            <table class="table table-bordered">
-                <caption>Result Table</caption>
-                <thead>
-                    <tr>
-                        {% for field in fields %}
-                            <th>{{ field }}</th>
-                        {% endfor %}
-                        {% for attribute_name in attributes %}
-                            <th>{{ attribute_name }}</th>
-                        {% endfor %}
-                    </tr>
-                </thead>    
-                <tbody>
-                    {% for obj in object_list %}
+                <table class="table table-bordered">
+                    <caption>Result Table</caption>
+                    <thead>
                         <tr>
-                            <!-- <td>{{ object.name }}</td> -->
-                            {% for field in obj.fields %}
-                                <td>{{ field }}</td>
+                            <th>Object Name</th>
+                            {% for field in display_fields %}
+                                <th>{{ field }}</th>
                             {% endfor %}
-                            {% for attr in obj.attrs %}
-                                <td>{{ attr }}</td>
+                            {% for attribute_name in attributes %}
+                                <th>{{ attribute_name }}</th>
                             {% endfor %}
                         </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </thead>    
+                    <tbody>
+                        {% for obj in object_list %}
+                            <tr>
+                                <td><a href="{{ obj.url }}">{{ obj.object_name }}</a></td>
+                                {% for field in obj.fields %}
+                                    <td>{{ field }}</td>
+                                {% endfor %}
+                                {% for attr in obj.attrs %}
+                                    <td>{{ attr }}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
 
-            {% include "pagination.html" %}
+                {% include "object_pagination_controls.html" %}
+            </div>
         </div>
     </div>
     {% endif %}
@@ -150,64 +280,165 @@
 <script src="{{ STATIC_URL }}js/select2.min.js"></script>
 
 <script type="text/javascript">
-    // function my_js_callback(data){
-    //     alert(data.message);
-    // };
-    $('#id_organism').change(function(){
-        Dajaxice.apps.objects.update_attributes_from_organism(Dajax.process,{'organism_id': $(this).val()});
+    query_block = $('#js_query_block')
+    // $('.preloader').hide();
+    function stop_show_loading() {$('.preloader').hide();}
 
-    });
+        
 
-    function create_select(){
-        // $('#attribute_container select').select2({});
-        $('#attribute_container select').select2({
-            // multiple: true,
+    function create_attribute_select(){
+        $('#js_attribute_container select').select2({
             maximumSelectionSize: 10,
             minimumInputLength: 0,
-            // query: function (query){
-            //         var data = {results: []};
-
-            //         $.each(preload_data, function(){
-            //         if(query.term.length == 0 || this.text.toUpperCase().indexOf(query.term.toUpperCase()) >= 0 ){
-            //         data.results.push({id: this.id, text: this.text });
-            //         }
-            //     });
-
-            //     query.callback(data);
-            // }
         });
+
+
+    };
+
+    query_item_html = $('#js_reference_query_item').html()
+    function update_query_items(){
+        query_item_html = $('#js_reference_query_item').html()
+        attr_options = $('#js_reference_query_item .js_query_attr_list').html()
+        $('.js_query_attr_list').html(attr_options)
+        $('.js_query_tr .js_query_field:last').select2({
+                placeholder: "Select a Field or Attribute",
+            });
+    };
+
+    function generate_row_query() {
+        var item_query = [];
+        for (var key in query_items_dict) {
+            // if (logic_operation == 'NONE') {
+            //     query_items_dict[key][1] = 'NOT ' + query_items_dict[key][1]
+            // } 
+            // else {
+            //     query_items_dict[key][1] = query_items_dict[key][1].replace('NOT ', '')
+            // }
+
+            item_query = item_query.concat(query_items_dict[key].join(' '));
+        }
+        if (logic_operation == 'ANY') {
+            var row_query = item_query.join(' OR ')
+        } else {
+            // ALL and NONE
+            var row_query = item_query.join(' AND ')
+        }
+
+        if (logic_operation == 'NONE') {
+            row_query = '!(' + row_query + ')'
+        }   
+
+        $('#js_row_query').val(row_query)
+    };
+
+
+    if ($('#id_organism option:selected').val()) {
+        // Dajaxice.apps.objects.update_attributes_from_organism(Dajax.process,{
+        //     'organism_id': $('#id_organism option:selected').val(),
+        //     'form': $('#js_id_form').serialize(true)
+        // });
+        create_attribute_select();
     }
+    else {
+        $('#js_attribute_container').hide();
+        query_block.hide();
+    };
 
-    create_select();
+    $(function() {
+        $('.js_query_tr .js_query_field').select2({});
+
+        // Organism trigger
+        $('#id_organism').change(function(){
+            attribute_container = $('#js_attribute_container')
+            if ($('#id_organism option:selected').val()) {
+                Dajaxice.apps.objects.update_attributes_from_organism(Dajax.process,{'organism_id': $(this).val(),'form': $('#js_id_form').serialize(true)});
+                attribute_container.show();
+                query_block.show();
+            }
+            else {
+                query_block.hide();
+                attribute_container.hide();
+            }
+        });
+
+        // Select2 for attribute select
+        // create_select();
+
+        item_pk = 0
+        // Add query item
+        $('#js_add_query_item').click(function(){
+            item_pk++;
+            $(this).parent().parent().before('<tr class="js_query_tr" data-pk="'+item_pk+'">'+query_item_html+'</tr>')
+            $('.js_query_tr .js_query_field:last').select2({
+                placeholder: "Select a Field or Attribute",
+            });
+            // select2_start();
+        })
+
+        // row_query = ''
+
+        // $('#js_query_table .js_query').change(function(){
+        //     query_item = $(this).parent().parent()
+        //     query_field = query_item.find('select.js_query_field').val()
+        //     query_operation = query_item.find('.js_query_operation').val()
+        //     query_value = query_item.find('.js_query_value').val()
+        //     row_query = row_query + ' and ' + [query_field, query_operation, query_value].join(' ')
+        //     alert(row_query);
+        // })
+
+        logic_operation = 'ALL'
+
+
+        $('.js_select_operand').click(function(){
+            logic_operation = $(this).val()
+            // $(this).next('#id_select_operand').val(logic_operation)
+            generate_row_query();
+        })
+
+        query_items_dict = {} 
+        {% for pk, query_item in api_query_dict.items %}
+            {% if pk != '' %}
+                query_items_dict['{{ pk }}'] = ['{{query_item.0}}', '{{query_item.1}}', '{{query_item.2}}']
+                {% if forloop.last %} 
+                    item_pk = {{ pk }} +1
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+
+        // generate_row_query();
+
+        // Update query fields
+        $('#js_query_table').delegate('.js_query', 'change', function(){
+            var query_item = $(this).parent().parent()
+            var query_value = query_item.find('.js_query_value').val()
+            
+            if (query_value) {
+                var query_field = query_item.find('select.js_query_field').val()
+                var query_operation = query_item.find('.js_query_operation').val()
+                var item_pk = query_item.data('pk')
+                query_items_dict[item_pk] = [query_field, query_operation, query_value]
+
+                generate_row_query();
+            }
+        })
+
+        // Remove query item
+        $('#js_query_table').delegate('.js_del_query_item', 'click', function(){
+            query_item = $(this).parent().parent()
+            delete query_items_dict[query_item.data('pk')]
+            generate_row_query();
+
+            $(this).parent().parent().remove()
+        })
+
+        // Before form submit
+        $('#js_id_form').submit(function(){
+            $('#js_row_query_dict').val(JSON.stringify(query_items_dict));
+        })
+
+    });
     
-
-    // function send_form(){
-    //     Dajaxice.apps.bioface.send_form(Dajax.process,{'form':$('#my_form').serialize(true)});
-    // }
-
-
-    // function create_select(){ $(document).ready(function () {
-    //     alert();
-    //     $('#id_attributes_list').select2({
-    //         // multiple: true,
-    //         maximumSelectionSize: 10,
-    //         minimumInputLength: 0,
-    //         // query: function (query){
-    //         //         var data = {results: []};
-
-    //         //         $.each(preload_data, function(){
-    //         //         if(query.term.length == 0 || this.text.toUpperCase().indexOf(query.term.toUpperCase()) >= 0 ){
-    //         //         data.results.push({id: this.id, text: this.text });
-    //         //         }
-    //         //     });
-
-    //         //     query.callback(data);
-    //         // }
-    //     });
-    //     // $('#id_attributes_list').select2('data', preload_data )
-    // });
-    // }
-    // 
+    
 
 </script>
 {% endblock %}

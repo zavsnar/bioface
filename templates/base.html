@@ -30,115 +30,126 @@
         <!--[if lt IE 9]><script type="text/javascript" src="{% if ENABLE_GOOGLE_API_LIBS %}http://html5shim.googlecode.com/svn/trunk/html5.js{% else %}{{ STATIC_URL }}js/html5shim.min.js{% endif %}"></script><![endif]-->
     </head>
     <body class="{% block body_class %}{% endblock %}">
-        <div class="container">
+        <div id="wrap">
+            <div class="container">
 
-            {% block menu %}
-            <div class="navbar">
-                <div class="navbar-inner">
-                    <div class="container-fluid">
-                        <a class="brand" href="#">Your Company</a>
-                        <ul class="nav">
-                            <li>
-                                <a href="/" class="active">Home</a> 
-                            </li>
-                            <li>
-                                <a href="#">Selection</a> 
-                            </li>
-                            <li>
-                                <a href="#">Create organism</a> 
-                            </li>
-                            <li>
-                                <a href="{% url 'create_attribute' %}">Create attribute</a> 
-                            </li>
-                            <li>
-                                <a href="#">Create sequence</a> 
-                            </li>
-                        </ul>
-                        <div class="pull-right">
-                            <span>User: {{ request.user }}</span>&nbsp;<a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
+                {% block menu %}
+                <div class="navbar">
+                    <div class="navbar-inner">
+                        <div class="container-fluid">
+                            <a class="brand" href="#">Your Company</a>
+                            <ul class="nav">
+                                <li>
+                                    <a href="/" class="active">Home</a> 
+                                </li>
+                                <li>
+                                    <a href="#">Selection</a> 
+                                </li>
+                                <li>
+                                    <a href="#">Create organism</a> 
+                                </li>
+                                <li>
+                                    <a href="{% url 'create_attribute' %}">Create attribute</a> 
+                                </li>
+                                <li>
+                                    <a href="#">Create sequence</a> 
+                                </li>
+                            </ul>
+                            <div class="pull-right">
+                                <span>User: {{ request.user }}</span>&nbsp;<a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
+                            </div>
+                        </div>
+
+                    </div>
+                    
+                </div>
+                {% endblock %}
+
+            
+                
+
+                <!-- {% if request.user.is_authenticated %}
+                    <div class="row">
+                        <div class="span4 pull-right">
+                            <h4>User: {{ request.user }}</h4>
+                            <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>&nbsp;
                         </div>
                     </div>
-
-                </div>
-                
-            </div>
-            {% endblock %}
-
-        
-            
-
-            <!-- {% if request.user.is_authenticated %}
+                {% endif %} -->
                 <div class="row">
-                    <div class="span4 pull-right">
-                        <h4>User: {{ request.user }}</h4>
-                        <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>&nbsp;
+                    <div class="span6">
+                        <div class="hero-unit">
+                            <h1>
+                                {% if method == 'get_objects' %}
+                                    Objects
+                                {% else %}
+                                    <a href="{% url 'select_objects' %}">Objects</a>
+                                {% endif %}
+                            </h1>
+                            <p>Select or create object.</p>
+                            <p>
+                                <a href="{% url 'create_object' %}" class="btn btn-primary btn-large pull-right">Add</a>
+                            </p>
+                        </div>
                     </div>
-                </div>
-            {% endif %} -->
-            <div class="row">
-                <div class="span6">
-                    <div class="hero-unit">
-                        <h1>
-                            {% if method == 'get_objects' %}
-                                Objects
-                            {% else %}
-                                <a href="{% url 'select_objects' %}">Objects</a>
-                            {% endif %}
-                        </h1>
-                        <p>Select or create object.</p>
-                        <p>
-                            <a href="{% url 'create_object' %}" class="btn btn-primary btn-large pull-right">Add</a>
-                        </p>
+                    <div class="span6">
+                        <div class="hero-unit">
+                            <h1>
+                                {% if method == 'get_sequences' %}
+                                    Sequences
+                                {% else %}
+                                    <a href="{% url 'select_sequences' %}">Sequences</a>
+                                {% endif %}
+                            </h1>
+                            <p>Select or create sequence.</p>
+                            <p>
+                                <a class="btn btn-primary btn-large pull-right">Add</a>
+                            </p>
+                        </div>
                     </div>
-                </div>
-                <div class="span6">
-                    <div class="hero-unit">
-                        <h1>
-                            {% if method == 'get_sequences' %}
-                                Sequences
-                            {% else %}
-                                <a href="{% url 'select_sequences' %}">Sequences</a>
-                            {% endif %}
-                        </h1>
-                        <p>Select or create sequence.</p>
-                        <p>
-                            <a class="btn btn-primary btn-large pull-right">Add</a>
-                        </p>
-                    </div>
-                </div>
-            </div>
-            
-
-            <div class="row">
-                <div class="span12">
-                    {% block user_messages %}
-                        {% for message in messages %}
-                            {# <!-- Extra tags are not suported --> #}
-                            <div class="alert alert-{{ message.tags }} fade in">
-                                <button type="button" class="close" data-dismiss="alert">×</button>
-                                {{ message|safe }}
-                            </div>
-                        {% endfor %}
-                        
-                        {% if error_message %}
-                            <div class="alert alert-error fade in">
-                                <button type="button" class="close" data-dismiss="alert">×</button>
-                                {{ error_message|safe }}
-                            </div>
-                        {% endif %}
-
-                        {% if success_message %}
-                            <div class="alert alert-success fade in">
-                                <button type="button" class="close" data-dismiss="alert">×</button>
-                                {{ success_message|safe }}
-                            </div>
-                        {% endif %}
-                    {% endblock %}
                 </div>
                 
-            </div>
 
-        {% block main %} {% endblock %}
+                <div class="row">
+                    <div class="span12">
+                        {% block user_messages %}
+                            {% for message in messages %}
+                                {# <!-- Extra tags are not suported --> #}
+                                <div class="alert alert-{{ message.tags }} fade in">
+                                    <button type="button" class="close" data-dismiss="alert">×</button>
+                                    {{ message|safe }}
+                                </div>
+                            {% endfor %}
+                            
+                            {% if error_message %}
+                                <div class="alert alert-error fade in">
+                                    <button type="button" class="close" data-dismiss="alert">×</button>
+                                    {{ error_message|safe }}
+                                </div>
+                            {% endif %}
+
+                            {% if success_message %}
+                                <div class="alert alert-success fade in">
+                                    <button type="button" class="close" data-dismiss="alert">×</button>
+                                    {{ success_message|safe }}
+                                </div>
+                            {% endif %}
+                        {% endblock %}
+                    </div>
+                    
+                </div>
+                
+                <div class="page-header">
+                    {% block content_title %}{% endblock %}
+                </div>
+
+            {% block main %} {% endblock %}
+            </div>
+        </div>
+        <div id="footer">
+          <div class="container">
+            <p class="muted credit">All rights reserved</p>
+          </div>
         </div>
         
         {#<!-- Block Scripts -->#}
