@@ -5,13 +5,9 @@ from local_settings import SECRET_KEY, MANAGERS, ADMINS, DISALLOW_SEARCH_ROBOTS
 from local_settings import STATIC_FILES_VERSION
 from local_settings import DEFAULT_FROM_EMAIL, EMAIL_BACKEND, EMAIL_HOST, EMAIL_PORT, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD
 from local_settings import APP_SERVER_SETTINGS
-from local_settings import GOOGLE_ANALITICS_ID, GOOGLE_MAPS_API_KEY
-from local_settings import FACEBOOK_READ_ONLY, FACEBOOK_APP_ID, FACEBOOK_APP_SECRET, FACEBOOK_ADMIN_ACCOUNTS
-from local_settings import ENABLE_GOOGLE_API_LIBS
 from local_settings import THUMBNAIL_DUMMY
 from local_settings import DEBUG_TOOLBAR_PANELS, INTERNAL_IPS
 from local_settings import HOST_NAME
-from local_settings import EWAY_AU_MERCHANT, DISABLE_SSL_CERTIFICATE_VALIDATION
 
 from os.path import join
 

@@ -48,7 +48,8 @@ def send_form(request, form):
             dajax.add_css_class('#id_%s' % error, 'error')
 
     return dajax.json()
-
+    
+import random
 @dajaxice_register
 def randomize(request):
     dajax = Dajax()

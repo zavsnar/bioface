@@ -15,7 +15,7 @@
         {% for obj in object_list %}
             <tr>
                 <td><a href="{{ obj.url }}">{{ obj.object_name }}</a></td>
-                {% for field in obj.fields %}
+                {% for field_name, field in obj.fields %}
                     <td>{{ field }}</td>
                 {% endfor %}
                 {% for attr in obj.attrs %}

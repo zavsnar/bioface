@@ -19,8 +19,14 @@ class CustomUser(AbstractUser):
 # 	sessionkey = models.CharField(max_length=255, blank=True)
 
 class SavedQuery(models.Model):
-    user = models.ForeinKey(CustomUser, related_name='saved_querys')
-    the_json = jsonfield.JSONField()
+    type_query = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
+    user = models.ForeignKey(CustomUser, related_name='saved_queries')
+    # form_data = jsonfield.JSONField()
+    organism_id = models.CharField(max_length=255)
+    display_fields = jsonfield.JSONField()
+    attributes_list = jsonfield.JSONField()
+    filter_fields = jsonfield.JSONField()
 
 
 

@@ -7,6 +7,7 @@ import urllib
 import httplib2 
 import socket
 import json
+from dateutil.parser import parse as datetime_parse
 
 import ast
 
@@ -26,6 +27,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.utils.safestring import mark_safe
 
 from apps.bioface.utils import api_request
+from apps.bioface.models import SavedQuery
 from apps.objects.forms import *
 
 def create_object(request):
@@ -98,7 +100,6 @@ def update_object(request, object_id = 0):
     http_response, content_dict = api_request(query_dict)
     if content_dict.has_key('result'):
         object_data = content_dict['result']['object']
-        print 7777, object_data
         if object_data.has_key('attributes'):
             attr_dict = content_dict['result']['object'].pop('attributes')
         else:
@@ -106,10 +107,8 @@ def update_object(request, object_id = 0):
 
         if request.method == 'POST':
             form = UpdateObjectForm(request=request, data = request.POST)
-            print 3333, request.POST
             if form.is_valid():
                 cd = form.cleaned_data
-                print 77777, cd
                 query_dict = {
                     "method" : "update_object",
                     "key": request.user.sessionkey,
@@ -141,9 +140,7 @@ def update_object(request, object_id = 0):
                     if value:
                         obj_fields[key] = value
 
-                print 1111, query_dict
                 http_response, content_dict = api_request(query_dict)
-                print 2222, content_dict
                 
                 if content_dict.has_key('result'):
                 # {u'error': {u'code': -32005,
@@ -255,6 +252,7 @@ def get_pagination_page(page, query_dict, paginate_by=5):
     query_dict['params']['limit'] = paginate_by+1
 
     query_dict['params']['skip'] = paginate_by * (page-1)
+    print  777777, query_dict
     http_response, content_dict = api_request(query_dict)
 
     return content_dict
@@ -290,30 +288,33 @@ import_uploader = AjaxFileUploader()
 def get_objects(request):
     paginate_by = 10
     template_context = {}
-    response_api_query_dict = {'': []}
+    field_filters_dict_sort = {'': []}
     fields = OBJECT_FIELDS
-    template_name = "select_objects.html"
+    saved_query_list = SavedQuery.objects.filter(user=request.user)
+
     if request.method == 'POST':
         form = SelectObjects(request=request, data = request.POST)
-        
-        api_query_dict = ast.literal_eval(request.POST['row_query_dict'])
+        print 88888, request.POST['field_filters_dict']
+        field_filters_dict = ast.literal_eval(request.POST['field_filters_dict'])
         row_query_str = request.POST['row_query_str']
         logic_operation = request.POST.get('select_operand')
         
-        if api_query_dict:
-            response_api_query_dict={}
-            for key, q in api_query_dict.items():
+        if field_filters_dict:
+            field_filters_dict_sort={}
+            for key, q in field_filters_dict.items():
                 if key:
                     q[1] = mark_safe(q[1])
-                    response_api_query_dict[int(key)] = q
-            print 44444, response_api_query_dict
-        attributes_from_organism = [ value[1] for value in form.fields['attributes_list'].choices ]
+                    field_filters_dict_sort[int(key)] = q
+            print 44444, field_filters_dict_sort
+        # attributes_from_organism = [ value[1] for value in form.fields['attributes_list'].choices ]
+        attributes_from_organism = form.fields['attributes_list'].choices
 
         template_context.update({
             'logic_operation': logic_operation,
             'row_query_str': row_query_str,
             'attributes_from_organism': attributes_from_organism,
         })
+
         if form.is_valid():
             cd = form.cleaned_data
                 # query_dict = ast.literal_eval(query_str)
@@ -349,7 +350,7 @@ def get_objects(request):
             if request.GET.has_key('order_by'):
                 order_field = request.GET['order_by']
                 query_dict['params']['orderby'] = [[order_field, "acs"],]
-
+            print 444444, query_dict
             try:
                 content_dict = get_pagination_page(page=1, paginate_by=paginate_by, query_dict=query_dict)
             except socket.error:
@@ -367,10 +368,19 @@ def get_objects(request):
 
                 object_list = []
                 for obj in content_dict['result']['objects']:
+                    object_fields=[]
+                    for field in display_fields:
+                        if field in ('created', 'modified'):
+                            time_value = datetime_parse(obj[field])
+                            field_value = time_value.strftime("%Y-%m-%d %H:%M:%S")
+                            object_fields.append( (field, field_value) )
+                        else:
+                            object_fields.append( (field, obj[field]) )
+                        
                     object_list.append(
                         {'object_name': obj['name'],
                         'url': reverse('update_object', kwargs={'object_id': obj['id']}),
-                        'fields' :[ obj[field] for field in display_fields ],
+                        'fields' :object_fields,
                         'attrs': [ obj['attributes'][attr] for attr in attr_list ]})
 
                 # Monkey patch. If list of objects longer items per page, that show next button
@@ -384,7 +394,7 @@ def get_objects(request):
 
                 display_fields_str = mark_safe(json.dumps(display_fields))
                 template_context.update({
-                    'fields': fields,
+                    # 'fields': fields,
                     'display_fields': display_fields,
                     'display_fields_str': display_fields_str,
                     'attributes': attr_list,
@@ -403,19 +413,52 @@ def get_objects(request):
 
             query_dict_str = mark_safe(json.dumps(query_dict))
             template_context.update({
-                'query_str': row_query,
+                # 'query_str': row_query,
                 'query_dict_str': query_dict_str
                 })
         else:
             print 55555
+
+    # For saved query
+    elif request.method == 'GET' and request.GET.get('saved_query', None):
+        query_name = request.GET['saved_query']
+        saved_query = SavedQuery.objects.get(name=query_name)
+        form_data = {'organism': saved_query.organism_id, 'display_fields': saved_query.display_fields, 'attributes_list': saved_query.attributes_list}
+        print 888, form_data
+        form = SelectObjects(request=request, data=form_data)
+        # field_filters_dict_sort = saved_query.filter_fields
+        field_filters_dict_sort = {}
+        for key, q in saved_query.filter_fields.items():
+            if key:
+                q[1] = mark_safe(q[1])
+                field_filters_dict_sort[int(key)] = q
+
+        # if field_filters_dict:
+        #     field_filters_dict_sort={}
+        #     for key, q in field_filters_dict.items():
+        #         if key:
+        #             q[1] = mark_safe(q[1])
+        #             field_filters_dict_sort[int(key)] = q
+        #     print 44444, field_filters_dict_sort
+        attributes_from_organism = [ value[1] for value in form.fields['attributes_list'].choices ]
+
+        template_context.update({
+            # 'logic_operation': saved_query.logic_operation,
+            'logic_operation': "ALL",
+            # 'row_query_str': saved_query.row_query_str,
+            'row_query_str': '',
+            'attributes_from_organism': attributes_from_organism,
+        })
     else:
         form = SelectObjects(request=request)
-
+    print 99999, type(field_filters_dict_sort), field_filters_dict_sort
     template_context.update({
         'form': form, 
         'method': 'get_objects',
+        'saved_query_list': saved_query_list,
         'fields': fields,
-        'api_query_dict': response_api_query_dict,
+        'fields_with_type': OBJECT_FIELDS_CHOICES_WITH_TYPE,
+        'field_filters_dict': field_filters_dict_sort,
         })
 
     return render_to_response("select_objects.html", template_context, context_instance=RequestContext(request))

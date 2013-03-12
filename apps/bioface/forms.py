@@ -76,17 +76,17 @@ def get_choices(request, cache_key, key='id'):
 #     "orderby" : [["field_name", "asc"], ["field_name2", "desc"]]
 #     "attributes_list": ["attribute_name1", "attribute_name2",  ]
 # }
-class SelectObjects(forms.Form):
-    # request = forms.CharField(widget=forms.Textarea, required=False)
-    method = forms.ChoiceField(choices = GET_METHOD_CHOISES, initial = 'get_objects')
-    attributes_list = forms.MultipleChoiceField(required=False, widget=forms.SelectMultiple(attrs={'style': 'width:220px'}))
-    # row_query = forms.CharField(required=False)
-    # limit = forms.IntegerField(required=False)
-    # skip = forms.IntegerField(required=False)
+# class SelectObjects(forms.Form):
+#     # request = forms.CharField(widget=forms.Textarea, required=False)
+#     method = forms.ChoiceField(choices = GET_METHOD_CHOISES, initial = 'get_objects')
+#     attributes_list = forms.MultipleChoiceField(required=False, widget=forms.SelectMultiple(attrs={'style': 'width:220px'}))
+#     # row_query = forms.CharField(required=False)
+#     # limit = forms.IntegerField(required=False)
+#     # skip = forms.IntegerField(required=False)
 
-    def __init__(self, request, *args, **kwargs):
-		super(SelectObjects, self).__init__(*args, **kwargs)
-		self.fields['attributes_list'].choices = get_choices(request, cache_key='attributes', key='name')
+#     def __init__(self, request, *args, **kwargs):
+# 		super(SelectObjects, self).__init__(*args, **kwargs)
+# 		self.fields['attributes_list'].choices = get_choices(request, cache_key='attributes', key='name')
 
 class QueryMethodForm(forms.Form):
 		method = forms.MultipleChoiceField(label='Add', choices=CREATE_METHOD_CHOISES, 

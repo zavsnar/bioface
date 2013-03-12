@@ -15,10 +15,23 @@
 {% endblock %}
 
 {% block main %}
-<div>
+<div class="relative">
+    <div class="row">
+        <div class="span12">
+            <ul>
+                {% for query in saved_query_list %}
+                    <li><a href="./?saved_query={{ query.name }}">{{ query.name }}</a>
+                        <a class="btn btn-mini btn-danger" onclick="Dajaxice.apps.objects.delete_saved_query(Dajax.process, {'name': '{{ query.name }}' });">x</a>
+                    </li>
+                {% endfor %}
+            </ul>
+
+        </div>
+
+    </div>
 
 	<div class="row">
-        <form method="post" action="./" id="js_id_form" class="form-horizontal js-active-form span12 pull-left">
+        <form method="post" action="./#result" id="js_id_form" class="form-horizontal js-active-form span12 pull-left">
             {% csrf_token %}
             {% for error in form.non_field_errors %}
                 <div class="alert alert-error">
@@ -51,7 +64,7 @@
 
             {# <!-- display_fields --> #}
             <div class="control-group {% if form.display_fields.errors %}error{% endif %}">
-                <label class="control-label" for="{{ form.display_fields.id_for_label }}">{{ form.display_fields.label }}</label>
+                <label class="control-label">{{ form.display_fields.label }}</label>
                 <div class="controls list-inline">
                     {{ form.display_fields }}
                     {% for error in form.display_fields.errors %}
@@ -71,7 +84,7 @@
                 </div>
             </div>
 
-            <div id="js_query_block">
+            <div id="js_filters_block">
                 <div class="row control-group">
                     <div class="offset4 span4">
                         <div class="btn-group" data-toggle="buttons-radio">
@@ -98,35 +111,41 @@
                     <div class="span8 controls">
                         <table class="table" id="js_query_table">
                           <tbody>
-                            {% for pk, query_item in api_query_dict.items %}
+                            {% for pk, filter in field_filters_dict.items %}
                                 <tr class="js_query_tr" data-pk="{% firstof pk '0' %}">
                                   <td>
                                         <select style="width:300px" class="js_query_field js_query">
                                            <optgroup label="Fields">
-                                                <option value="name">name</option>
-                                                {% for field in fields %}
-                                                    <option value="{{ field }}" {% if query_item.0 == field %}selected{% endif %}>{{ field }}</option>
+                                                <!-- <option value="name" data-atype="string">name</option> -->
+                                                {% for field, atype in fields_with_type %}
+                                                    <option value="{{ field }}" data-atype="{{ atype }}" {% if filter.0 == field %}selected{% endif %}>{{ field }}</option>
                                                 {% endfor %}
                                            </optgroup>
                                            <optgroup label="Attributes" class="js_query_attr_list">
-                                                {% for attr in attributes_from_organism %}
-                                                    <option value="attr.{{ attr }}" {% if query_item.0 == "attr."|add:attr %}selected{% endif %}>{{ attr }}</option>
+                                                {% for id, attr, atype in attributes_from_organism %}
+                                                    <option value="attr.{{ id }}" data-atype="{{ atype }}" {% if filter.0 == "attr."|add:attr %}selected{% endif %}>{{ attr }}</option>
                                                 {% endfor %}
                                            </optgroup>
                                           </select>
                                         <!-- <div class="btn-group"> -->
-                                            <select name="query_field" style="width: 80px;" class="js_query_operation js_query">
-                                                <option value="=" {% if query_item.1 == '=' %}selected{% endif %}>=</option>
-                                                <option value="!=" {% if query_item.1 == '!=' %}selected{% endif %}>!=</option>
-                                                <option value=">=" {% if query_item.1 == '>=' %}selected{% endif %}>&gt;=</option>
-                                                <option value="<=" {% if query_item.1 == '<=' %}selected{% endif %}>&lt;=</option>
-                                                <option value=">" {% if query_item.1 == '>' %}selected{% endif %}>&gt;</option>
-                                                <option value="<" {% if query_item.1 == '<' %}selected{% endif %}>&lt;</option>
+                                        <select name="query_field" style="width: 80px;" class="js_query_operation js_query">
+                                            {% if filter.3 == 'integer' or filter.3 == 'float' %}
+                                                <option value="=" {% if filter.1 == '=' %}selected{% endif %}>=</option>
+                                                <option value="!=" {% if filter.1 == '!=' %}selected{% endif %}>!=</option>
+                                                <option value=">=" {% if filter.1 == '>=' %}selected{% endif %}>&gt;=</option>
+                                                <option value="<=" {% if filter.1 == '<=' %}selected{% endif %}>&lt;=</option>
+                                                <option value=">" {% if filter.1 == '>' %}selected{% endif %}>&gt;</option>
+                                                <option value="<" {% if filter.1 == '<' %}selected{% endif %}>&lt;</option>
+                                            {% else %}
+                                                <option value="=" {% if filter.1 == '=' %}selected{% endif %}>=</option>
+                                                <option value="!=" {% if filter.1 == '!=' %}selected{% endif %}>!=</option>
                                                 <!-- <option value="in">IN</option> -->
-                                            </select>
+                                            {% endif %}
+                                            
+                                        </select>
 
                                         <!-- </div> -->
-                                        <input class="span2 js_query_value js_query" type="text" value="{% firstof query_item.2 %}">
+                                        <input class="span2 js_query_value js_query" type="text" value="{% firstof filter.2 %}">
                                   </td>
                                   <td>
                                         <a class="btn btn-danger js_del_query_item">x</a>
@@ -139,25 +158,25 @@
                               <td>
                                     <select style="width:300px" class="js_query_field js_query">
                                        <optgroup label="Fields">
-                                            <option value="name">name</option>
-                                            {% for field in fields %}
-                                                <option value="{{ field }}">{{ field }}</option>
+                                            <!-- <option value="name" data-atype="string">name</option> -->
+                                            {% for field, atype in fields_with_type %}
+                                                <option value="{{ field }}" data-atype="{{ atype }}">{{ field }}</option>
                                             {% endfor %}
                                        </optgroup>
                                        <optgroup label="Attributes" class="js_query_attr_list">
-                                            {% for attr in attributes_from_organism %}
-                                                    <option value="attr.{{ attr }}">{{ attr }}</option>
-                                                {% endfor %}
+                                            {% for id, attr, atype in attributes_from_organism %}
+                                                <option value="attr.{{ id }}" data-atype="{{ atype }}">{{ attr }}</option>
+                                            {% endfor %}
                                        </optgroup>
                                       </select>
                                     <!-- <div class="btn-group"> -->
                                         <select name="query_field" style="width: 80px;" class="js_query_operation js_query">
                                             <option value="=">=</option>
                                             <option value="!=">!=</option>
-                                            <option value="&gt;=">&gt;=</option>
+                                            <!-- <option value="&gt;=">&gt;=</option>
                                             <option value="&lt;=">&lt;=</option>
                                             <option value="&gt;">&gt;</option>
-                                            <option value="&lt;">&lt;</option>
+                                            <option value="&lt;">&lt;</option> -->
                                             <!-- <option value="in">IN</option> -->
                                         </select>
 
@@ -183,10 +202,10 @@
                 </div>
                 
                 <div class="control-group {% if form.attributes_list.errors %}error{% endif %}">
-                    <label class="control-label" for="{{ form.attributes_list.id_for_label }}">Row Query</label>
+                    <label class="control-label" for="js_row_query">Row Query</label>
                     <div class="controls">
                         <input class="span8" name="row_query_str" id="js_row_query" type="text" value="{{ row_query_str }}">
-                        <input class="hidden" name="row_query_dict" id="js_row_query_dict" type="text">
+                        <input class="hidden" name="field_filters_dict" id="js_field_filters_dict" type="text">
                     </div>
                 </div>
 
@@ -195,14 +214,30 @@
 
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">Run</button>&nbsp;
+                <input type="text" id="save_query_name">
+                <button type="button" class="btn btn-primary" onclick="save_query();">Save query</button>&nbsp;
             </div>
         </form>
 	</div>
 
+    <select name="query_field" style="display: none" class="js_option_for_type_string">
+        <option value="=">=</option>
+        <option value="!=">!=</option>
+        <!-- <option value="in">IN</option> -->
+    </select>
+    <select name="query_field" style="display: none" class="js_option_for_type_integer">
+        <option value="=">=</option>
+        <option value="!=">!=</option>
+        <option value="&gt;=">&gt;=</option>
+        <option value="&lt;=">&lt;=</option>
+        <option value="&gt;">&gt;</option>
+        <option value="&lt;">&lt;</option>
+        <!-- <option value="in">IN</option> -->
+    </select>
+
     
     {% if object_list %}
-    <div class="object_result_table">
-        <div class="preloader" style="display: none"></div>
+    <div class="object_result_table" id="result">
         <div class="row">
             <div class="span12" id="js_object_result_table">
                 {% comment %}
@@ -230,7 +265,7 @@
                         {% endfor %}
                     </tbody>
                 </table>
-                {% endcomment %}
+                
 
                 <table class="table table-bordered">
                     <caption>Result Table</caption>
@@ -249,8 +284,8 @@
                         {% for obj in object_list %}
                             <tr>
                                 <td><a href="{{ obj.url }}">{{ obj.object_name }}</a></td>
-                                {% for field in obj.fields %}
-                                    <td>{{ field }}</td>
+                                {% for field_name, field in obj.fields %}
+                                        <td>{{ field }}</td>
                                 {% endfor %}
                                 {% for attr in obj.attrs %}
                                     <td>{{ attr }}</td>
@@ -261,11 +296,19 @@
                 </table>
 
                 {% include "object_pagination_controls.html" %}
+
+                {% endcomment %}
+
+                {% include "object_pagination.html" %}
+
             </div>
         </div>
     </div>
     {% endif %}
     
+    <div class="preloader-block" style="display: none">
+        <!-- <img class="preloader-img" style="display: none"/> -->
+    </div>
 
 </div>
 {% endblock %}
@@ -280,24 +323,65 @@
 <script src="{{ STATIC_URL }}js/select2.min.js"></script>
 
 <script type="text/javascript">
-    query_block = $('#js_query_block')
+    attribute_container = $('#js_attribute_container')
+    filters_block = $('#js_filters_block')
+    preloader = $('.preloader-block')
+    preloader_img = $('.preloader-img')
     // $('.preloader').hide();
-    function stop_show_loading() {$('.preloader').hide();}
+    function save_query() {
+        var query_name = $('#save_query_name').val()
+        if (query_name) {
+            start_show_loading();
+            Dajaxice.apps.objects.save_query(Dajax.process, {
+                // 'data':JSON.stringify(data),
+                'name': query_name,
+                'form': $('#js_id_form').serialize(true),
+                'field_filters_dict': field_filters_dict,
+            });
+        } else {
 
+        }
+      return false;
+    }
+
+    function delete_query(){
+        if (confirm("Нou agree to lose this query?")) {
+            $(this)
+            var query_name = $('.delete_query_button')
+            if (query_name.val()) {
+                start_show_loading();
+                Dajaxice.apps.objects.save_query(Dajax.process, {
+                    // 'data':JSON.stringify(data),
+                    'name': $('#save_query_name').val(),
+                    'form': $('#js_id_form').serialize(true),
+                    'field_filters_dict': field_filters_dict,
+                });
+            } else {
+
+            }
+        }
         
+      return false;
+    }
+
+    function start_show_loading() {preloader.show(); preloader_img.show()}
+
+    function stop_show_loading() {preloader.hide(); preloader_img.hide()}
 
     function create_attribute_select(){
         $('#js_attribute_container select').select2({
             maximumSelectionSize: 10,
             minimumInputLength: 0,
         });
-
+        stop_show_loading();
+        attribute_container.show();
+        filters_block.show();
 
     };
 
-    query_item_html = $('#js_reference_query_item').html()
+    filter_item_html = $('#js_reference_query_item').html()
     function update_query_items(){
-        query_item_html = $('#js_reference_query_item').html()
+        filter_item_html = $('#js_reference_query_item').html()
         attr_options = $('#js_reference_query_item .js_query_attr_list').html()
         $('.js_query_attr_list').html(attr_options)
         $('.js_query_tr .js_query_field:last').select2({
@@ -306,22 +390,15 @@
     };
 
     function generate_row_query() {
-        var item_query = [];
-        for (var key in query_items_dict) {
-            // if (logic_operation == 'NONE') {
-            //     query_items_dict[key][1] = 'NOT ' + query_items_dict[key][1]
-            // } 
-            // else {
-            //     query_items_dict[key][1] = query_items_dict[key][1].replace('NOT ', '')
-            // }
-
-            item_query = item_query.concat(query_items_dict[key].join(' '));
+        var query_list = [];
+        for (var key in field_filters_dict) {
+            query_list = query_list.concat(field_filters_dict[key].slice(0,3).join(' '));
         }
         if (logic_operation == 'ANY') {
-            var row_query = item_query.join(' OR ')
+            var row_query = query_list.join(' OR ')
         } else {
             // ALL and NONE
-            var row_query = item_query.join(' AND ')
+            var row_query = query_list.join(' AND ')
         }
 
         if (logic_operation == 'NONE') {
@@ -337,11 +414,12 @@
         //     'organism_id': $('#id_organism option:selected').val(),
         //     'form': $('#js_id_form').serialize(true)
         // });
+        start_show_loading();
         create_attribute_select();
     }
     else {
         $('#js_attribute_container').hide();
-        query_block.hide();
+        filters_block.hide();
     };
 
     $(function() {
@@ -349,14 +427,15 @@
 
         // Organism trigger
         $('#id_organism').change(function(){
-            attribute_container = $('#js_attribute_container')
+            
             if ($('#id_organism option:selected').val()) {
-                Dajaxice.apps.objects.update_attributes_from_organism(Dajax.process,{'organism_id': $(this).val(),'form': $('#js_id_form').serialize(true)});
-                attribute_container.show();
-                query_block.show();
+                start_show_loading();
+                Dajaxice.apps.objects.update_attributes_from_organism(Dajax.process,{'organism_id': $(this).val(),
+                    // 'form': $('#js_id_form').serialize(true)
+                });
             }
             else {
-                query_block.hide();
+                filters_block.hide();
                 attribute_container.hide();
             }
         });
@@ -368,11 +447,10 @@
         // Add query item
         $('#js_add_query_item').click(function(){
             item_pk++;
-            $(this).parent().parent().before('<tr class="js_query_tr" data-pk="'+item_pk+'">'+query_item_html+'</tr>')
+            $(this).parent().parent().before('<tr class="js_query_tr" data-pk="'+item_pk+'">'+filter_item_html+'</tr>')
             $('.js_query_tr .js_query_field:last').select2({
                 placeholder: "Select a Field or Attribute",
             });
-            // select2_start();
         })
 
         // row_query = ''
@@ -395,10 +473,10 @@
             generate_row_query();
         })
 
-        query_items_dict = {} 
-        {% for pk, query_item in api_query_dict.items %}
+        field_filters_dict = {} 
+        {% for pk, filter in field_filters_dict.items %}
             {% if pk != '' %}
-                query_items_dict['{{ pk }}'] = ['{{query_item.0}}', '{{query_item.1}}', '{{query_item.2}}']
+                field_filters_dict['{{ pk }}'] = ['{{filter.0}}', '{{filter.1}}', '{{filter.2}}', '{{filter.3}}']
                 {% if forloop.last %} 
                     item_pk = {{ pk }} +1
                 {% endif %}
@@ -406,26 +484,41 @@
         {% endfor %}
 
         // generate_row_query();
+        $('#js_query_table').delegate('.js_query_field', 'change', function(){
+        // $('.js_query_field').change(function(){
+            // alert();
+            field_type = $(this).find('option:selected').data('atype')
+            operation_select = $(this).next('.js_query_operation')
+            if (field_type == 'integer' | field_type == 'float') {
+                operation_select.html($('.js_option_for_type_integer').html())
+            } else {
+                operation_select.html($('.js_option_for_type_string').html())
+            }
+        });
 
         // Update query fields
         $('#js_query_table').delegate('.js_query', 'change', function(){
-            var query_item = $(this).parent().parent()
-            var query_value = query_item.find('.js_query_value').val()
+            var filter = $(this).parent().parent()
+            var filter_value = filter.find('.js_query_value').val()
             
-            if (query_value) {
-                var query_field = query_item.find('select.js_query_field').val()
-                var query_operation = query_item.find('.js_query_operation').val()
-                var item_pk = query_item.data('pk')
-                query_items_dict[item_pk] = [query_field, query_operation, query_value]
+            if (filter_value) {
+                filtered_field = filter.find('select.js_query_field')
+                var filtered_field_val = filtered_field.val()
+                var filtered_field_type = filtered_field.find('option:selected').data('atype')
+                var filtered_operation = filter.find('.js_query_operation').val()
+                var item_pk = filter.data('pk')
+                field_filters_dict[item_pk] = [filtered_field_val, filtered_operation, filter_value, filtered_field_type]
 
                 generate_row_query();
             }
         })
 
+        
+
         // Remove query item
         $('#js_query_table').delegate('.js_del_query_item', 'click', function(){
-            query_item = $(this).parent().parent()
-            delete query_items_dict[query_item.data('pk')]
+            filter = $(this).parent().parent()
+            delete field_filters_dict[filter.data('pk')]
             generate_row_query();
 
             $(this).parent().parent().remove()
@@ -433,7 +526,8 @@
 
         // Before form submit
         $('#js_id_form').submit(function(){
-            $('#js_row_query_dict').val(JSON.stringify(query_items_dict));
+            start_show_loading();
+            $('#js_field_filters_dict').val(JSON.stringify(field_filters_dict));
         })
 
     });

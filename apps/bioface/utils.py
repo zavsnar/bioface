@@ -32,13 +32,13 @@ def ajax_login_required(view_func):
     wrap.__dict__ = view_func.__dict__
     return wrap
 
-def get_choices(request, item_name, cache_key='', key='id', query=''):
+def get_choices(request, item_name, cache_key='', key='id', query='', append_field=''):
     # choices_list = []
     
     if not cache_key:
         cache_key = item_name
     # if cache.has_key(cache_key):
-    print "CACHE ", cache_key
+        print "CACHE ", cache_key
     choices_list = cache.get(cache_key, [])
     # else:
     # choices_list = (('',''),)
@@ -60,11 +60,19 @@ def get_choices(request, item_name, cache_key='', key='id', query=''):
         # choices_list=[]
         if item_list:
             for item in item_list:
-                if item.has_key('name'):
-                    title = item['name']
-                elif item.has_key('tag'):
-                    title = item['tag']
-                choices_list.append((item[key], title))
+                title = item['tag'] if item.has_key('tag') else item['name']
+                # if item.has_key('name'):
+                #     title = item['name']
+                # elif item.has_key('tag'):
+                #     title = item['tag']
+
+                if append_field:
+                    # print 77777, item
+                    append = item[append_field]
+                    choices_list.append((item[key], title, append))
+                    # choices_list.append((item[key], title))
+                else:
+                    choices_list.append((item[key], title))
             cache.set(cache_key, choices_list, 3600)
 
         # print choices_list
