@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 # from __future__ import print_function
 from __future__ import absolute_import
 
+import re
 import urllib
 import httplib2 
 import socket
@@ -297,6 +298,8 @@ def get_objects(request):
         print 88888, request.POST['field_filters_dict']
         field_filters_dict = ast.literal_eval(request.POST['field_filters_dict'])
         row_query_str = request.POST['row_query_str']
+        old_row_query_re = re.findall('\(.+\)', row_query_str)
+        old_row_query_str = old_row_query_re[0] if old_row_query_re else ''
         logic_operation = request.POST.get('select_operand')
         
         if field_filters_dict:
@@ -312,6 +315,7 @@ def get_objects(request):
         template_context.update({
             'logic_operation': logic_operation,
             'row_query_str': row_query_str,
+            'old_row_query_str': old_row_query_str,
             'attributes_from_organism': attributes_from_organism,
         })
 

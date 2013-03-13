@@ -68,7 +68,7 @@ class SelectObjects(forms.Form):
     # method = forms.ChoiceField(choices = GET_METHOD_CHOISES, initial = 'get_objects')
     organism = forms.ChoiceField(widget=forms.Select(attrs={'style': 'width:220px'}))
     display_fields = ObjectFields(required=False, widget=forms.CheckboxSelectMultiple(), choices=OBJECT_FIELDS_CHOICES, initial=('name',))
-    attributes_list = ObjectFields(required=False, widget=ObjectAttributesWidget(attrs={'style': 'width:220px'}))
+    attributes_list = ObjectFields(required=False, widget=ObjectAttributesWidget(attrs={'style': 'width:530px'}))
     
     # row_query = forms.CharField(required=False)
     # limit = forms.IntegerField(required=False)

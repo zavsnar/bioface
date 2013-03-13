@@ -123,10 +123,9 @@ def pagination(request, page, paginate_by, data):
         attributes = []
 
     content_dict = get_pagination_page(page=page, paginate_by=paginate_by, query_dict=query_dict)
-
+    print 777, content_dict['result']['objects']
     if content_dict.has_key('result'):
         object_list = []
-        print 88888, content_dict['result']['objects']
         for obj in content_dict['result']['objects']:
             object_fields=[]
             for field in display_fields:
