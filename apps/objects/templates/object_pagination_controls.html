@@ -23,7 +23,7 @@
     function next_page(){
         $('.js_prev_button').attr('disabled', true)
         $('.js_next_button').attr('disabled', true)
-        $('.preloader').show();
+        start_show_loading();
         Dajaxice.apps.objects.pagination(Dajax.process, {
             'page':{% firstof next_page_number '1' %},
             'paginate_by':{{ paginate_by }}, 
@@ -35,7 +35,7 @@
     function prev_page(){
         $('.js_prev_button').attr('disabled', true)
         $('.js_next_button').attr('disabled', true)
-        $('.preloader').show();
+        start_show_loading();
         Dajaxice.apps.objects.pagination(Dajax.process, {
             'page':{% firstof previous_page_number '1' %},
             'paginate_by':{{ paginate_by }}, 

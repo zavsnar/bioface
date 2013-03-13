@@ -14,31 +14,13 @@ from django.core.context_processors import csrf
 from django.core.urlresolvers import reverse
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
+from django.db import IntegrityError
 
 # from apps.bioface.utils import ajax_login_required
 from apps.objects.views import get_pagination_page
 from apps.objects.forms import CreateOrganismForm, SelectObjects
 from apps.bioface.models import SavedQuery
 from apps.bioface.utils import api_request, get_choices
-
-@dajaxice_register
-def add_organism(request, form):
-    form = CreateOrganismForm(deserialize_form(form))
-    if form.is_valid():
-        query_dict = {
-            "method" : "add_organism",
-            "key": request.user.sessionkey,
-            "params" : {
-                "data" : {
-                    "name": form.cleaned_data['name']
-                }
-            }
-        }
-    else:
-        query_dict = {}
-
-    return add_ajax_form(request = request, form=form, 
-        query_dict=query_dict, html_selector='#create_organism')
 
 @dajaxice_register
 def update_attributes_from_organism(request, organism_id):
@@ -69,25 +51,30 @@ def update_attributes_from_organism(request, organism_id):
 
 @dajaxice_register
 def save_query(request, name, form, field_filters_dict):
+    dajax = Dajax()
     form_data = deserialize_form(form)
     organism = form_data.get('organism')
     display_fields = form_data.getlist('display_fields')
     attributes_list = form_data.getlist('attributes_list')
-    saved_query = SavedQuery.objects.create(
-        type_query = 'get_objects',
-        name = name,
-        user = request.user, 
-        organism_id = organism,
-        display_fields = display_fields,
-        attributes_list = attributes_list,
-        filter_fields = field_filters_dict
-    )
-    # form = SelectObjects(request=request, data=deserialize_form(form))
-    # print 111, type(form_data), organism, display_fields, attributes_list
-    # print 222, type(field_filters_dict)
-    # print 3333, saved_query
-    dajax = Dajax()
-    # dajax.alert('Success! {}'.format(saved_query))
+    try:
+        saved_query = SavedQuery.objects.create(
+            type_query = 'get_objects',
+            name = name,
+            user = request.user, 
+            organism_id = organism,
+            display_fields = display_fields,
+            attributes_list = attributes_list,
+            filter_fields = field_filters_dict
+        )
+        query_item = render_to_string('saved_query_components.html', {'query': saved_query})
+        dajax.append('.js_query_list', 'innerHTML', query_item)
+        template_context = {'success_message': 'Query "{}" successfully added.'.format(name)}
+    except IntegrityError:
+        template_context = {'error_message': 'Name for query must be unique!'}
+
+    message_body = render_to_string('components/alert_messages.html', template_context)
+    dajax.assign('.extra-message-block', 'innerHTML', message_body)
+
     dajax.script('stop_show_loading();')
     return dajax.json()
     
@@ -170,8 +157,7 @@ def pagination(request, page, paginate_by, data):
             'query_dict_str': query_dict_str
         }
 
-
-    render = render_to_string('object_pagination.html', template_context)
+    render = render_to_string('object_list.html', template_context)
 
     dajax = Dajax()
     dajax.assign('#js_object_result_table', 'innerHTML', render)

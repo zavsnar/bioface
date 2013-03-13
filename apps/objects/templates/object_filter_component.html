@@ -1,78 +1,63 @@
 
-    <div  class="filters_block offset1 span8">
-        <!-- <div class="row control-group">
-            <div class="offset2 span4"> -->
-            <div class="operand-block-wraper">
-                <div class="btn-group operand-block" data-toggle="buttons-radio">
-                  <!-- <a class="btn btn-primary js_select_operand active" data-operand="ALL">ALL</a>
-                  <a class="btn btn-primary js_select_operand" data-operand="ANY">ANY</a>
-                  <a class="btn btn-primary js_select_operand" data-operand="NONE">NO ONE</a> -->
-                    <label class='btn btn-info  {% if logic_operation == "ALL" or not logic_operation %}active{% endif %}'>
-                        <input type="radio" name="select_operand" class="js_select_operand hidden" value="ALL" checked>
-                        ALL
-                    </label>
-                    <label class='btn btn-info  {% if logic_operation == "ANY" %}active{% endif %}'>
-                        <input type="radio" name="select_operand" class="js_select_operand hidden" value="ANY">
-                        ANY
-                    </label>
-                    <label class='btn btn-info {% if logic_operation == "NONE" %}active{% endif %}'>
-                        <input type="radio" name="select_operand" class="js_select_operand hidden" value="NONE">
-                        NO ONE
-                    </label>  
-                </div>
-            </div>
-            <!-- </div>
-        </div> -->
-
-        <div class="row">
-            <div class="span8">
-                <table class="table js_query_table">
-                  <tbody>
-                    
-                        <tr class="js_query_tr" data-pk="0">
-                          <td>
-                                <select style="width:300px" class="js_query_field js_query">
-                                   <optgroup label="Fields">
-                                        <!-- <option value="name" data-atype="string">name</option> -->
-                                        {% for field, atype in fields_with_type %}
-                                            <option value="{{ field }}" data-atype="{{ atype }}">{{ field }}</option>
-                                        {% endfor %}
-                                   </optgroup>
-                                   <optgroup label="Attributes" class="js_query_attr_list">
-                                        {% for id, attr, atype in attributes_from_organism %}
-                                            <option value="attr.{{ id }}" data-atype="{{ atype }}">{{ attr }}</option>
-                                        {% endfor %}
-                                   </optgroup>
-                                  </select>
-                                <!-- <div class="btn-group"> -->
-                                    <select name="query_field" style="width: 80px;" class="js_query_operation js_query">
-                                        <option value="=">=</option>
-                                        <option value="!=">!=</option>
-                                        <!-- <option value="&gt;=">&gt;=</option>
-                                        <option value="&lt;=">&lt;=</option>
-                                        <option value="&gt;">&gt;</option>
-                                        <option value="&lt;">&lt;</option> -->
-                                        <!-- <option value="in">IN</option> -->
-                                    </select>
-
-                                <!-- </div> -->
-                                <input class="span2 js_query_value js_query" type="text">
-                          </td>
-                          <td>
-                                <a class="btn btn-danger js_del_query_item">x</a>
-                          </td>
-                        </tr>
-                    
-
-                    <tr>
-                        <td></td>
-                        <td>
-                            <a class="btn btn-success js_add_query_item">+</a>
-                        </td>
-                        
-                    </tr>
-                  </tbody>
-                </table>
-            </div>
+<div  class="filters_block offset1 span8">
+    <div class="operand-block-wraper">
+        <div class="btn-group operand-block" data-toggle="buttons-radio">
+            <label class='btn btn-info  {% if logic_operation == "ALL" or not logic_operation %}active{% endif %}'>
+                <input type="radio" name="select_operand" class="js_select_operand hidden" value="ALL" checked>
+                ALL
+            </label>
+            <label class='btn btn-info  {% if logic_operation == "ANY" %}active{% endif %}'>
+                <input type="radio" name="select_operand" class="js_select_operand hidden" value="ANY">
+                ANY
+            </label>
+            <label class='btn btn-info {% if logic_operation == "NONE" %}active{% endif %}'>
+                <input type="radio" name="select_operand" class="js_select_operand hidden" value="NONE">
+                NO ONE
+            </label>  
         </div>
     </div>
+
+    <div class="row">
+        <div class="span8">
+            <table class="table js_query_table">
+              <tbody>
+                
+                <tr class="js_query_tr" data-pk="0">
+                    <td>
+                        <select style="width:300px" class="js_query_field js_query">
+                            <optgroup label="Fields">
+                                <!-- <option value="name" data-atype="string">name</option> -->
+                                {% for field, atype in fields_with_type %}
+                                    <option value="{{ field }}" data-atype="{{ atype }}">{{ field }}</option>
+                                {% endfor %}
+                            </optgroup>
+                            <optgroup label="Attributes" class="js_query_attr_list">
+                                {% for id, attr, atype in attributes_from_organism %}
+                                    <option value="attr.{{ id }}" data-atype="{{ atype }}">{{ attr }}</option>
+                                {% endfor %}
+                            </optgroup>
+                        </select>
+                        <select name="query_field" style="width: 80px;" class="js_query_operation js_query">
+                            <option value="=">=</option>
+                            <option value="!=">!=</option>
+                            <!-- <option value="in">IN</option> -->
+                        </select>
+
+                        <input class="span2 js_query_value js_query" type="text">
+                    </td>
+                    <td>
+                        <a class="btn btn-danger js_del_query_item">x</a>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td></td>
+                    <td>
+                        <a class="btn btn-success js_add_query_item">+</a>
+                    </td>
+                </tr>
+              </tbody>
+            </table>
+        </div>
+    </div>
+</div>

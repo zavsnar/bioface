@@ -16,19 +16,31 @@
 
 {% block main %}
 <div class="relative">
-    <div class="row">
-        <div class="span12">
+    <div class="row saved-query-block">
+        <div class="span4">
             <a class="btn dropdown-toggle js_queries_list_btn">Saved query<span class="caret"></span></a>
-            <ul class="js_queries_list" style="display: none">
+            <table class="table table-bordered js_queries_list saved-query-list" style="display: none">
+              <!-- <caption>...</caption>
+                <thead>
+                    <tr>
+                        <th>...</th>
+                    </tr>
+                </thead> -->
+                <tbody class="js_query_list">
+                    {% for query in saved_query_list %}
+                        {% include "saved_query_components.html" %}
+                    {% endfor %}
+                </tbody>
+            </table>
+            <!-- <ul class="js_queries_list saved-query-list" style="display: none">
                 {% for query in saved_query_list %}
                     <li><a href="./?saved_query={{ query.name }}">{{ query.name }}</a>
                         <a class="btn btn-mini btn-danger" onclick="Dajaxice.apps.objects.delete_saved_query(Dajax.process, {'name': '{{ query.name }}' });">x</a>
                     </li>
                 {% endfor %}
-            </ul>
+            </ul> -->
 
         </div>
-
     </div>
 
     <div class="row">
@@ -89,18 +101,18 @@
                 <legend>Filters</legend>
                 <!-- <div class="control-group">
                     <div class="controls"> -->
-                        <div class="where-search">
-                            <label for="id_new_query" class="checkbox inline">
-                                    <input id="id_new_query" class="js_where_search" name="search_in_results" type="radio" value="new_query" checked="checked"> New query
-                                </label>
-                                <label for="id_change_current_query" class="checkbox inline">
-                                    <input id="id_change_current_query" class="js_where_search" name="search_in_results" 
-                                        type="radio" value="change_current_query" checked="checked"> Change current query
-                                </label>
-                                <label for="id_search_in_results" class="checkbox inline">
-                                    <input id="id_search_in_results" class="js_where_search" name="search_in_results" type="radio" value="search_in_results"> Search in results
-                                </label>
-                        </div>
+                <div class="where-search">
+                    <label for="id_new_query" class="checkbox inline">
+                        <input id="id_new_query" class="js_where_search" name="search_in_results" type="radio" value="new_query" checked="checked"> New query
+                    </label>
+                    <label for="id_change_current_query" class="checkbox inline">
+                        <input id="id_change_current_query" class="js_where_search" name="search_in_results" 
+                            type="radio" value="change_current_query" checked="checked"> Change current query
+                    </label>
+                    <label for="id_search_in_results" class="checkbox inline">
+                        <input id="id_search_in_results" class="js_where_search" name="search_in_results" type="radio" value="search_in_results"> Search in results
+                    </label>
+                </div>
                    <!--  </div>
                 </div> -->
                 
@@ -108,25 +120,25 @@
                     <div  class="filters_block offset1 span8">
                         <!-- <div class="row control-group">
                             <div class="offset2 span4"> -->
-                            <div class="operand-block-wraper">
-                                <div class="btn-group operand-block" data-toggle="buttons-radio">
-                                  <!-- <a class="btn btn-primary js_select_operand active" data-operand="ALL">ALL</a>
-                                  <a class="btn btn-primary js_select_operand" data-operand="ANY">ANY</a>
-                                  <a class="btn btn-primary js_select_operand" data-operand="NONE">NO ONE</a> -->
-                                    <label class='btn btn-info  {% if logic_operation == "ALL" or not logic_operation %}active{% endif %}'>
-                                        <input type="radio" name="select_operand" class="js_select_operand hidden" value="ALL" {% if logic_operation == "ALL" or not logic_operation %}checked{% endif %}>
-                                        ALL
-                                    </label>
-                                    <label class='btn btn-info  {% if logic_operation == "ANY" %}active{% endif %}'>
-                                        <input type="radio" name="select_operand" class="js_select_operand hidden" value="ANY" {% if logic_operation == "ANY" %}checked{% endif %}>
-                                        ANY
-                                    </label>
-                                    <label class='btn btn-info {% if logic_operation == "NONE" %}active{% endif %}'>
-                                        <input type="radio" name="select_operand" class="js_select_operand hidden" value="NONE" {% if logic_operation == "NONE" %}checked{% endif %}>
-                                        NO ONE
-                                    </label>  
-                                </div>
+                        <div class="operand-block-wraper">
+                            <div class="btn-group operand-block" data-toggle="buttons-radio">
+                              <!-- <a class="btn btn-primary js_select_operand active" data-operand="ALL">ALL</a>
+                              <a class="btn btn-primary js_select_operand" data-operand="ANY">ANY</a>
+                              <a class="btn btn-primary js_select_operand" data-operand="NONE">NO ONE</a> -->
+                                <label class='btn btn-info  {% if logic_operation == "ALL" or not logic_operation %}active{% endif %}'>
+                                    <input type="radio" name="select_operand" class="js_select_operand hidden" value="ALL" {% if logic_operation == "ALL" or not logic_operation %}checked{% endif %}>
+                                    ALL
+                                </label>
+                                <label class='btn btn-info  {% if logic_operation == "ANY" %}active{% endif %}'>
+                                    <input type="radio" name="select_operand" class="js_select_operand hidden" value="ANY" {% if logic_operation == "ANY" %}checked{% endif %}>
+                                    ANY
+                                </label>
+                                <label class='btn btn-info {% if logic_operation == "NONE" %}active{% endif %}'>
+                                    <input type="radio" name="select_operand" class="js_select_operand hidden" value="NONE" {% if logic_operation == "NONE" %}checked{% endif %}>
+                                    NO ONE
+                                </label>  
                             </div>
+                        </div>
                             <!-- </div>
                         </div> -->
 
@@ -136,20 +148,20 @@
                                   <tbody>
                                     {% for pk, filter in field_filters_dict.items %}
                                         <tr class="js_query_tr" data-pk="{% firstof pk '0' %}">
-                                          <td>
+                                            <td>
                                                 <select style="width:300px" class="js_query_field js_query">
-                                                   <optgroup label="Fields">
+                                                    <optgroup label="Fields">
                                                         <!-- <option value="name" data-atype="string">name</option> -->
                                                         {% for field, atype in fields_with_type %}
                                                             <option value="{{ field }}" data-atype="{{ atype }}" {% if filter.0 == field %}selected{% endif %}>{{ field }}</option>
                                                         {% endfor %}
-                                                   </optgroup>
-                                                   <optgroup label="Attributes" class="js_query_attr_list">
+                                                    </optgroup>
+                                                    <optgroup label="Attributes" class="js_query_attr_list">
                                                         {% for id, attr, atype in attributes_from_organism %}
                                                             <option value="attr.{{ id }}" data-atype="{{ atype }}" {% if filter.0 == "attr."|add:attr %}selected{% endif %}>{{ attr }}</option>
                                                         {% endfor %}
-                                                   </optgroup>
-                                                  </select>
+                                                    </optgroup>
+                                                </select>
                                                 <!-- <div class="btn-group"> -->
                                                 <select name="query_field" style="width: 80px;" class="js_query_operation js_query">
                                                     {% if filter.3 == 'integer' or filter.3 == 'float' %}
@@ -169,10 +181,10 @@
 
                                                 <!-- </div> -->
                                                 <input class="span2 js_query_value js_query" type="text" value="{% firstof filter.2 %}">
-                                          </td>
-                                          <td>
+                                            </td>
+                                            <td>
                                                 <a class="btn btn-danger js_del_query_item">x</a>
-                                          </td>
+                                            </td>
                                         </tr>
                                     {% endfor %}
 
@@ -217,7 +229,7 @@
         <div class="row">
             <div class="span12" id="js_object_result_table">
 
-                {% include "object_pagination.html" %}
+                {% include "object_list.html" %}
 
             </div>
         </div>
@@ -235,37 +247,31 @@
     <table style="display: none">
         <tbody>
             <tr id="js_reference_query_item">
-              <td>
+                <td>
                     <select style="width:300px" class="js_query_field js_query">
-                       <optgroup label="Fields">
+                        <optgroup label="Fields">
                             <!-- <option value="name" data-atype="string">name</option> -->
                             {% for field, atype in fields_with_type %}
                                 <option value="{{ field }}" data-atype="{{ atype }}">{{ field }}</option>
                             {% endfor %}
-                       </optgroup>
-                       <optgroup label="Attributes" class="js_query_attr_list">
+                        </optgroup>
+                            <optgroup label="Attributes" class="js_query_attr_list">
                             {% for id, attr, atype in attributes_from_organism %}
                                 <option value="attr.{{ id }}" data-atype="{{ atype }}">{{ attr }}</option>
                             {% endfor %}
-                       </optgroup>
-                      </select>
-                    <!-- <div class="btn-group"> -->
-                        <select name="query_field" style="width: 80px;" class="js_query_operation js_query">
-                            <option value="=">=</option>
-                            <option value="!=">!=</option>
-                            <!-- <option value="&gt;=">&gt;=</option>
-                            <option value="&lt;=">&lt;=</option>
-                            <option value="&gt;">&gt;</option>
-                            <option value="&lt;">&lt;</option> -->
-                            <!-- <option value="in">IN</option> -->
-                        </select>
+                        </optgroup>
+                    </select>
+                    <select name="query_field" style="width: 80px;" class="js_query_operation js_query">
+                        <option value="=">=</option>
+                        <option value="!=">!=</option>
+                        <!-- <option value="in">IN</option> -->
+                    </select>
 
-                    <!-- </div> -->
                     <input class="span2 js_query_value js_query" type="text">
-              </td>
-              <td>
+                </td>
+                <td>
                     <a class="btn btn-danger js_del_query_item">x</a>
-              </td>
+                </td>
             </tr>
         </tbody>
     </table>
@@ -307,6 +313,7 @@
     prepand_query = ''
     old_query = '{{ old_row_query_str|safe }}'
     // $('.preloader').hide();
+
     function save_query() {
         var query_name = $('#save_query_name').val()
         if (query_name) {
@@ -318,30 +325,12 @@
                 'field_filters_dict': field_filters_dict,
             });
         } else {
-
+            // TODO. create alert
         }
       return false;
-    }
+    };
 
-    function delete_query(){
-        if (confirm("Нou agree to lose this query?")) {
-            $(this)
-            var query_name = $('.delete_query_button')
-            if (query_name.val()) {
-                start_show_loading();
-                Dajaxice.apps.objects.save_query(Dajax.process, {
-                    // 'data':JSON.stringify(data),
-                    'name': $('#save_query_name').val(),
-                    'form': $('#js_id_form').serialize(true),
-                    'field_filters_dict': field_filters_dict,
-                });
-            } else {
-
-            }
-        }
-        
-      return false;
-    }
+    
 
     function start_show_loading() {preloader.show(); preloader_img.show()}
 
@@ -359,6 +348,7 @@
     };
 
     filter_item_html = $('#js_reference_query_item').html()
+
     function update_query_items(){
         filter_item_html = $('#js_reference_query_item').html()
         attr_options = $('#js_reference_query_item .js_query_attr_list').html()
@@ -371,7 +361,15 @@
     function generate_row_query() {
         var query_list = [];
         for (var key in field_filters_dict) {
-            query_list = query_list.concat(field_filters_dict[key].slice(0,3).join(' '));
+            var value_type = field_filters_dict[key][3]
+            var prep_list = field_filters_dict[key].slice(0,3)
+            if (value_type == 'integer' | value_type == 'float') {
+                // ToDo Validate
+            } else {
+                prep_list[2] = '"' + prep_list[2] + '"'
+            };
+            query_list = query_list.concat(prep_list.join(' '));
+            
         }
         if (logic_operation == 'ANY') {
             var row_query = query_list.join(' OR ')
@@ -395,10 +393,6 @@
 
 
     if ($('#id_organism option:selected').val()) {
-        // Dajaxice.apps.objects.update_attributes_from_organism(Dajax.process,{
-        //     'organism_id': $('#id_organism option:selected').val(),
-        //     'form': $('#js_id_form').serialize(true)
-        // });
         start_show_loading();
         create_attribute_select();
     }
@@ -409,54 +403,6 @@
 
     $(function() {
         $('.js_query_tr .js_query_field').select2({});
-
-        // Organism trigger
-        $('#id_organism').change(function(){
-            
-            if ($('#id_organism option:selected').val()) {
-                start_show_loading();
-                Dajaxice.apps.objects.update_attributes_from_organism(Dajax.process,{'organism_id': $(this).val(),
-                    // 'form': $('#js_id_form').serialize(true)
-                });
-            }
-            else {
-                filters_block.hide();
-                attribute_container.hide();
-            }
-        });
-
-        // Select2 for attribute select
-        // create_select();
-
-        item_pk = 0
-        // Add query item
-        $('.js_query_table').delegate('.js_add_query_item', 'click', function(){
-            item_pk++;
-            $(this).parent().parent().before('<tr class="js_query_tr" data-pk="'+item_pk+'">'+filter_item_html+'</tr>')
-            $('.actual_filters .js_query_tr .js_query_field:last').select2({
-                placeholder: "Select a Field or Attribute",
-            });
-        });
-
-        // row_query = ''
-
-        // $('#js_query_table .js_query').change(function(){
-        //     query_item = $(this).parent().parent()
-        //     query_field = query_item.find('select.js_query_field').val()
-        //     query_operation = query_item.find('.js_query_operation').val()
-        //     query_value = query_item.find('.js_query_value').val()
-        //     row_query = row_query + ' and ' + [query_field, query_operation, query_value].join(' ')
-        //     alert(row_query);
-        // })
-
-        logic_operation = 'ALL'
-
-
-        $('.js_select_operand').click(function(){
-            logic_operation = $(this).val()
-            // $(this).next('#id_select_operand').val(logic_operation)
-            generate_row_query();
-        })
 
         field_filters_dict_old = {}
         field_filters_dict_new = {}
@@ -470,10 +416,46 @@
         {% endfor %}
         field_filters_dict = field_filters_dict_old
 
-        // generate_row_query();
+        $('.js_query_list').delegate('.delete_query_item', 'click', function(){
+            if (confirm("Нou agree to lose this query?")) {
+                var query_name = $(this).data('name')
+                // alert();
+                // if (query_name) {
+
+                // start_show_loading();
+                Dajaxice.apps.objects.delete_saved_query(Dajax.process, {'name': query_name });
+                // alert($(this).parents('.js_saved_queries_item').html());
+                $(this).parents('.js_saved_queries_item').remove()
+
+                // } else {
+
+                // }
+            }
+        });
+
+        // Organism trigger
+        $('#id_organism').change(function(){
+            if ($('#id_organism option:selected').val()) {
+                start_show_loading();
+                Dajaxice.apps.objects.update_attributes_from_organism(Dajax.process,{'organism_id': $(this).val(),
+                    // 'form': $('#js_id_form').serialize(true)
+                });
+            } else {
+                filters_block.hide();
+                attribute_container.hide();
+            }
+        });
+
+
+        logic_operation = '{% firstof logic_operation "ALL" %}'
+        $('.js_select_operand').click(function(){
+            logic_operation = $(this).val()
+            // $(this).next('#id_select_operand').val(logic_operation)
+            generate_row_query();
+        })
+
+        // Change available operation for select field
         $('.js_query_table').delegate('.js_query_field', 'change', function(){
-        // $('.js_query_field').change(function(){
-            // alert();
             field_type = $(this).find('option:selected').data('atype')
             operation_select = $(this).next('.js_query_operation')
             if (field_type == 'integer' | field_type == 'float') {
@@ -481,6 +463,17 @@
             } else {
                 operation_select.html($('.js_option_for_type_string').html())
             }
+        });
+
+
+        item_pk = 0
+        // Add query item
+        $('.js_query_table').delegate('.js_add_query_item', 'click', function(){
+            item_pk++;
+            $(this).parent().parent().before('<tr class="js_query_tr" data-pk="'+item_pk+'">'+filter_item_html+'</tr>')
+            $('.actual_filters .js_query_tr .js_query_field:last').select2({
+                placeholder: "Select a Field or Attribute",
+            });
         });
 
         // Update query fields
@@ -498,7 +491,7 @@
 
                 generate_row_query();
             }
-        })
+        });
 
         // Remove query item
         $('.js_query_table').delegate('.js_del_query_item', 'click', function(){
@@ -507,18 +500,17 @@
             generate_row_query();
 
             $(this).parent().parent().remove()
-        })
+        });
 
         // Before form submit
         $('#js_id_form').submit(function(){
             start_show_loading();
             $('#js_field_filters_dict').val(JSON.stringify(field_filters_dict));
-        })
+        });
 
+        // Query trigger
         search_in_results = $('.js_search_in_results')
         new_query = $('.js_new_query')
-        
-
         $('.js_where_search').change(function(){
             switch ($(this).val())
             {
@@ -553,35 +545,12 @@
                 });
               break;
             }
-
-
-            // if ($(this).val() == 'search_in_results') {
-            //     new_query.fadeOut(function(){
-            //         new_query.removeClass('actual_filters');
-            //         search_in_results.fadeIn().addClass('actual_filters');
-            //         prepand_query = '{{ row_query_str|safe }}'
-            //         field_filters_dict = field_filters_dict_new
-            //         generate_row_query()
-            //     })
-            // } else {
-            //     search_in_results.fadeOut(function(){
-            //         search_in_results.removeClass('actual_filters');
-            //         new_query.fadeIn().addClass('actual_filters');
-            //         prepand_query = '{{ old_row_query_str|safe }}'
-            //         field_filters_dict = field_filters_dict_old
-            //         generate_row_query()
-            //     })
-            // }
-
-        })
+        });
 
         $('.js_queries_list_btn').click(function(){
-            $(this).next('.js_queries_list').toggle("slow")
+            $(this).next('.js_queries_list').slideToggle()
         })
-
     });
-    
-    
 
 </script>
 {% endblock %}

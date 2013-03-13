@@ -301,6 +301,8 @@ def get_objects(request):
         old_row_query_re = re.findall('\(.+\)', row_query_str)
         old_row_query_str = old_row_query_re[0] if old_row_query_re else ''
         logic_operation = request.POST.get('select_operand')
+        print 999, logic_operation
+        # raise
         
         if field_filters_dict:
             field_filters_dict_sort={}
@@ -431,11 +433,12 @@ def get_objects(request):
         print 888, form_data
         form = SelectObjects(request=request, data=form_data)
         # field_filters_dict_sort = saved_query.filter_fields
-        field_filters_dict_sort = {}
-        for key, q in saved_query.filter_fields.items():
-            if key:
-                q[1] = mark_safe(q[1])
-                field_filters_dict_sort[int(key)] = q
+        if saved_query.filter_fields.items():
+            field_filters_dict_sort = {}
+            for key, q in saved_query.filter_fields.items():
+                if key:
+                    q[1] = mark_safe(q[1])
+                    field_filters_dict_sort[int(key)] = q
 
         # if field_filters_dict:
         #     field_filters_dict_sort={}
@@ -455,7 +458,9 @@ def get_objects(request):
         })
     else:
         form = SelectObjects(request=request)
+
     print 99999, type(field_filters_dict_sort), field_filters_dict_sort
+   
     template_context.update({
         'form': form, 
         'method': 'get_objects',
