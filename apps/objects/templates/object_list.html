@@ -1,5 +1,5 @@
 <table class="table table-bordered">
-    <caption>Result Table</caption>
+    <!-- <caption>Result Table</caption> -->
     <thead>
         <tr>
             <th>Object Name</th>
@@ -19,7 +19,7 @@
                     <td>{{ field }}</td>
                 {% endfor %}
                 {% for attr in obj.attrs %}
-                    <td>{{ attr }}</td>
+                    <td>{{ attr.value }}</td>
                 {% endfor %}
             </tr>
         {% endfor %}

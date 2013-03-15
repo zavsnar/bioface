@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load bootstrap main_filters dajaxice_templatetags staticfiles %}
+
+{% block subtitle %}My Downloads{% endblock %}
+
+{% block forestyle %}
+<link href="{{ STATIC_URL }}css/select2.css" rel="stylesheet"/>
+{% endblock %}
+
+{% block main %}
+<div class="row">
+    <div class="span8">
+        <table class="table">
+            <thead>
+                <th>File</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Description</th>
+            </thead>
+            <tbody>
+                {% for download in  downloads %}
+                    <tr>
+                        <td>{{ download.file_path }}</td>
+                        <td>{{ download.status }}</td>
+                        <td>{{ download.created }}</td>
+                        <td>{{ download.description }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block endjs %}
+
+{% dajaxice_js_import %}
+<script type="text/javascript" src='{% static "/static/dajax/jquery.dajax.core.js" %}'></script>
+<!-- <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script src="{{ STATIC_URL }}js/bootstrap.min.js"></script> -->
+<script src="{{ STATIC_URL }}js/select2.min.js"></script>
+
+<script type="text/javascript">
+
+</script>
+{% endblock %}

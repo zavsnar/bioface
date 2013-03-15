@@ -202,7 +202,7 @@
                     </div>
                 </div>
 
-                <div class="row js_filters_block_toggle js_search_in_results" style="display: none">
+                <div class="row js_search_in_results" style="display: none">
                     {% include "object_filter_component.html" %}
                 </div>
 
@@ -227,10 +227,13 @@
     {% if object_list %}
     <div class="object_result_table" id="result">
         <div class="row">
-            <div class="span12" id="js_object_result_table">
-
-                {% include "object_list.html" %}
-
+            <div class="span12">
+                <p>
+                    <a class="btn pull-right" data-toggle="modal" data-target="#DownloadObjectSelection">Download this selection</a>
+                </p>
+                <div id="js_object_result_table">
+                    {% include "object_list.html" %}
+                </div>
             </div>
         </div>
     </div>
@@ -294,6 +297,27 @@
     </select>
 {# <!-- End Hidden Components --> #}
 
+{% if object_download_form %}
+    {# <!-- Modal Window --> #}
+        <div id="create_modal_form">
+            <div class="modal" id="DownloadObjectSelection" tabindex="-1" role="dialog"
+                 aria-labelledby="ModalLabel" aria-hidden="true" style="display: none">
+                 <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h3 id="ModalLabel">Download object selection</h3>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" id="download_object_selection" action="">
+                        {% csrf_token %}
+                        {{ object_download_form|bootstrap }}
+                        <a class="btn btn-primary" onclick="download_objects();">Download</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {# <!-- --> #}
+{% endif %}
+
 {% endblock %}
 
 
@@ -313,6 +337,14 @@
     prepand_query = ''
     old_query = '{{ old_row_query_str|safe }}'
     // $('.preloader').hide();
+
+
+    function download_objects(){
+        Dajaxice.apps.bioface.download_objects(Dajax.process, { 
+            'query_dict': '{{ query_dict_str }}',
+            'form': $('#download_object_selection').serialize(true),
+        });
+    }
 
     function save_query() {
         var query_name = $('#save_query_name').val()
@@ -416,6 +448,16 @@
         {% endfor %}
         field_filters_dict = field_filters_dict_old
 
+        // Save query
+        $('#save_query_name').keypress(function (e) {
+            // if pressed Enter
+            if (e.which == 13) {
+                save_query();
+                return false;
+            }
+        });
+
+
         $('.js_query_list').delegate('.delete_query_item', 'click', function(){
             if (confirm("Нou agree to lose this query?")) {
                 var query_name = $(this).data('name')
@@ -448,8 +490,16 @@
 
 
         logic_operation = '{% firstof logic_operation "ALL" %}'
-        $('.js_select_operand').click(function(){
-            logic_operation = $(this).val()
+        $('.js_new_query .js_select_operand').click(function(){
+            new_query_logic_operation = $(this).val()
+            logic_operation = new_query_logic_operation
+            // $(this).next('#id_select_operand').val(logic_operation)
+            generate_row_query();
+        })
+
+        $('.js_new_query .js_select_operand').click(function(){
+            search_in_result_logic_operation = $(this).val()
+            logic_operation = search_in_result_logic_operation
             // $(this).next('#id_select_operand').val(logic_operation)
             generate_row_query();
         })

@@ -13,12 +13,13 @@ def api_request(query_dict):
     http = httplib2.Http(disable_ssl_certificate_validation=True)
 
     http_response, content = http.request(API_URL, 'POST', body = json.dumps(query_dict), headers = headers)
+    print 77777, http_response, 888, content
     content_dict = json.loads(content)
     if content_dict.has_key('error'):
         if content_dict['error']['message'] == 'invalid session':
             return redirect('signin')
 
-    return http_response, content_dict
+    return content_dict
 
 
 def ajax_login_required(view_func):
@@ -54,7 +55,9 @@ def get_choices(request, item_name, cache_key='', key='id', query='', append_fie
         if query:
             query_dict['params'] = {}
             query_dict['params']['query'] = query
-        http_response, content_dict = api_request(query_dict)
+        print 1111, query_dict
+        content_dict = api_request(query_dict)
+        
 
         item_list = content_dict['result'].get(item_name, [])
         # choices_list=[]

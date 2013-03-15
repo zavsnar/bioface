@@ -16,22 +16,10 @@ from apps.bioface.utils import api_request, get_choices
 
 METHODS_FOR_CALL_ITEM = ("get_object", "get_attribute", "get_tag", "get_tags_version", "get_sequence", "get_reference",
     "get_segment", "get_alignment", "get_annotation")
-METHODS_FOR_CALL_ITEMS = ("get_attributes", "get_tags", "get_sequences", "get_references", 
-    "get_segments", "get_alignments", "get_annotations", "get_objects")
 
 METHODS_FOR_CREATE_ITEM = ("add_segment", "add_object")
 
 CREATE_METHOD_CHOISES = [ (i, i.replace('add_', '')) for i in METHODS_FOR_CREATE_ITEM ]
-
-GET_METHOD_CHOISES = zip(METHODS_FOR_CALL_ITEMS, METHODS_FOR_CALL_ITEMS)
-# METHOD_CHOISES.append(("get_objects", "get_objects"))
-
-class GetRequestAPIForm(forms.Form):
-    # request = forms.CharField(widget=forms.Textarea, required=False)
-    method = forms.ChoiceField(choices = GET_METHOD_CHOISES)
-    # row_query = forms.CharField(required=False)
-    # limit = forms.IntegerField(required=False)
-    # skip = forms.IntegerField(required=False)
 
 OBJECT_FIELDS = ('name', 'comment', 'lab_id', 'user_id', 'created', 'creator', 'modified', 'source', 'organism', 'id')
 OBJECT_FIELDS_CHOICES = zip(OBJECT_FIELDS, OBJECT_FIELDS)
@@ -69,7 +57,6 @@ class SelectObjects(forms.Form):
     organism = forms.ChoiceField(widget=forms.Select(attrs={'style': 'width:220px'}))
     display_fields = ObjectFields(required=False, widget=forms.CheckboxSelectMultiple(), choices=OBJECT_FIELDS_CHOICES, initial=('name',))
     attributes_list = ObjectFields(required=False, widget=ObjectAttributesWidget(attrs={'style': 'width:530px'}))
-    
     # row_query = forms.CharField(required=False)
     # limit = forms.IntegerField(required=False)
     # skip = forms.IntegerField(required=False)
@@ -100,14 +87,12 @@ class SelectObjects(forms.Form):
         if self.cleaned_data.has_key('organism') and self.cleaned_data['organism']:
             organism_id = self.cleaned_data['organism']
             attr_field = self.fields['attributes_list']
+            # Add choices for attributes after cleaning
             attr_list = get_choices(self.request, cache_key='attributes_{}'.format(organism_id), item_name='attributes', 
                 key='name', query="organism = {}".format(organism_id), append_field='atype')
             attr_field.choices = attr_list
         return self.cleaned_data
 
-class QueryMethodForm(forms.Form):
-        method = forms.MultipleChoiceField(label='Add', choices=CREATE_METHOD_CHOISES, 
-            required=False, widget=forms.SelectMultiple(attrs={'style': 'width:220px', 'class': 'select_method'}))
 
 class CreateOrganismForm(forms.Form):
     name = forms.CharField(label='Name')
@@ -138,7 +123,7 @@ class TagMixin(forms.Form):
                     "params": {"data": {"tag": tag}}
                 }
 
-                http_response, content_dict = api_request(query_dict)
+                content_dict = api_request(query_dict)
                 if content_dict['result']:
                     new_tags.append(content_dict['result']['id'])
 
@@ -149,7 +134,6 @@ class TagMixin(forms.Form):
 
         self.cleaned_data['tags'] = tags
         return self.cleaned_data['tags']
-
 
 
 # def create_object_form(request, *args, **kwargs):
@@ -189,7 +173,7 @@ class CreateObjectForm(TagMixin):
     #                 }
     #             }
 
-    #             http_response, content_dict = api_request(query_dict)
+    #             content_dict = api_request(query_dict)
     #             print 5555, content_dict
     #             if content_dict['result']:
     #                 new_tags.append(content_dict['result']['id'])

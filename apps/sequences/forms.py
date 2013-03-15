@@ -85,7 +85,7 @@ class CreateSequenceForm(forms.Form):
 				    }
 				}
 
-				http_response, content_dict = api_request(query_dict)
+				content_dict = api_request(query_dict)
 				print 5555, content_dict
 				if content_dict['result']:
 					new_tags.append(content_dict['result']['id'])

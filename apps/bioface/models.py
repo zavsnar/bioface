@@ -4,7 +4,9 @@ from django.db import models
 from django.contrib.auth import get_user_model
 
 from django.contrib.auth.models import AbstractUser
- 
+
+ENCODING_CHOUCES = (('utf-8', 'utf-8'), ('cp1251','cp1251'))
+
 class CustomUser(AbstractUser):
     # username = models.CharField(max_length=40, unique=True, db_index=True)
     # email = models.EmailField(max_length=254, unique=True)
@@ -29,6 +31,12 @@ class SavedQuery(models.Model):
     attributes_list = jsonfield.JSONField()
     filter_fields = jsonfield.JSONField()
 
-
+class Download(models.Model):
+    user = models.ForeignKey(CustomUser, related_name='downloads')
+    file = models.FileField(upload_to='downloads', null=True)
+    encoding = models.ChoiceField(choices=ENCODING_CHOUCES, default='utf-8')
+    description = models.TextField()
+    status = models.CharField(max_length=255)
+    created = models.DateTimeField(auto_now_add=True)
 
     

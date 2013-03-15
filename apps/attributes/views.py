@@ -86,7 +86,7 @@ def create_attribute(request):
             }
             print 333, query_dict
 
-            http_response, content_dict = api_request(query_dict)
+            content_dict = api_request(query_dict)
             
             print 5555, content_dict
 
@@ -144,7 +144,7 @@ def get_pagination_page(page, query_dict):
     query_dict['params']['limit'] = item_count+1
 
     query_dict['params']['skip'] = item_count * (page-1)
-    http_response, content_dict = api_request(query_dict)
+    content_dict = api_request(query_dict)
     template_name, template_context = get_item_list_by_api(item_name, content_dict)
     items = template_context['items']
     if len(items) > item_count:

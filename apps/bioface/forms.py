@@ -11,6 +11,7 @@ from django_select2 import *
 from django_select2.widgets import *
 
 from apps.bioface.utils import api_request
+from apps.bioface.models import Download
 
 class ExampleForm(forms.Form):
     username = forms.CharField(max_length=30, label=u'Username')
@@ -31,6 +32,20 @@ GET_METHOD_CHOISES = zip(METHODS_FOR_CALL_ITEMS, METHODS_FOR_CALL_ITEMS)
 ATYPE_ATTRIBUTES = ("integer", "string", "float", "scale", "nominal", "range")
 ATYPE_ATTRIBUTES_CHOISES = zip(ATYPE_ATTRIBUTES, ATYPE_ATTRIBUTES)
 ATTRIBUTES_STATE = ((1, 'Primary attribute'),(0, 'Secondary attribute'))
+
+OBJECT_DOWNLOAD_OPTIONS = (
+    ('attributes', 'attributes'),
+    ('sequences', 'sequences'),
+)
+
+class DownloadForm(forms.ModelForm):
+    # description = forms.CharField(max_length=255)
+    # encodding = forms.CharField(max_length=100, required=False)
+    options = forms.MultipleChoiceField(required=False, widget=forms.CheckboxSelectMultiple(), choices=OBJECT_DOWNLOAD_OPTIONS)
+
+    class Meta:
+    	model = Download
+    	fields = ('encoding', 'description')
 
 class GetRequestAPIForm(forms.Form):
     # request = forms.CharField(widget=forms.Textarea, required=False)
@@ -53,7 +68,7 @@ def get_choices(request, cache_key, key='id'):
             "key": request.user.sessionkey,
         }
 
-		http_response, content_dict = api_request(query_dict)
+		content_dict = api_request(query_dict)
 
 		item_list = content_dict['result'].get(cache_key, [])
 		choices_list=[('','')]
@@ -132,7 +147,7 @@ class CreateObjectForm(forms.Form):
 				    }
 				}
 
-				http_response, content_dict = api_request(query_dict)
+				content_dict = api_request(query_dict)
 				print 5555, content_dict
 				if content_dict['result']:
 					new_tags.append(content_dict['result']['id'])

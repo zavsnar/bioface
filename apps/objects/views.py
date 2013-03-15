@@ -12,6 +12,8 @@ from dateutil.parser import parse as datetime_parse
 
 import ast
 
+from itertools import repeat
+
 from django.conf import settings
 from django import forms
 from django.forms.formsets import formset_factory
@@ -29,7 +31,9 @@ from django.utils.safestring import mark_safe
 
 from apps.bioface.utils import api_request
 from apps.bioface.models import SavedQuery
-from apps.objects.forms import *
+from apps.bioface.forms import DownloadForm
+from apps.objects.forms import CreateObjectForm, UpdateObjectForm, CreateOrganismForm, SelectObjects
+from apps.objects.forms import OBJECT_FIELDS, OBJECT_FIELDS_CHOICES_WITH_TYPE
 
 def create_object(request):
     template_name = 'create_object.html'
@@ -64,7 +68,7 @@ def create_object(request):
                     value = int(value)
                 obj_fields[key] = value
 
-            http_response, content_dict = api_request(query_dict)
+            content_dict = api_request(query_dict)
             
             if content_dict.has_key('result'):
             # {u'error': {u'code': -32005,
@@ -98,7 +102,7 @@ def update_object(request, object_id = 0):
             # "attributes_list": ["attribute_id1", "attribute_id2",  ]
         }
     }
-    http_response, content_dict = api_request(query_dict)
+    content_dict = api_request(query_dict)
     if content_dict.has_key('result'):
         object_data = content_dict['result']['object']
         if object_data.has_key('attributes'):
@@ -141,7 +145,7 @@ def update_object(request, object_id = 0):
                     if value:
                         obj_fields[key] = value
 
-                http_response, content_dict = api_request(query_dict)
+                content_dict = api_request(query_dict)
                 
                 if content_dict.has_key('result'):
                 # {u'error': {u'code': -32005,
@@ -207,7 +211,7 @@ def create_organism(request):
             for key, value in form.cleaned_data.items():
                 obj_fields[key] = value
 
-            http_response, content_dict = api_request(query_dict)
+            content_dict = api_request(query_dict)
             
             if content_dict.has_key('result'):
             # {u'error': {u'code': -32005,
@@ -254,7 +258,7 @@ def get_pagination_page(page, query_dict, paginate_by=5):
 
     query_dict['params']['skip'] = paginate_by * (page-1)
     print  777777, query_dict
-    http_response, content_dict = api_request(query_dict)
+    content_dict = api_request(query_dict)
 
     return content_dict
     
@@ -382,12 +386,19 @@ def get_objects(request):
                             object_fields.append( (field, field_value) )
                         else:
                             object_fields.append( (field, obj[field]) )
-                        
+                    
+                    object_attrs = [ None for i in attr_list ]
+                    for obj_attr in obj['attributes']:
+                        attr_index = attr_list.index(obj_attr['name'])
+                        object_attrs[attr_index] = obj_attr
+
                     object_list.append(
                         {'object_name': obj['name'],
                         'url': reverse('update_object', kwargs={'object_id': obj['id']}),
                         'fields' :object_fields,
-                        'attrs': [ obj['attributes'][attr] for attr in attr_list ]})
+                        # 'attrs': [ d for attr in attr_list for d in obj['attributes'] if d['name'] == attr ]
+                        'attrs': object_attrs,
+                    })
 
                 # Monkey patch. If list of objects longer items per page, that show next button
                 if len(object_list) > paginate_by:
@@ -405,6 +416,7 @@ def get_objects(request):
                     'display_fields_str': display_fields_str,
                     'attributes': attr_list,
                     'object_list': object_list,
+                    'object_download_form': DownloadForm(),
 
                     'has_next': next_page,
                     'has_previous': previous_page,
@@ -459,8 +471,6 @@ def get_objects(request):
     else:
         form = SelectObjects(request=request)
 
-    print 99999, type(field_filters_dict_sort), field_filters_dict_sort
-   
     template_context.update({
         'form': form, 
         'method': 'get_objects',

@@ -54,6 +54,9 @@
                                 <li>
                                     <a href="#">Create sequence</a> 
                                 </li>
+                                <li>
+                                    <a href="{% url 'downloads_list' %}">Your Downloads</a> 
+                                </li>
                             </ul>
                             <div class="pull-right">
                                 <span>User: {{ request.user }}</span>&nbsp;<a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>

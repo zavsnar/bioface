@@ -10,7 +10,7 @@ from django.contrib import admin
 
 # from sitemaps import scheme as sitemaps
 from apps.bioface.views import signin, registration, logout, request_api_page, alter_index, \
-    create_update_item, create_object, update_object, create_organism, test, create_attribute, get_objects
+    create_update_item, create_organism, test, create_attribute, downloads_list
 
 admin.autodiscover()
 
@@ -27,6 +27,8 @@ urlpatterns = patterns('',
         url(r'^login/$', signin, name='signin'),
         url(r'^logout/$', logout, name='logout'),
         url(r'^registration/$', registration, name='registration'),
+
+        url(r'^downloads/$', downloads_list, name='downloads_list'),
 
         url(r'^', include('apps.objects.urls')),
         url(r'^', include('apps.sequences.urls')),
