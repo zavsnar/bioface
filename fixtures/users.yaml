@@ -1,0 +1,10 @@
+- # root user
+  model: bioface.customuser
+  pk: 1   # we don't need conflict with other fixtures
+  fields:
+    username: a@a.ru
+    email: a@a.ru
+    is_active: true
+    is_staff: true
+    is_superuser: true
+    password: 'pbkdf2_sha256$10000$60iX3HC63uYw$rhW7VQXU7+GySpWF2mi1LSii4UY78t6rjmCFmMqKd14='   # 123

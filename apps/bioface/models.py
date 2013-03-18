@@ -5,6 +5,10 @@ from django.contrib.auth import get_user_model
 
 from django.contrib.auth.models import AbstractUser
 
+from settings import DOWNLOADS_ROOT, DOWNLOADS_URL
+
+# DOWNLOAD_PATH = MEDIA_ROOT + "/downloads"
+
 ENCODING_CHOUCES = (('utf-8', 'utf-8'), ('cp1251','cp1251'))
 
 class CustomUser(AbstractUser):
@@ -31,12 +35,14 @@ class SavedQuery(models.Model):
     attributes_list = jsonfield.JSONField()
     filter_fields = jsonfield.JSONField()
 
+
 class Download(models.Model):
     user = models.ForeignKey(CustomUser, related_name='downloads')
-    file = models.FileField(upload_to='downloads', null=True)
-    encoding = models.ChoiceField(choices=ENCODING_CHOUCES, default='utf-8')
+    file_path = models.FilePathField(path=DOWNLOADS_ROOT, match="*.zip", recursive=True, null=True)
+    encoding = models.CharField(choices=ENCODING_CHOUCES, max_length="255", default='utf-8')
     description = models.TextField()
     status = models.CharField(max_length=255)
     created = models.DateTimeField(auto_now_add=True)
 
-    
+    def download_url(self):
+        return DOWNLOADS_URL + self.file_path

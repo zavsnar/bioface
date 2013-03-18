@@ -132,6 +132,6 @@ table#table-nominal-id {
     margin-bottom: 50px;
 }
 
-.saved-query-list {
-    
+.modal-body {
+    max-height: 600px;
 }

@@ -7,20 +7,34 @@
 <link href="{{ STATIC_URL }}css/select2.css" rel="stylesheet"/>
 {% endblock %}
 
+{% block content_title %}
+    <h1>My downloads</h1>
+{% endblock %}
+
 {% block main %}
 <div class="row">
     <div class="span8">
+        <h2>Objects</h2>
         <table class="table">
             <thead>
                 <th>File</th>
+                <!-- <th>Size</th> -->
                 <th>Status</th>
                 <th>Created</th>
                 <th>Description</th>
             </thead>
             <tbody>
-                {% for download in  downloads %}
+                {% for download in downloads %}
                     <tr>
-                        <td>{{ download.file_path }}</td>
+                        {% if download.file_path %}
+                            <td>
+                                <a href="{{ download.download_url }}">{{ download.file_path }}</a>
+                            </td>
+                            <!-- <td>{{ download.file.size }}</td> -->
+                        {% else %}
+                            <td>File expected</td>
+                            <!-- <td></td> -->
+                        {% endif %}
                         <td>{{ download.status }}</td>
                         <td>{{ download.created }}</td>
                         <td>{{ download.description }}</td>
