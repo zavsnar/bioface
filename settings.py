@@ -137,7 +137,7 @@ INSTALLED_APPS = (
 
     'ajaxuploader',
 
-    'django_select2',
+    #'django_select2',
 
     'jsonfield',
 

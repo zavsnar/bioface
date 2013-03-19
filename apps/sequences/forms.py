@@ -7,8 +7,8 @@ from django.core.cache import cache
 from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
 
-from django_select2 import *
-from django_select2.widgets import *
+#from django_select2 import *
+#from django_select2.widgets import *
 
 from apps.bioface.utils import api_request, get_choices
 

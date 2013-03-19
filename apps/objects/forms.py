@@ -9,8 +9,8 @@ from django.core.exceptions import ValidationError
 from django.utils.html import format_html
 from django.utils.encoding import force_text
 
-from django_select2 import *
-from django_select2.widgets import *
+#from django_select2 import *
+#from django_select2.widgets import *
 
 from apps.bioface.utils import api_request, get_choices
 
