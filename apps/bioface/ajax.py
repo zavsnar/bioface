@@ -24,12 +24,14 @@ from settings import DOWNLOADS_ROOT
 # from apps.bioface.utils import ajax_login_required
 from apps.bioface.forms import CreateOrganismForm, DownloadForm
 from apps.bioface.utils import api_request, UnicodeWriter
-from apps.bioface.models import SavedQuery, Download
+from apps.bioface.models import Download
 
 def prepair_objects(query_dict, object_download, with_attributes=False, with_sequences=False, encoding='utf-8'):
+    object_download = Download.objects.get(id = object_download)
     content_dict = api_request(query_dict)
     if content_dict.has_key('result'):
         objects = content_dict['result']['objects']
+        print content_dict['result']
         with tempfile.NamedTemporaryFile(delete=False) as obj_csvfile:
             # spamwriter = csv.writer(obj_csvfile, delimiter=str(','), quotechar=str('|'), quoting=csv.QUOTE_MINIMAL)
             spamwriter = UnicodeWriter(obj_csvfile, encoding=encoding)
@@ -129,10 +131,10 @@ def download_objects(request, form, query_dict):
 
         with_attributes = True if 'attributes' in form.cleaned_data['options'] else False
         with_sequences = True if 'sequences' in form.cleaned_data['options'] else False
-
+        obj_id = object_download.id
         thread = Thread(target = prepair_objects, kwargs = {
             'query_dict': query_dict, 
-            'object_download': object_download,
+            'object_download': obj_id,
             'with_attributes': with_attributes,
             'with_sequences': with_sequences,
             'encoding': encoding,

@@ -101,18 +101,20 @@
                 <legend>Filters</legend>
                 <!-- <div class="control-group">
                     <div class="controls"> -->
-                <div class="where-search">
-                    <label for="id_new_query" class="checkbox inline">
-                        <input id="id_new_query" class="js_where_search" name="search_in_results" type="radio" value="new_query" checked="checked"> New query
-                    </label>
-                    <label for="id_change_current_query" class="checkbox inline">
-                        <input id="id_change_current_query" class="js_where_search" name="search_in_results" 
-                            type="radio" value="change_current_query" checked="checked"> Change current query
-                    </label>
-                    <label for="id_search_in_results" class="checkbox inline">
-                        <input id="id_search_in_results" class="js_where_search" name="search_in_results" type="radio" value="search_in_results"> Search in results
-                    </label>
-                </div>
+                {% if row_query_str %}
+                    <div class="where-search">
+                        <label for="id_new_query" class="checkbox inline">
+                            <input id="id_new_query" class="js_where_search" name="search_in_results" type="radio" value="new_query" checked="checked"> New query
+                        </label>
+                        <label for="id_change_current_query" class="checkbox inline">
+                            <input id="id_change_current_query" class="js_where_search" name="search_in_results" 
+                                type="radio" value="change_current_query" checked="checked"> Change current query
+                        </label>
+                        <label for="id_search_in_results" class="checkbox inline">
+                            <input id="id_search_in_results" class="js_where_search" name="search_in_results" type="radio" value="search_in_results"> Search in results
+                        </label>
+                    </div>
+                {% endif %}
                    <!--  </div>
                 </div> -->
                 
@@ -608,6 +610,8 @@
         $('.js_queries_list_btn').click(function(){
             $(this).next('.js_queries_list').slideToggle()
         })
+
+        generate_row_query();
     });
 
 </script>

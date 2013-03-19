@@ -13,6 +13,7 @@ make_dirs(){
         mkdir -p \
                 static \
                 media \
+                media/downloads \
                 logs \
             && echo "  ok" \
             || echo "  ERROR!" 1>&2;

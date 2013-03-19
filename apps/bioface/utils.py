@@ -6,6 +6,7 @@ import csv, codecs, cStringIO
 from django.shortcuts import render, render_to_response, redirect
 from django.core.cache import cache
 
+# API_URL = 'http://10.0.1.7:5000/api/v1/'
 API_URL = 'https://10.0.1.204:5000/api/v1/'
 
 def api_request(query_dict):
