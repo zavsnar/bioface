@@ -7,7 +7,7 @@ from local_settings import DEFAULT_FROM_EMAIL, EMAIL_BACKEND, EMAIL_HOST, EMAIL_
 from local_settings import APP_SERVER_SETTINGS
 from local_settings import THUMBNAIL_DUMMY
 from local_settings import DEBUG_TOOLBAR_PANELS, INTERNAL_IPS
-from local_settings import HOST_NAME
+#from local_settings import HOST_NAME
 
 from os.path import join
 
