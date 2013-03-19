@@ -122,10 +122,13 @@ def pagination(request, page, paginate_by, data):
                 else:
                     object_fields.append( (field, obj[field]) )
 
-            object_attrs = [ None for i in attributes ]
-            for obj_attr in obj['attributes']:
-                attr_index = attributes.index(obj_attr['name'])
-                object_attrs[attr_index] = obj_attr
+            if obj.has_key('attributes'):
+                object_attrs = [ None for i in attributes ]
+                for obj_attr in obj['attributes']:
+                    attr_index = attributes.index(obj_attr['name'])
+                    object_attrs[attr_index] = obj_attr
+            else:
+                object_attrs = []
 
             object_list.append(
                 {'object_name': obj['name'],

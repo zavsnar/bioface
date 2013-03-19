@@ -2,13 +2,13 @@
     <!-- <span class="step-links"> -->
         {% if has_previous %}
         <li>
-            <button class="js_prev_button" onclick="prev_page()">previous</button>
+            <a class="js_prev_button" onclick="prev_page()">&larr; previous</a>
         </li>
         {% endif %}
 
         {% if has_next %}
         <li>
-            <button class="js_next_button" onclick="next_page();">next</button>
+            <a class="js_next_button" onclick="next_page();">next &rarr;</a>
         </li>
         {% endif %}
     <!-- </span> -->

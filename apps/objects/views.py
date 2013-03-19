@@ -351,18 +351,19 @@ def get_objects(request):
                 print 9999, row_query
 
             attr_list=[]
-            if cd['attributes_list']:
-                query_dict['params']['attributes_list'] = cd['attributes_list']
-                attr_list = cd['attributes_list']
+            # if cd['attributes_list']:
+            query_dict['params']['attributes_list'] = cd['attributes_list']
+            attr_list = cd['attributes_list']
 
             query_dict['params']['query'] = row_query
 
             if request.GET.has_key('order_by'):
                 order_field = request.GET['order_by']
                 query_dict['params']['orderby'] = [[order_field, "acs"],]
-            print 444444, query_dict
             try:
                 content_dict = get_pagination_page(page=1, paginate_by=paginate_by, query_dict=query_dict)
+                # print 77777, content_dict['result']['objects'][0]
+                
             except socket.error:
                 # TODO
                 messages.error(request, 'Oops! Not connected to server.')
@@ -387,10 +388,13 @@ def get_objects(request):
                         else:
                             object_fields.append( (field, obj[field]) )
                     
-                    object_attrs = [ None for i in attr_list ]
-                    for obj_attr in obj['attributes']:
-                        attr_index = attr_list.index(obj_attr['name'])
-                        object_attrs[attr_index] = obj_attr
+                    if obj.has_key('attributes'):
+                        object_attrs = [ None for i in attr_list ]
+                        for obj_attr in obj['attributes']:
+                            attr_index = attr_list.index(obj_attr['name'])
+                            object_attrs[attr_index] = obj_attr
+                    else:
+                        object_attrs = []
 
                     object_list.append(
                         {'object_name': obj['name'],

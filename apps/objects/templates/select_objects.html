@@ -239,9 +239,9 @@
     </div>
     {% endif %}
     
-    <div class="preloader-block" style="display: none">
-        <!-- <img class="preloader-img" style="display: none"/> -->
-    </div>
+    <!-- <div class="preloader-block" style="display: none"> -->
+        <div class="preloader-img" style="display: none"></div>
+    <!-- </div> -->
 
 </div>
 
@@ -372,7 +372,9 @@
         // preloader.show(); 
         preloader_img.show()}
 
-    function stop_show_loading() {preloader.hide(); preloader_img.hide()}
+    function stop_show_loading() {
+        // preloader.hide(); 
+        preloader_img.hide()}
 
     function create_attribute_select(){
         $('#js_attribute_container select').select2({

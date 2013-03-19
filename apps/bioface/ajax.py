@@ -23,102 +23,38 @@ from settings import DOWNLOADS_ROOT
 
 # from apps.bioface.utils import ajax_login_required
 from apps.bioface.forms import CreateOrganismForm, DownloadForm
-from apps.bioface.utils import api_request
+from apps.bioface.utils import api_request, UnicodeWriter
 from apps.bioface.models import SavedQuery, Download
 
-import csv, codecs, cStringIO
-
-class UTF8Recoder:
-    """
-    Iterator that reads an encoded stream and reencodes the input to UTF-8
-    """
-    def __init__(self, f, encoding):
-        self.reader = codecs.getreader(encoding)(f)
-
-    def __iter__(self):
-        return self
-
-    def next(self):
-        return self.reader.next().encode("utf-8")
-
-class UnicodeReader:
-    """
-    A CSV reader which will iterate over lines in the CSV file "f",
-    which is encoded in the given encoding.
-    """
-
-    def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
-        f = UTF8Recoder(f, encoding)
-        self.reader = csv.reader(f, dialect=dialect, **kwds)
-
-    def next(self):
-        row = self.reader.next()
-        return [unicode(s, "utf-8") for s in row]
-
-    def __iter__(self):
-        return self
-
-class UnicodeWriter:
-    """
-    A CSV writer which will write rows to CSV file "f",
-    which is encoded in the given encoding.
-    """
-
-    def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
-        # Redirect output to a queue
-        self.queue = cStringIO.StringIO()
-        self.writer = csv.writer(self.queue, dialect=dialect, **kwds)
-        self.stream = f
-        self.encoder = codecs.getincrementalencoder(encoding)()
-
-    def writerow(self, row):
-        self.writer.writerow([s.encode("utf-8") for s in row])
-        # Fetch UTF-8 output from the queue ...
-        data = self.queue.getvalue()
-        data = data.decode("utf-8")
-        # ... and reencode it into the target encoding
-        data = self.encoder.encode(data)
-        # write to the target stream
-        self.stream.write(data)
-        # empty queue
-        self.queue.truncate(0)
-
-    def writerows(self, rows):
-        for row in rows:
-            self.writerow(row)
-
-def prepair_objects(query_dict, object_download, with_attributes=False, with_sequences=False):
+def prepair_objects(query_dict, object_download, with_attributes=False, with_sequences=False, encoding='utf-8'):
     content_dict = api_request(query_dict)
     if content_dict.has_key('result'):
         objects = content_dict['result']['objects']
         with tempfile.NamedTemporaryFile(delete=False) as obj_csvfile:
             # spamwriter = csv.writer(obj_csvfile, delimiter=str(','), quotechar=str('|'), quoting=csv.QUOTE_MINIMAL)
-            spamwriter = UnicodeWriter(obj_csvfile, encoding='utf-8')
+            spamwriter = UnicodeWriter(obj_csvfile, encoding=encoding)
             col_list = []
             attr_col_list = []
             for key, val in objects[0].iteritems():
                 if key == 'attributes':
-                    attr_col_list = [ attr['name'].encode('utf-8') for attr in val ]
+                    attr_col_list = [ attr['name'] for attr in val ]
                 else:
                     col_list.append(key)
             col_list.extend(attr_col_list)
 
-            # spamwriter.writerow(col_list)
+            spamwriter.writerow(col_list)
             for obj in objects:
                 obj_vals = []
                 obj_attrs_val = [ None for i in attr_col_list ]
-                print 666666, obj
                 for key, val in obj.iteritems():
                     if key == 'attributes':
                         for attr in val:
-                            idx = attr_col_list.index(attr['name'].encode('utf-8'))
+                            idx = attr_col_list.index(attr['name'])
                             attr_value = attr['value']
                             obj_attrs_val[idx] = attr_value
                     else:
-                        # if type(val) == unicode:
-                            # value = val.encode('utf-8') if type(val) == unicode else val
                         obj_vals.append(val)
-                        
+
                 obj_vals.extend(obj_attrs_val)
                 print 22222, obj_vals
                 # try:
@@ -138,7 +74,8 @@ def prepair_objects(query_dict, object_download, with_attributes=False, with_seq
                 objects = content_dict['result']['objects']
 
                 with tempfile.NamedTemporaryFile(delete=False) as attr_csvfile:
-                    spamwriter = csv.writer(attr_csvfile, delimiter=str(','), quotechar=str('|'), quoting=csv.QUOTE_MINIMAL)
+                    # spamwriter = csv.writer(attr_csvfile, delimiter=str(','), quotechar=str('|'), quoting=csv.QUOTE_MINIMAL)
+                    spamwriter = UnicodeWriter(attr_csvfile, encoding=encoding)
                     attr_col_list = ['Objects']
                     attr_col_list.extend([ attr['name'] for attr in objects[0]['attributes'] ])
                     spamwriter.writerow(attr_col_list)
@@ -183,8 +120,9 @@ def download_objects(request, form, query_dict):
         
         # thread = threading.Thread(target = daemon_test)
         # thread.daemon = True
+        encoding = form.cleaned_data['encoding']
         object_download = Download.objects.create(
-            # encoding = form.cleaned_data['encoding'],
+            encoding = encoding,
             user = request.user,
             description = form.cleaned_data['description'],
             status = 'expected')
@@ -196,7 +134,8 @@ def download_objects(request, form, query_dict):
             'query_dict': query_dict, 
             'object_download': object_download,
             'with_attributes': with_attributes,
-            'with_sequences': with_sequences
+            'with_sequences': with_sequences,
+            'encoding': encoding,
         })
         thread.start()
         msg = 'Ok'
