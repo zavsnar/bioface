@@ -11,9 +11,9 @@ def api_request(query_dict):
     
     headers = {'Content-type': 'application/json'}
     http = httplib2.Http(disable_ssl_certificate_validation=True)
-
+    print 77777, query_dict
     http_response, content = http.request(API_URL, 'POST', body = json.dumps(query_dict), headers = headers)
-    print 77777, http_response, 888, content
+    print 888, content
     content_dict = json.loads(content)
     if content_dict.has_key('error'):
         if content_dict['error']['message'] == 'invalid session':

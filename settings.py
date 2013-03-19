@@ -27,6 +27,8 @@ USE_I18N = False
 # calendars according to the current locale
 USE_L10N = True
 
+PROJECT_ROOT = SOURCE_ROOT + '../'
+
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
 MEDIA_ROOT = join(SOURCE_ROOT, '../media/')

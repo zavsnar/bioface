@@ -1,6 +1,7 @@
 flup
 pyyaml
-django == 1.4.3
+django == 1.5
+uwsgi
 #pillow
 #httplib2==0.7.6
 

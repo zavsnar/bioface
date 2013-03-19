@@ -100,17 +100,16 @@ def delete_saved_query(request, name):
 # @ajax_login_required
 # def pagination(request, page, paginate_by, display_fields, attributes, row_query):
 def pagination(request, page, paginate_by, data):
-    
     data = ast.literal_eval(data)
     display_fields = data['display_fields']
     query_dict = data['query_dict']
     if query_dict['params'].has_key('attributes_list'):
-        attributes = query_dict['params']['attributes_list']
+        attributes = [ attr.decode('utf-8') for attr in query_dict['params']['attributes_list'] ]
     else:
         attributes = []
 
     content_dict = get_pagination_page(page=page, paginate_by=paginate_by, query_dict=query_dict)
-    print 777, content_dict['result']['objects']
+    # print 777, content_dict['result']['objects']
     if content_dict.has_key('result'):
         object_list = []
         for obj in content_dict['result']['objects']:
