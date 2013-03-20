@@ -88,23 +88,25 @@ def signin(request):
 
 
 def logout(request):
-    headers = {'Content-type': 'application/json'}
-    http = httplib2.Http(disable_ssl_certificate_validation=True)
-               
-    query = {
-        "method" : "logout",
-        "params": {
-            "key": request.user.sessionkey
-            }
-    }
-    response, content = http.request(API_URL, 'POST', body = json.dumps(query), headers = headers)
-    
-    response = json.loads(content)
-    if response['result'] == "bye":
-        redirect_url = request.GET.get('next') if request.GET.get('next', None) else '/'
-        auth_logout(request)
-    else:
-        messages.error(request, response)
+    user = getattr(request, 'user', None)
+    redirect_url = request.GET.get('next') if request.GET.get('next', None) else '/'
+    if hasattr(user, 'is_authenticated') and user.is_authenticated():
+        headers = {'Content-type': 'application/json'}
+        http = httplib2.Http(disable_ssl_certificate_validation=True)
+                   
+        query = {
+            "method" : "logout",
+            "params": {
+                "key": request.user.sessionkey
+                }
+        }
+        response, content = http.request(API_URL, 'POST', body = json.dumps(query), headers = headers)
+        response = json.loads(content)
+
+        if response['result'] == "bye":
+            auth_logout(request)
+        else:
+            messages.error(request, response)
 
     return redirect(redirect_url)
 

@@ -74,6 +74,13 @@ table#table-nominal-id {
     position: relative;
 }
 
+.extra-message-block {
+    position: fixed;
+    top: 0px;
+    right: 0px;
+}
+
+
 .preloader {
     position: fixed;
     top: 0px;

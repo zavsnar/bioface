@@ -33,7 +33,7 @@ def update_attributes_from_organism(request, organism_id):
     # value = form_data.getlist('attributes_list')
     # render = attr_field.widget.render(name='attributes_list', value = value)
 
-    attr_render = '<select multiple="multiple" id="id_attributes_list" name="attributes_list" style="width:220px">\n'
+    attr_render = '<select multiple="multiple" id="id_attributes_list" name="attributes_list" style="width:530px">\n'
     options=[]
     for attr_name, attr_value, atype in attr_list:
         attr_render = attr_render + '<option value="{0}">{1}</option>\n'.format(attr_name, attr_value)
@@ -50,7 +50,7 @@ def update_attributes_from_organism(request, organism_id):
     return dajax.json()
 
 @dajaxice_register
-def save_query(request, name, form, field_filters_dict):
+def save_query(request, name, form, field_filters_dict, query_str):
     dajax = Dajax()
     form_data = deserialize_form(form)
     organism = form_data.get('organism')
@@ -64,7 +64,8 @@ def save_query(request, name, form, field_filters_dict):
             organism_id = organism,
             display_fields = display_fields,
             attributes_list = attributes_list,
-            filter_fields = field_filters_dict
+            filter_fields = field_filters_dict,
+            query_str = query_str,
         )
         query_item = render_to_string('saved_query_components.html', {'query': saved_query})
         dajax.append('.js_query_list', 'innerHTML', query_item)
@@ -74,7 +75,7 @@ def save_query(request, name, form, field_filters_dict):
 
     message_body = render_to_string('components/alert_messages.html', template_context)
     dajax.assign('.extra-message-block', 'innerHTML', message_body)
-
+    dajax.script('show_messages();')
     dajax.script('stop_show_loading();')
     return dajax.json()
     
@@ -100,6 +101,7 @@ def delete_saved_query(request, name):
 # @ajax_login_required
 # def pagination(request, page, paginate_by, display_fields, attributes, row_query):
 def pagination(request, page, paginate_by, data):
+    print data
     data = ast.literal_eval(data)
     display_fields = data['display_fields']
     query_dict = data['query_dict']

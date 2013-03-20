@@ -230,10 +230,13 @@
     <div class="object_result_table" id="result">
         <div class="row">
             <div class="span12">
+
                 <p>
+                    Find {{ objects_count }} objects
                     <a class="btn pull-right" data-toggle="modal" data-target="#DownloadObjectSelection">Download this selection</a>
                 </p>
                 <div id="js_object_result_table">
+
                     {% include "object_list.html" %}
                 </div>
             </div>
@@ -361,6 +364,7 @@
                 'name': query_name,
                 'form': $('#js_id_form').serialize(true),
                 'field_filters_dict': field_filters_dict,
+                'query_str': $('#js_row_query').val(),
             });
         } else {
             // TODO. create alert
@@ -378,6 +382,10 @@
         // preloader.hide(); 
         preloader_img.hide()}
 
+    $('#js_attribute_container select').select2({
+            maximumSelectionSize: 5,
+            minimumInputLength: 0,
+        });
     function create_attribute_select(){
         $('#js_attribute_container select').select2({
             maximumSelectionSize: 10,
@@ -433,15 +441,18 @@
         
     };
 
-
-    if ($('#id_organism option:selected').val()) {
-        start_show_loading();
-        create_attribute_select();
+    function show_messages(){
+        $('.extra-message-block').fadeIn().delay(4000).fadeOut();
     }
-    else {
-        $('#js_attribute_container').hide();
-        filters_block.hide();
-    };
+
+    // if ($('#id_organism option:selected').val()) {
+    //     start_show_loading();
+    //     create_attribute_select();
+    // }
+    // else {
+    //     $('#js_attribute_container').hide();
+    //     filters_block.hide();
+    // };
 
     $(function() {
         $('.js_query_tr .js_query_field').select2({});
@@ -489,9 +500,7 @@
         $('#id_organism').change(function(){
             if ($('#id_organism option:selected').val()) {
                 start_show_loading();
-                Dajaxice.apps.objects.update_attributes_from_organism(Dajax.process,{'organism_id': $(this).val(),
-                    // 'form': $('#js_id_form').serialize(true)
-                });
+                Dajaxice.apps.objects.update_attributes_from_organism(Dajax.process,{'organism_id': $(this).val()});
             } else {
                 filters_block.hide();
                 attribute_container.hide();
@@ -611,7 +620,6 @@
             $(this).next('.js_queries_list').slideToggle()
         })
 
-        generate_row_query();
     });
 
 </script>

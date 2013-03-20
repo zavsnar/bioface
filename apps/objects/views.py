@@ -313,34 +313,25 @@ def get_objects(request):
             for key, q in field_filters_dict.items():
                 if key:
                     q[1] = mark_safe(q[1])
-                    field_filters_dict_sort[int(key)] = q
-            print 44444, field_filters_dict_sort
+                    field_filters_dict_sort[int(key)] = [ s.decode('utf8') for s in q ]
         # attributes_from_organism = [ value[1] for value in form.fields['attributes_list'].choices ]
-        attributes_from_organism = form.fields['attributes_list'].choices
 
+        # attributes_from_organism = form.fields['attributes_list'].choices
+        # print 77777, attributes_from_organism
+        # raise
         template_context.update({
             'logic_operation': logic_operation,
             'row_query_str': row_query_str,
             'old_row_query_str': old_row_query_str,
-            'attributes_from_organism': attributes_from_organism,
+            # 'attributes_from_organism': attributes_from_organism,
         })
 
         if form.is_valid():
             cd = form.cleaned_data
                 # query_dict = ast.literal_eval(query_str)
-            query_dict = {
-                "method" : 'get_objects',
-                "key": request.user.sessionkey,
-                # "params" : {
-                #     "query" : "field > 12 and (field2 = green and field64 > big)",
-                #     "limit" : int,
-                #     "skip": int,
-                #     "orderby" : [["field_name", "asc"], ["field_name2", "desc"]]
-                #     "attributes_list": ["attribute_name1", "attribute_name2",  ]
-                # }
-            }
+            
 
-            query_dict['params'] = {}
+            # query_dict['params'] = {}
 
             # if cd['organism']:
             row_query = 'organism = {}'.format(cd['organism'])
@@ -352,14 +343,28 @@ def get_objects(request):
 
             attr_list=[]
             # if cd['attributes_list']:
-            query_dict['params']['attributes_list'] = cd['attributes_list']
+            # query_dict['params']['attributes_list'] = cd['attributes_list']
             attr_list = cd['attributes_list']
 
-            query_dict['params']['query'] = row_query
+            # query_dict['params']['query'] = row_query
 
-            if request.GET.has_key('order_by'):
-                order_field = request.GET['order_by']
-                query_dict['params']['orderby'] = [[order_field, "acs"],]
+            # if request.GET.has_key('order_by'):
+            order_field = request.GET.get('order_by', 'name')
+            # query_dict['params']['orderby'] = [[order_field, "acs"],]
+
+            query_dict = {
+                "method" : 'get_objects',
+                "key": request.user.sessionkey,
+                "params" : {
+                    "count": 'true',
+                    "query" : row_query,
+                #     "limit" : int,
+                #     "skip": int,
+                    "orderby" : [(order_field, "acs"),],
+                    "attributes_list": cd['attributes_list']
+                }
+            }
+
             try:
                 content_dict = get_pagination_page(page=1, paginate_by=paginate_by, query_dict=query_dict)
                 # print 77777, content_dict['result']['objects'][0]
@@ -376,6 +381,8 @@ def get_objects(request):
                 else:
                     display_fields = fields
                 print display_fields, ['name'].extend(cd['display_fields']), fields
+
+                objects_count = content_dict['result']['total_count']
 
                 object_list = []
                 for obj in content_dict['result']['objects']:
@@ -426,7 +433,8 @@ def get_objects(request):
                     'has_previous': previous_page,
                     'next_page_number': 2,
                     # 'previous_page_number': 1,
-                    'paginate_by': paginate_by,    
+                    'paginate_by': paginate_by,
+                    'objects_count': objects_count,  
                 })
 
             else:   
@@ -463,17 +471,24 @@ def get_objects(request):
         #             q[1] = mark_safe(q[1])
         #             field_filters_dict_sort[int(key)] = q
         #     print 44444, field_filters_dict_sort
-        attributes_from_organism = [ value[1] for value in form.fields['attributes_list'].choices ]
+        # attributes_from_organism = [ value[1] for value in form.fields['attributes_list'].choices ]
+        row_query_str = saved_query.query_str
+        old_row_query_re = re.findall('\(.+\)', row_query_str)
+        old_row_query_str = old_row_query_re[0] if old_row_query_re else ''
+
 
         template_context.update({
             # 'logic_operation': saved_query.logic_operation,
             'logic_operation': "ALL",
-            # 'row_query_str': saved_query.row_query_str,
-            'row_query_str': '',
-            'attributes_from_organism': attributes_from_organism,
+            'row_query_str': row_query_str,
+            'old_row_query_str': old_row_query_str,
+            # 'row_query_str': '',
+            # 'attributes_from_organism': attributes_from_organism,
         })
     else:
         form = SelectObjects(request=request)
+
+    attributes_from_organism = form.fields['attributes_list'].choices
 
     template_context.update({
         'form': form, 
@@ -482,6 +497,7 @@ def get_objects(request):
         'fields': fields,
         'fields_with_type': OBJECT_FIELDS_CHOICES_WITH_TYPE,
         'field_filters_dict': field_filters_dict_sort,
+        'attributes_from_organism': attributes_from_organism,
         })
 
     return render_to_response("select_objects.html", template_context, context_instance=RequestContext(request))

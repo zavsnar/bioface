@@ -34,6 +34,7 @@ class SavedQuery(models.Model):
     display_fields = jsonfield.JSONField()
     attributes_list = jsonfield.JSONField()
     filter_fields = jsonfield.JSONField()
+    query_str = models.TextField()
 
 
 class Download(models.Model):

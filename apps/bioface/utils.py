@@ -16,10 +16,20 @@ def api_request(query_dict):
     print 77777, query_dict
     http_response, content = http.request(API_URL, 'POST', body = json.dumps(query_dict), headers = headers)
     print 888, content
-    content_dict = json.loads(content)
-    if content_dict.has_key('error'):
-        if content_dict['error']['message'] == 'invalid session':
-            return redirect('signin')
+    try:
+        content_dict = json.loads(content)
+        if content_dict.has_key('error'):
+            if content_dict['error']['message'] == 'invalid session':
+                return redirect('signin')
+    except ValueError:
+        content_dict = {
+            'error': {
+                'message': 'Error',
+                'data': 'Error'
+            }
+        }
+        content_dict['error']['message']
+
 
     return content_dict
 
@@ -78,6 +88,8 @@ def get_choices(request, item_name, cache_key='', key='id', query='', append_fie
                     # choices_list.append((item[key], title))
                 else:
                     choices_list.append((item[key], title))
+            # print 88888, choices_list
+            # raise
             cache.set(cache_key, choices_list, 3600)
 
         # print choices_list
