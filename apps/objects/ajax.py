@@ -105,6 +105,7 @@ def pagination(request, page, paginate_by, data):
     data = ast.literal_eval(data)
     display_fields = data['display_fields']
     query_dict = data['query_dict']
+    query_dict['params']['count'] = 'false'
     if query_dict['params'].has_key('attributes_list'):
         attributes = [ attr.decode('utf-8') for attr in query_dict['params']['attributes_list'] ]
     else:

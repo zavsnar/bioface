@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load bootstrap main_filters dajaxice_templatetags staticfiles jsonify %}
 
-{% block subtitle %}Edit My profile{% endblock %}
+{% block subtitle %}Select Objects{% endblock %}
 
 {% block forestyle %}
 <link href="{{ STATIC_URL }}css/select2.css" rel="stylesheet"/>
@@ -20,26 +20,12 @@
         <div class="span4">
             <a class="btn dropdown-toggle js_queries_list_btn">Saved query<span class="caret"></span></a>
             <table class="table table-bordered js_queries_list saved-query-list" style="display: none">
-              <!-- <caption>...</caption>
-                <thead>
-                    <tr>
-                        <th>...</th>
-                    </tr>
-                </thead> -->
                 <tbody class="js_query_list">
                     {% for query in saved_query_list %}
                         {% include "saved_query_components.html" %}
                     {% endfor %}
                 </tbody>
             </table>
-            <!-- <ul class="js_queries_list saved-query-list" style="display: none">
-                {% for query in saved_query_list %}
-                    <li><a href="./?saved_query={{ query.name }}">{{ query.name }}</a>
-                        <a class="btn btn-mini btn-danger" onclick="Dajaxice.apps.objects.delete_saved_query(Dajax.process, {'name': '{{ query.name }}' });">x</a>
-                    </li>
-                {% endfor %}
-            </ul> -->
-
         </div>
     </div>
 
@@ -99,6 +85,15 @@
 
             <fieldset id="js_filters_block">
                 <legend>Filters</legend>
+                <ul class="breadcrumb">
+                    {% for step in query_history %}
+                        <li>
+                            <a data-toggle="tooltip" class="js_query_history_step" data-placement="bottom" title="{{ step }}" data-original-title="{{ step }}">
+                                Step {{ forloop.counter }}
+                            </a> <span class="divider">/</span></li>
+                    {% endfor %}
+                    <li class="active">This query</li>
+                </ul>
                 <!-- <div class="control-group">
                     <div class="controls"> -->
                 {% if row_query_str %}
@@ -124,9 +119,6 @@
                             <div class="offset2 span4"> -->
                         <div class="operand-block-wraper">
                             <div class="btn-group operand-block" data-toggle="buttons-radio">
-                              <!-- <a class="btn btn-primary js_select_operand active" data-operand="ALL">ALL</a>
-                              <a class="btn btn-primary js_select_operand" data-operand="ANY">ANY</a>
-                              <a class="btn btn-primary js_select_operand" data-operand="NONE">NO ONE</a> -->
                                 <label class='btn btn-info  {% if logic_operation == "ALL" or not logic_operation %}active{% endif %}'>
                                     <input type="radio" name="select_operand" class="js_select_operand hidden" value="ALL" {% if logic_operation == "ALL" or not logic_operation %}checked{% endif %}>
                                     ALL
@@ -168,14 +160,14 @@
                                                 <select name="query_field" style="width: 80px;" class="js_query_operation js_query">
                                                     {% if filter.3 == 'integer' or filter.3 == 'float' %}
                                                         <option value="=" {% if filter.1 == '=' %}selected{% endif %}>=</option>
-                                                        <option value="!=" {% if filter.1 == '!=' %}selected{% endif %}>!=</option>
+                                                        <option value="!=" {% if filter.1 == '!=' %}selected{% endif %}>&ne;</option>
                                                         <option value=">=" {% if filter.1 == '>=' %}selected{% endif %}>&gt;=</option>
                                                         <option value="<=" {% if filter.1 == '<=' %}selected{% endif %}>&lt;=</option>
                                                         <option value=">" {% if filter.1 == '>' %}selected{% endif %}>&gt;</option>
                                                         <option value="<" {% if filter.1 == '<' %}selected{% endif %}>&lt;</option>
                                                     {% else %}
                                                         <option value="=" {% if filter.1 == '=' %}selected{% endif %}>=</option>
-                                                        <option value="!=" {% if filter.1 == '!=' %}selected{% endif %}>!=</option>
+                                                        <option value="!=" {% if filter.1 == '!=' %}selected{% endif %}>&ne;</option>
                                                         <!-- <option value="in">IN</option> -->
                                                     {% endif %}
                                                     
@@ -215,6 +207,8 @@
                 <div class="controls">
                     <input class="input-xxlarge" name="row_query_str" id="js_row_query" type="text" value="{{ row_query_str }}">
                     <input class="hidden" name="field_filters_dict" id="js_field_filters_dict" type="text">
+                    <input class="hidden" name="query_history" id="js_query_history" type="text">
+                    <input class="hidden" name="query_history_step" id="js_query_history_step_result" type="text">
                 </div>
             </div>
 
@@ -288,12 +282,12 @@
     
     <select name="query_field" style="display: none" class="js_option_for_type_string">
         <option value="=">=</option>
-        <option value="!=">!=</option>
+        <option value="!=">&ne;</option>
         <!-- <option value="in">IN</option> -->
     </select>
     <select name="query_field" style="display: none" class="js_option_for_type_integer">
         <option value="=">=</option>
-        <option value="!=">!=</option>
+        <option value="!=">&ne;</option>
         <option value="&gt;=">&gt;=</option>
         <option value="&lt;=">&lt;=</option>
         <option value="&gt;">&gt;</option>
@@ -341,8 +335,8 @@
     preloader_img = $('.preloader-img')
     prepand_query = ''
     old_query = '{{ old_row_query_str|safe }}'
+    query_history_step_result = $('#js_query_history_step_result')
     // $('.preloader').hide();
-
 
     function download_objects(){
         Dajaxice.apps.bioface.download_objects(Dajax.process, { 
@@ -457,6 +451,8 @@
     $(function() {
         $('.js_query_tr .js_query_field').select2({});
 
+        $('.breadcrumb a').tooltip()
+
         field_filters_dict_old = {}
         field_filters_dict_new = {}
         {% for pk, filter in field_filters_dict.items %}
@@ -468,6 +464,8 @@
             {% endif %}
         {% endfor %}
         field_filters_dict = field_filters_dict_old
+
+        query_history_json = {{ query_history|jsonify }}
 
         // Save query
         $('#save_query_name').keypress(function (e) {
@@ -575,6 +573,7 @@
         $('#js_id_form').submit(function(){
             start_show_loading();
             $('#js_field_filters_dict').val(JSON.stringify(field_filters_dict));
+            $('#js_query_history').val(JSON.stringify(query_history_json));
         });
 
         // Query trigger
@@ -615,11 +614,16 @@
               break;
             }
         });
+        
+        // Load query from history
+        $('.js_query_history_step').click(function(){
+            query_history_step_result.val($(this).data("original-title"));
+            $('#js_id_form').submit()
+        })
 
         $('.js_queries_list_btn').click(function(){
             $(this).next('.js_queries_list').slideToggle()
         })
-
     });
 
 </script>

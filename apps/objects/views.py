@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+# from __future__ import unicode_literals
 # from __future__ import print_function
 from __future__ import absolute_import
 
@@ -28,6 +28,8 @@ from django.contrib.auth import authenticate, login, logout as auth_logout
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.utils.safestring import mark_safe
+from django.utils.encoding import smart_text, force_text, smart_unicode
+
 
 from apps.bioface.utils import api_request
 from apps.bioface.models import SavedQuery
@@ -294,26 +296,61 @@ def get_objects(request):
     paginate_by = 10
     template_context = {}
     field_filters_dict_sort = {'': []}
+    row_query_str=''
     fields = OBJECT_FIELDS
     saved_query_list = SavedQuery.objects.filter(user=request.user)
 
     if request.method == 'POST':
         form = SelectObjects(request=request, data = request.POST)
-        print 88888, request.POST['field_filters_dict']
-        field_filters_dict = ast.literal_eval(request.POST['field_filters_dict'])
-        row_query_str = request.POST['row_query_str']
-        old_row_query_re = re.findall('\(.+\)', row_query_str)
-        old_row_query_str = old_row_query_re[0] if old_row_query_re else ''
-        logic_operation = request.POST.get('select_operand')
-        print 999, logic_operation
-        # raise
         
-        if field_filters_dict:
+        query_history = ast.literal_eval(request.POST['query_history'])
+
+        query_history_step = request.POST['query_history_step']
+        # query_history_step = query_history_step.decode('utf8')
+        if query_history_step:
             field_filters_dict_sort={}
-            for key, q in field_filters_dict.items():
-                if key:
-                    q[1] = mark_safe(q[1])
-                    field_filters_dict_sort[int(key)] = [ s.decode('utf8') for s in q ]
+            all_attr_type_dict = { key: atype for (key, item, atype) in form.fields['attributes_list'].choices }
+            all_attr_type_dict.update(OBJECT_FIELDS_CHOICES_WITH_TYPE)
+            if re.findall('\(.+\)', query_history_step):
+                old_row_query_str, query_step_st = re.findall('(\(.+\)) AND (.+)', query_history_step)[0]
+            else:
+                old_row_query_str = ''
+                query_step_st = query_history_step
+
+            row_query_str = query_history_step
+
+            if query_step_st:
+                # query_step_st = query_step_st.decode('utf8')
+                if ' AND ' in query_step_st:
+                    logic_rel = ' AND '
+                    logic_operation = 'ALL'
+                else:
+                    logic_rel = ' OR '
+                    logic_operation = 'ANY'
+
+                for i, attr in enumerate(query_step_st.split(logic_rel)):
+                    if attr.find('"') != -1:
+                        attr_name, operation, attr_value = re.findall('(.+) (.+) (".+")', attr)[0]
+                    else:
+                        attr_name, operation, attr_value = attr.split()
+                    # print attr_name.encode('utf8')
+                    _attr_name = attr_name.replace('attr.', '') if attr_name.startswith('attr.') else attr_name
+                    # print attr_name.decode('utf8')
+                    print 888888888, attr_name
+                    field_filters_dict_sort[i] = (attr_name, operation, attr_value.replace('"', ''), all_attr_type_dict[_attr_name])
+
+        else:
+            logic_operation = request.POST.get('select_operand')
+            row_query_str = request.POST['row_query_str']
+            old_row_query_re = re.findall('\(.+\)', row_query_str)
+            old_row_query_str = old_row_query_re[0] if old_row_query_re else ''
+            field_filters_dict = ast.literal_eval(request.POST['field_filters_dict'])
+            if field_filters_dict:
+                field_filters_dict_sort={}
+                for key, q in field_filters_dict.items():
+                    if key:
+                        q[1] = mark_safe(q[1])
+                        field_filters_dict_sort[int(key)] = [ s.decode('utf8') for s in q ]
         # attributes_from_organism = [ value[1] for value in form.fields['attributes_list'].choices ]
 
         # attributes_from_organism = form.fields['attributes_list'].choices
@@ -488,6 +525,18 @@ def get_objects(request):
     else:
         form = SelectObjects(request=request)
 
+    query_history = []
+
+    if row_query_str:
+        step = True
+        while step:
+            _query_re = re.findall('\((.+)\)', row_query_str)
+            step = _query_re[0] if _query_re else None
+            if step:
+                query_history.append(step)
+                row_query_str = step
+        query_history.reverse()
+
     attributes_from_organism = form.fields['attributes_list'].choices
 
     template_context.update({
@@ -498,6 +547,7 @@ def get_objects(request):
         'fields_with_type': OBJECT_FIELDS_CHOICES_WITH_TYPE,
         'field_filters_dict': field_filters_dict_sort,
         'attributes_from_organism': attributes_from_organism,
+        'query_history': query_history
         })
 
     return render_to_response("select_objects.html", template_context, context_instance=RequestContext(request))

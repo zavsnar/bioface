@@ -73,7 +73,7 @@ class SelectObjects(forms.Form):
                 organism_id = kwargs['data']['organism']
             else:
                 organism_id = organism_choices_list[0][0]
-                
+
             if organism_id:
                 self.fields['attributes_list'].choices = get_choices(self.request, 
                     cache_key='attributes_{}'.format(organism_id), item_name='attributes', 
@@ -138,10 +138,10 @@ class TagMixin(forms.Form):
 
 # def create_object_form(request, *args, **kwargs):
 class CreateObjectForm(TagMixin):
+    organism = forms.ChoiceField(widget=forms.Select(attrs={'style': 'width:220px'}))
     name = forms.CharField(label='Name')
     lab_id = forms.CharField(label='laboratory ID', required=False)
     # tags = forms.CharField(required=False)
-    organism = forms.ChoiceField(widget=forms.Select(attrs={'style': 'width:220px'}))
     source = forms.CharField(required=False)
     comment = forms.CharField(required=False)
 
@@ -150,43 +150,6 @@ class CreateObjectForm(TagMixin):
         self.request = request
         self.fields['organism'].choices = get_choices(request, item_name='organisms')
         # self.fields['tags'].choices = get_choices(request, item_name='tags')
-
-    # def clean_tags(self):
-    #     tags=[]
-    #     new_tags=[]
-    #     for tag in self.cleaned_data['tags'].split(','):
-    #         tag_exist = False
-    #         for id, name in self.fields['tags'].choices:
-    #             if tag == name:
-    #                 tags.append(id)
-    #                 tag_exist = True
-    #                 break
-
-    #         if not tag_exist:
-    #             query_dict = {
-    #                 "method": "add_tag",
-    #                 "key": self.request.user.sessionkey,
-    #                 "params": {
-    #                     "data": {
-    #                         "tag": tag
-    #                     }
-    #                 }
-    #             }
-
-    #             content_dict = api_request(query_dict)
-    #             print 5555, content_dict
-    #             if content_dict['result']:
-    #                 new_tags.append(content_dict['result']['id'])
-
-    #     tags.extend(new_tags)
-
-    #     if new_tags:
-    #         self.fields['tags'].choices = get_choices(self.request, item_name='tags')
-
-    #     self.cleaned_data['tags'] = tags
-    #     print 7777, self.cleaned_data['tags']
-    #     return self.cleaned_data['tags']
-    # return CreateObjectForm(*args, **kwargs)
 
 
 class UpdateObjectForm(CreateObjectForm):
