@@ -5,6 +5,7 @@
 
 {% block forestyle %}
 <link href="{{ STATIC_URL }}css/select2.css" rel="stylesheet"/>
+<link rel="stylesheet" href="{{ STATIC_URL }}css/jquery-ui-1.10.2.custom.min.css" />
 {% endblock %}
 
 {% block forejs %} 
@@ -83,14 +84,15 @@
                 </div>
             </div>
 
+        {# <!-- Filters --> #}
             <fieldset id="js_filters_block">
                 <legend>Filters</legend>
                 <ul class="breadcrumb">
                     {% for step in query_history %}
                         <li>
                             <a data-toggle="tooltip" class="js_query_history_step" data-placement="bottom" title="{{ step }}" data-original-title="{{ step }}">
-                                Step {{ forloop.counter }}
-                            </a> <span class="divider">/</span></li>
+                                Query {{ forloop.counter }}
+                            </a> <span class="divider">></span></li>
                     {% endfor %}
                     <li class="active">This query</li>
                 </ul>
@@ -98,9 +100,9 @@
                     <div class="controls"> -->
                 {% if row_query_str %}
                     <div class="where-search">
-                        <label for="id_new_query" class="checkbox inline">
+                        <!-- <label for="id_new_query" class="checkbox inline">
                             <input id="id_new_query" class="js_where_search" name="search_in_results" type="radio" value="new_query" checked="checked"> New query
-                        </label>
+                        </label> -->
                         <label for="id_change_current_query" class="checkbox inline">
                             <input id="id_change_current_query" class="js_where_search" name="search_in_results" 
                                 type="radio" value="change_current_query" checked="checked"> Change current query
@@ -201,7 +203,7 @@
                 </div>
 
             </fieldset>
-
+        {# <!-- End Filters --> #}
             <div class="control-group {% if form.attributes_list.errors %}error{% endif %}">
                 <label class="control-label" for="js_row_query">Row Query</label>
                 <div class="controls">
@@ -327,11 +329,14 @@
 <!-- <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 <script src="{{ STATIC_URL }}js/bootstrap.min.js"></script> -->
 <script src="{{ STATIC_URL }}js/select2.min.js"></script>
+<script src="{{ STATIC_URL }}js/jquery-ui-1.10.2.custom.min.js"></script>
 
 <script type="text/javascript">
+    $('.js_query_tr .js_query_field').select2({});
+
     attribute_container = $('#js_attribute_container')
     filters_block = $('#js_filters_block')
-    preloader = $('.preloader-block')
+    // preloader = $('.preloader-block')
     preloader_img = $('.preloader-img')
     prepand_query = ''
     old_query = '{{ old_row_query_str|safe }}'
@@ -366,8 +371,6 @@
       return false;
     };
 
-    
-
     function start_show_loading() {
         // preloader.show(); 
         preloader_img.show()}
@@ -388,7 +391,6 @@
         stop_show_loading();
         attribute_container.show();
         filters_block.show();
-
     };
 
     filter_item_html = $('#js_reference_query_item').html()
@@ -413,7 +415,6 @@
                 prep_list[2] = '"' + prep_list[2] + '"'
             };
             query_list = query_list.concat(prep_list.join(' '));
-            
         }
         if (logic_operation == 'ANY') {
             var row_query = query_list.join(' OR ')
@@ -449,9 +450,6 @@
     // };
 
     $(function() {
-        $('.js_query_tr .js_query_field').select2({});
-
-        $('.breadcrumb a').tooltip()
 
         field_filters_dict_old = {}
         field_filters_dict_new = {}
@@ -467,6 +465,19 @@
 
         query_history_json = {{ query_history|jsonify }}
 
+
+        $('.breadcrumb .js_query_history_step').tooltip({
+            show: {
+                effect: "slideDown",
+                delay: 30
+            } 
+        });
+
+        // Saved queries list popup 
+        $('.js_queries_list_btn').click(function(){
+            $(this).next('.js_queries_list').slideToggle()
+        })
+
         // Save query
         $('#save_query_name').keypress(function (e) {
             // if pressed Enter
@@ -476,7 +487,7 @@
             }
         });
 
-
+        // Delete saved query
         $('.js_query_list').delegate('.delete_query_item', 'click', function(){
             if (confirm("Нou agree to lose this query?")) {
                 var query_name = $(this).data('name')
@@ -532,7 +543,6 @@
             }
         });
 
-
         item_pk = 0
         // Add query item
         $('.js_query_table').delegate('.js_add_query_item', 'click', function(){
@@ -569,21 +579,48 @@
             $(this).parent().parent().remove()
         });
 
-        // Before form submit
-        $('#js_id_form').submit(function(){
-            start_show_loading();
-            $('#js_field_filters_dict').val(JSON.stringify(field_filters_dict));
-            $('#js_query_history').val(JSON.stringify(query_history_json));
-        });
-
         // Query trigger
+        where_search = $('.js_where_search')
         search_in_results = $('.js_search_in_results')
         new_query = $('.js_new_query')
-        $('.js_where_search').change(function(){
-            switch ($(this).val())
-            {
-            case 'change_current_query':
-              search_in_results.fadeOut(function(){
+
+        function switch_where_search(){
+            // switch ($('.js_where_search:checked').val())
+            // {
+            // case 'change_current_query':
+            //   search_in_results.fadeOut(function(){
+            //         search_in_results.removeClass('actual_filters');
+            //         new_query.fadeIn().addClass('actual_filters');
+            //         prepand_query = ''
+            //         old_query = '{{ old_row_query_str|safe }}'
+            //         field_filters_dict = field_filters_dict_old
+            //         generate_row_query()
+            //     });
+            //   break;
+            // case 'search_in_results':
+            //     new_query.fadeOut(function(){
+            //         new_query.removeClass('actual_filters');
+            //         search_in_results.fadeIn().addClass('actual_filters');
+            //         prepand_query = '{{ row_query_str|safe }}'
+            //         old_query = '{{ old_row_query_str|safe }}'
+            //         field_filters_dict = field_filters_dict_new
+            //         generate_row_query()
+            //     });
+            //   break;
+            // case 'new_query':
+            //     search_in_results.fadeOut(function(){
+            //         search_in_results.removeClass('actual_filters');
+            //         new_query.fadeIn().addClass('actual_filters');
+            //         prepand_query = ''
+            //         old_query = ''
+            //         field_filters_dict = field_filters_dict_old
+            //         generate_row_query()
+            //     });
+            //   break;
+            // }
+
+            if ($('.js_where_search:checked').val() == 'change_current_query') {
+                search_in_results.fadeOut(function(){
                     search_in_results.removeClass('actual_filters');
                     new_query.fadeIn().addClass('actual_filters');
                     prepand_query = ''
@@ -591,8 +628,7 @@
                     field_filters_dict = field_filters_dict_old
                     generate_row_query()
                 });
-              break;
-            case 'search_in_results':
+            } else {
                 new_query.fadeOut(function(){
                     new_query.removeClass('actual_filters');
                     search_in_results.fadeIn().addClass('actual_filters');
@@ -601,18 +637,17 @@
                     field_filters_dict = field_filters_dict_new
                     generate_row_query()
                 });
-              break;
-            case 'new_query':
-                search_in_results.fadeOut(function(){
-                    search_in_results.removeClass('actual_filters');
-                    new_query.fadeIn().addClass('actual_filters');
-                    prepand_query = ''
-                    old_query = ''
-                    field_filters_dict = field_filters_dict_old
-                    generate_row_query()
-                });
-              break;
             }
+        }
+
+        {% if query_history_step %} 
+            where_search.attr('checked', false);
+            $('.js_where_search:radio[value="search_in_results"]').attr('checked', true)
+            switch_where_search(); 
+        {% endif %}
+
+        where_search.change(function(){
+            switch_where_search()
         });
         
         // Load query from history
@@ -621,9 +656,12 @@
             $('#js_id_form').submit()
         })
 
-        $('.js_queries_list_btn').click(function(){
-            $(this).next('.js_queries_list').slideToggle()
-        })
+        // Before form submit
+        $('#js_id_form').submit(function(){
+            start_show_loading();
+            $('#js_field_filters_dict').val(JSON.stringify(field_filters_dict));
+            $('#js_query_history').val(JSON.stringify(query_history_json));
+        });
     });
 
 </script>

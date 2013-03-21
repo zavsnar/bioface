@@ -20,5 +20,8 @@ django-dajax == 0.9.2
 
 ajaxuploader == 0.2.4
 
+django-celery
+#django-kombu
+
 # JS/CSS compression tool
 #Django-pipeline == 1.2.14

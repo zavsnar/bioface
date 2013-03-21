@@ -320,7 +320,6 @@ def get_objects(request):
             row_query_str = query_history_step
 
             if query_step_st:
-                # query_step_st = query_step_st.decode('utf8')
                 if ' AND ' in query_step_st:
                     logic_rel = ' AND '
                     logic_operation = 'ALL'
@@ -360,17 +359,12 @@ def get_objects(request):
             'logic_operation': logic_operation,
             'row_query_str': row_query_str,
             'old_row_query_str': old_row_query_str,
+            'query_history_step': query_history_step
             # 'attributes_from_organism': attributes_from_organism,
         })
 
         if form.is_valid():
             cd = form.cleaned_data
-                # query_dict = ast.literal_eval(query_str)
-            
-
-            # query_dict['params'] = {}
-
-            # if cd['organism']:
             row_query = 'organism = {}'.format(cd['organism'])
 
             if row_query_str:
@@ -379,15 +373,10 @@ def get_objects(request):
                 print 9999, row_query
 
             attr_list=[]
-            # if cd['attributes_list']:
-            # query_dict['params']['attributes_list'] = cd['attributes_list']
             attr_list = cd['attributes_list']
-
-            # query_dict['params']['query'] = row_query
 
             # if request.GET.has_key('order_by'):
             order_field = request.GET.get('order_by', 'name')
-            # query_dict['params']['orderby'] = [[order_field, "acs"],]
 
             query_dict = {
                 "method" : 'get_objects',
@@ -404,8 +393,6 @@ def get_objects(request):
 
             try:
                 content_dict = get_pagination_page(page=1, paginate_by=paginate_by, query_dict=query_dict)
-                # print 77777, content_dict['result']['objects'][0]
-                
             except socket.error:
                 # TODO
                 messages.error(request, 'Oops! Not connected to server.')
@@ -473,7 +460,6 @@ def get_objects(request):
                     'paginate_by': paginate_by,
                     'objects_count': objects_count,  
                 })
-
             else:   
                 msg = content_dict['error']['message']
                 messages.error(request, 'API ERROR: {}. {}'.format(msg, content_dict['error']['data']))
@@ -501,14 +487,6 @@ def get_objects(request):
                     q[1] = mark_safe(q[1])
                     field_filters_dict_sort[int(key)] = q
 
-        # if field_filters_dict:
-        #     field_filters_dict_sort={}
-        #     for key, q in field_filters_dict.items():
-        #         if key:
-        #             q[1] = mark_safe(q[1])
-        #             field_filters_dict_sort[int(key)] = q
-        #     print 44444, field_filters_dict_sort
-        # attributes_from_organism = [ value[1] for value in form.fields['attributes_list'].choices ]
         row_query_str = saved_query.query_str
         old_row_query_re = re.findall('\(.+\)', row_query_str)
         old_row_query_str = old_row_query_re[0] if old_row_query_re else ''
@@ -526,7 +504,6 @@ def get_objects(request):
         form = SelectObjects(request=request)
 
     query_history = []
-
     if row_query_str:
         step = True
         while step:

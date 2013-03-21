@@ -26,6 +26,7 @@ from apps.bioface.utils import api_request, API_URL
 from apps.bioface.forms import *
 from apps.bioface.models import Download
 
+
 def alter_index(request):
     template_name = "test_index.html"
     template_name = "alter_index.html"
@@ -129,6 +130,20 @@ def registration(request):
 
 @login_required
 def downloads_list(request):
+    from celery.result import BaseAsyncResult
+    expected_downloads = Download.objects.filter(user=request.user, status="expected")
+    for d in expected_downloads:
+        task = BaseAsyncResult(d.task_id)
+        if task.ready():
+            if task.successful():
+                d.file_path = task.result
+                d.status = 'complite'
+            else:
+                # TODO
+                status = task.status
+                pass
+            d.save()
+
     downloads = Download.objects.filter(user=request.user).order_by('-created')
 
     return render_to_response("download_list.html", {'downloads': downloads},

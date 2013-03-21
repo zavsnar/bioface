@@ -11,6 +11,9 @@ from local_settings import DEBUG_TOOLBAR_PANELS, INTERNAL_IPS
 
 from os.path import join
 
+import djcelery
+djcelery.setup_loader()
+
 TEMPLATE_DEBUG = DEBUG
 
 SITE_ID = 1
@@ -131,6 +134,10 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
 
     # third-parties
+    'djkombu',
+    'kombu.transport.django',
+    'djcelery',
+
 
     'dajaxice',
     'dajax',
@@ -177,6 +184,10 @@ FIXTURE_DIRS = (
 )
 
 AUTO_RENDER_SELECT2_STATICS = False
+
+CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
+BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
+BROKER_URL = 'django://'
 
 # STATICFILES_STORAGE = 'pipeline.storage.PipelineStorage'
 

@@ -25,90 +25,7 @@ from settings import DOWNLOADS_ROOT
 from apps.bioface.forms import CreateOrganismForm, DownloadForm
 from apps.bioface.utils import api_request, UnicodeWriter
 from apps.bioface.models import Download
-
-def prepair_objects(query_dict, object_download, with_attributes=False, with_sequences=False, encoding='utf-8'):
-    object_download = Download.objects.get(id = object_download)
-    content_dict = api_request(query_dict)
-    if content_dict.has_key('result'):
-        objects = content_dict['result']['objects']
-        print content_dict['result']
-        with tempfile.NamedTemporaryFile(delete=False) as obj_csvfile:
-            # spamwriter = csv.writer(obj_csvfile, delimiter=str(','), quotechar=str('|'), quoting=csv.QUOTE_MINIMAL)
-            spamwriter = UnicodeWriter(obj_csvfile, encoding=encoding)
-            col_list = []
-            attr_col_list = []
-            for key, val in objects[0].iteritems():
-                if key == 'attributes':
-                    attr_col_list = [ attr['name'] for attr in val ]
-                else:
-                    col_list.append(key)
-            col_list.extend(attr_col_list)
-
-            spamwriter.writerow(col_list)
-            for obj in objects:
-                obj_vals = []
-                obj_attrs_val = [ None for i in attr_col_list ]
-                for key, val in obj.iteritems():
-                    if key == 'attributes':
-                        for attr in val:
-                            idx = attr_col_list.index(attr['name'])
-                            attr_value = attr['value']
-                            obj_attrs_val[idx] = attr_value
-                    else:
-                        obj_vals.append(val)
-
-                obj_vals.extend(obj_attrs_val)
-                print 22222, obj_vals
-                # try:
-                spamwriter.writerow(obj_vals)
-                # except UnicodeEncodeError:
-                #     print 666666, obj_vals
-
-        csv_files_list = [('objects.csv', obj_csvfile.name)]
-
-        if with_attributes:
-            # Get all attributes from select objects
-            if query_dict['params'].has_key('attributes_list'):
-                del query_dict['params']['attributes_list']
-
-            content_dict = api_request(query_dict)
-            if content_dict.has_key('result'):
-                objects = content_dict['result']['objects']
-
-                with tempfile.NamedTemporaryFile(delete=False) as attr_csvfile:
-                    # spamwriter = csv.writer(attr_csvfile, delimiter=str(','), quotechar=str('|'), quoting=csv.QUOTE_MINIMAL)
-                    spamwriter = UnicodeWriter(attr_csvfile, encoding=encoding)
-                    attr_col_list = ['Objects']
-                    attr_col_list.extend([ attr['name'] for attr in objects[0]['attributes'] ])
-                    spamwriter.writerow(attr_col_list)
-                    for obj in objects:
-                        obj_attrs_val = [ None for i in attr_col_list ]
-                        for attr in obj['attributes']:
-                            idx = attr_col_list.index(attr['name'])
-                            obj_attrs_val[idx] = attr['value']
-                        obj_attrs_val[0] = obj['name']
-
-                        spamwriter.writerow(obj_attrs_val)
-
-                csv_files_list.append(('attributes.csv', attr_csvfile.name))
-
-        if with_sequences:
-            # TODO
-            pass
-
-        zip_file_name = 'download_id_{}.zip'.format(object_download.id)
-        zip_file_path = DOWNLOADS_ROOT + zip_file_name
-        with zipfile.ZipFile(zip_file_path, 'w') as myzip:
-            
-            compression = zipfile.ZIP_DEFLATED
-            for file_name, file_path in csv_files_list:
-                myzip.write(file_path, arcname=file_name, compress_type=compression)
-
-        object_download.status = 'complete'
-        object_download.file_path = zip_file_name
-        object_download.save()
-
-    return True
+from apps.bioface.tasks import loading_objects
 
 @dajaxice_register
 def download_objects(request, form, query_dict):
@@ -132,14 +49,23 @@ def download_objects(request, form, query_dict):
         with_attributes = True if 'attributes' in form.cleaned_data['options'] else False
         with_sequences = True if 'sequences' in form.cleaned_data['options'] else False
         obj_id = object_download.id
-        thread = Thread(target = prepair_objects, kwargs = {
-            'query_dict': query_dict, 
-            'object_download': obj_id,
-            'with_attributes': with_attributes,
-            'with_sequences': with_sequences,
-            'encoding': encoding,
-        })
-        thread.start()
+        download_task = loading_objects.delay(
+            query_dict = query_dict, 
+            object_download_id = obj_id,
+            with_attributes = with_attributes,
+            with_sequences = with_sequences,
+            encoding = encoding
+            )
+        object_download.task_id = download_task.task_id
+        object_download.save()
+        # thread = Thread(target = prepair_objects, kwargs = {
+        #     'query_dict': query_dict, 
+        #     'object_download': obj_id,
+        #     'with_attributes': with_attributes,
+        #     'with_sequences': with_sequences,
+        #     'encoding': encoding,
+        # })
+        # thread.start()
         msg = 'Ok'
     else:
         msg = 'err'
@@ -153,6 +79,90 @@ def download_objects(request, form, query_dict):
     # dajax.script('stop_show_loading();')
     # dajax.alert(msg)
     return dajax.json()
+
+# def prepair_objects(query_dict, object_download, with_attributes=False, with_sequences=False, encoding='utf-8'):
+#     object_download = Download.objects.get(id = object_download)
+#     content_dict = api_request(query_dict)
+#     if content_dict.has_key('result'):
+#         objects = content_dict['result']['objects']
+#         print content_dict['result']
+#         with tempfile.NamedTemporaryFile(delete=False) as obj_csvfile:
+#             # spamwriter = csv.writer(obj_csvfile, delimiter=str(','), quotechar=str('|'), quoting=csv.QUOTE_MINIMAL)
+#             spamwriter = UnicodeWriter(obj_csvfile, encoding=encoding)
+#             col_list = []
+#             attr_col_list = []
+#             for key, val in objects[0].iteritems():
+#                 if key == 'attributes':
+#                     attr_col_list = [ attr['name'] for attr in val ]
+#                 else:
+#                     col_list.append(key)
+#             col_list.extend(attr_col_list)
+
+#             spamwriter.writerow(col_list)
+#             for obj in objects:
+#                 obj_vals = []
+#                 obj_attrs_val = [ None for i in attr_col_list ]
+#                 for key, val in obj.iteritems():
+#                     if key == 'attributes':
+#                         for attr in val:
+#                             idx = attr_col_list.index(attr['name'])
+#                             attr_value = attr['value']
+#                             obj_attrs_val[idx] = attr_value
+#                     else:
+#                         obj_vals.append(val)
+
+#                 obj_vals.extend(obj_attrs_val)
+#                 print 22222, obj_vals
+#                 # try:
+#                 spamwriter.writerow(obj_vals)
+#                 # except UnicodeEncodeError:
+#                 #     print 666666, obj_vals
+
+#         csv_files_list = [('objects.csv', obj_csvfile.name)]
+
+#         if with_attributes:
+#             # Get all attributes from select objects
+#             if query_dict['params'].has_key('attributes_list'):
+#                 del query_dict['params']['attributes_list']
+
+#             content_dict = api_request(query_dict)
+#             if content_dict.has_key('result'):
+#                 objects = content_dict['result']['objects']
+
+#                 with tempfile.NamedTemporaryFile(delete=False) as attr_csvfile:
+#                     # spamwriter = csv.writer(attr_csvfile, delimiter=str(','), quotechar=str('|'), quoting=csv.QUOTE_MINIMAL)
+#                     spamwriter = UnicodeWriter(attr_csvfile, encoding=encoding)
+#                     attr_col_list = ['Objects']
+#                     attr_col_list.extend([ attr['name'] for attr in objects[0]['attributes'] ])
+#                     spamwriter.writerow(attr_col_list)
+#                     for obj in objects:
+#                         obj_attrs_val = [ None for i in attr_col_list ]
+#                         for attr in obj['attributes']:
+#                             idx = attr_col_list.index(attr['name'])
+#                             obj_attrs_val[idx] = attr['value']
+#                         obj_attrs_val[0] = obj['name']
+
+#                         spamwriter.writerow(obj_attrs_val)
+
+#                 csv_files_list.append(('attributes.csv', attr_csvfile.name))
+
+#         if with_sequences:
+#             # TODO
+#             pass
+
+#         zip_file_name = 'download_id_{}.zip'.format(object_download.id)
+#         zip_file_path = DOWNLOADS_ROOT + zip_file_name
+#         with zipfile.ZipFile(zip_file_path, 'w') as myzip:
+            
+#             compression = zipfile.ZIP_DEFLATED
+#             for file_name, file_path in csv_files_list:
+#                 myzip.write(file_path, arcname=file_name, compress_type=compression)
+
+#         object_download.status = 'complete'
+#         object_download.file_path = zip_file_name
+#         object_download.save()
+
+#     return True
 
 @dajaxice_register
 def assign_test(request):

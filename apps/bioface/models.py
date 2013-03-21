@@ -43,6 +43,7 @@ class Download(models.Model):
     encoding = models.CharField(choices=ENCODING_CHOUCES, max_length="255", default='utf-8')
     description = models.TextField()
     status = models.CharField(max_length=255)
+    task_id = models.CharField(max_length="255")
     created = models.DateTimeField(auto_now_add=True)
 
     def download_url(self):
