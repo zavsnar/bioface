@@ -7,6 +7,13 @@ uwsgi
 httplib2 == 0.8
 python-dateutil == 2.1
 
+# Celery
+django-celery
+#django-kombu
+redis == 2.7.2
+django-celery-with-redis == 3.0
+
+
 # django packages
 #hg+https://bitbucket.org/levelup/runfcgi
 #django-widget-tweaks
@@ -20,8 +27,6 @@ django-dajax == 0.9.2
 
 ajaxuploader == 0.2.4
 
-django-celery
-#django-kombu
 
 # JS/CSS compression tool
 #Django-pipeline == 1.2.14

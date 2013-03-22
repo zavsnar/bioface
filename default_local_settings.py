@@ -72,7 +72,7 @@ LOGGING = {
 
 STATIC_FILES_VERSION = None
 
-ADMINS = MANAGERS = tuple()
+ADMINS = MANAGERS = ('zavsnar@gmail.com')
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'gw6&l9aqg(h=$g01j02hp34min4ae2&)wnbqa^-f_djsc7ca3('

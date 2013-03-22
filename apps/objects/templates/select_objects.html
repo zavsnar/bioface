@@ -213,11 +213,12 @@
                     <input class="hidden" name="query_history_step" id="js_query_history_step_result" type="text">
                 </div>
             </div>
+            
 
             <div class="form-actions form-inline">
-                <button type="submit" class="btn btn-primary">Run</button>&nbsp;
-                <input type="text" id="save_query_name">
+                <input type="text" id="save_query_name" place-holder="Type query name">
                 <button type="button" class="btn btn-primary" onclick="save_query();">Save query</button>&nbsp;
+                <button type="submit" class="btn btn-primary">Run</button>&nbsp;
             </div>
         </form>
     </div>
@@ -409,7 +410,7 @@
         for (var key in field_filters_dict) {
             var value_type = field_filters_dict[key][3]
             var prep_list = field_filters_dict[key].slice(0,3)
-            if (value_type == 'integer' | value_type == 'float') {
+            if (value_type == 'integer' | value_type == 'float' | value_type == 'range') {
                 // ToDo Validate
             } else {
                 prep_list[2] = '"' + prep_list[2] + '"'

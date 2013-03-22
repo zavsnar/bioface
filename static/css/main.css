@@ -82,6 +82,7 @@ table#table-nominal-id {
     position: fixed;
     top: 0px;
     right: 0px;
+    z-index: 9;
 }
 
 

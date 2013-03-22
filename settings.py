@@ -11,9 +11,6 @@ from local_settings import DEBUG_TOOLBAR_PANELS, INTERNAL_IPS
 
 from os.path import join
 
-import djcelery
-djcelery.setup_loader()
-
 TEMPLATE_DEBUG = DEBUG
 
 SITE_ID = 1
@@ -134,8 +131,8 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
 
     # third-parties
-    'djkombu',
-    'kombu.transport.django',
+    # 'djkombu',
+    # 'kombu.transport.django',
     'djcelery',
 
 
@@ -185,9 +182,22 @@ FIXTURE_DIRS = (
 
 AUTO_RENDER_SELECT2_STATICS = False
 
+
+BROKER_URL = "redis://localhost:6379/0"
+CELERY_RESULT_BACKEND = "redis"
+CELERY_REDIS_HOST = "localhost"
+CELERY_REDIS_PORT = 6379
+CELERY_REDIS_DB = 0
+CELERYD_LOG_FILE='/tmp/celery.log'
+CELERND_TASK_ERROR_EMAILS = True 
 CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
-BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
-BROKER_URL = 'django://'
+
+import djcelery
+djcelery.setup_loader()
+
+
+# BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
+# BROKER_URL = 'django://'
 
 # STATICFILES_STORAGE = 'pipeline.storage.PipelineStorage'
 
