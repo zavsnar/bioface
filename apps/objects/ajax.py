@@ -77,6 +77,7 @@ def save_query(request, name, form, field_filters_dict, query_str):
     dajax.assign('.extra-message-block', 'innerHTML', message_body)
     dajax.script('show_messages();')
     dajax.script('stop_show_loading();')
+    dajax.add_css_class('#js_queries_list_btn', 'btn-success')
     return dajax.json()
     
 @dajaxice_register

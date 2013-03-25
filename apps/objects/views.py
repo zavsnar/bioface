@@ -339,7 +339,8 @@ def get_objects(request):
                     field_filters_dict_sort[i] = (attr_name, operation, attr_value.replace('"', ''), all_attr_type_dict[_attr_name])
 
         else:
-            logic_operation = request.POST.get('select_operand')
+            where_search = request.POST.get('where_search')
+            logic_operation = request.POST.get('select_operand_in') if where_search == 'search_in_results' else request.POST.get('select_operand')
             row_query_str = request.POST['row_query_str']
             old_row_query_re = re.findall('\(.+\)', row_query_str)
             old_row_query_str = old_row_query_re[0] if old_row_query_re else ''

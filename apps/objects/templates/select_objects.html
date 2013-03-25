@@ -5,7 +5,9 @@
 
 {% block forestyle %}
 <link href="{{ STATIC_URL }}css/select2.css" rel="stylesheet"/>
+<!-- <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery-ui-1.10.2.custom.min.css" /> -->
 <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery-ui-1.10.2.custom.min.css" />
+<link rel="stylesheet" href="{{ STATIC_URL }}css/jquery.ui.theme.css" />
 {% endblock %}
 
 {% block forejs %} 
@@ -19,7 +21,7 @@
 <div class="relative">
     <div class="row saved-query-block">
         <div class="span4">
-            <a class="btn dropdown-toggle js_queries_list_btn">Saved query<span class="caret"></span></a>
+            <a class="btn dropdown-toggle" id="js_queries_list_btn">Saved query<span class="caret"></span></a>
             <table class="table table-bordered js_queries_list saved-query-list" style="display: none">
                 <tbody class="js_query_list">
                     {% for query in saved_query_list %}
@@ -87,15 +89,17 @@
         {# <!-- Filters --> #}
             <fieldset id="js_filters_block">
                 <legend>Filters</legend>
-                <ul class="breadcrumb">
-                    {% for step in query_history %}
-                        <li>
-                            <a data-toggle="tooltip" class="js_query_history_step" data-placement="bottom" title="{{ step }}" data-original-title="{{ step }}">
-                                Query {{ forloop.counter }}
-                            </a> <span class="divider">></span></li>
-                    {% endfor %}
-                    <li class="active">This query</li>
-                </ul>
+                {% if query_history %}
+                    <ul class="breadcrumb">
+                        {% for step in query_history %}
+                            <li>
+                                <a data-toggle="tooltip" class="js_query_history_step" data-placement="bottom" title="{{ step }}" data-original-title="{{ step }}">
+                                    Query {{ forloop.counter }}
+                                </a> <span class="divider">></span></li>
+                        {% endfor %}
+                        <li class="active">This query</li>
+                    </ul>
+                {% endif %}
                 <!-- <div class="control-group">
                     <div class="controls"> -->
                 {% if row_query_str %}
@@ -104,11 +108,11 @@
                             <input id="id_new_query" class="js_where_search" name="search_in_results" type="radio" value="new_query" checked="checked"> New query
                         </label> -->
                         <label for="id_change_current_query" class="checkbox inline">
-                            <input id="id_change_current_query" class="js_where_search" name="search_in_results" 
+                            <input id="id_change_current_query" class="js_where_search" name="where_search" 
                                 type="radio" value="change_current_query" checked="checked"> Change current query
                         </label>
                         <label for="id_search_in_results" class="checkbox inline">
-                            <input id="id_search_in_results" class="js_where_search" name="search_in_results" type="radio" value="search_in_results"> Search in results
+                            <input id="id_search_in_results" class="js_where_search" name="where_search" type="radio" value="search_in_results"> Search in results
                         </label>
                     </div>
                 {% endif %}
@@ -120,19 +124,13 @@
                         <!-- <div class="row control-group">
                             <div class="offset2 span4"> -->
                         <div class="operand-block-wraper">
-                            <div class="btn-group operand-block" data-toggle="buttons-radio">
-                                <label class='btn btn-info  {% if logic_operation == "ALL" or not logic_operation %}active{% endif %}'>
-                                    <input type="radio" name="select_operand" class="js_select_operand hidden" value="ALL" {% if logic_operation == "ALL" or not logic_operation %}checked{% endif %}>
-                                    ALL
-                                </label>
-                                <label class='btn btn-info  {% if logic_operation == "ANY" %}active{% endif %}'>
-                                    <input type="radio" name="select_operand" class="js_select_operand hidden" value="ANY" {% if logic_operation == "ANY" %}checked{% endif %}>
-                                    ANY
-                                </label>
-                                <label class='btn btn-info {% if logic_operation == "NONE" %}active{% endif %}'>
-                                    <input type="radio" name="select_operand" class="js_select_operand hidden" value="NONE" {% if logic_operation == "NONE" %}checked{% endif %}>
-                                    NO ONE
-                                </label>  
+                            <div class="btn-group operand-block js_operand_block">
+                                <input type="radio" name="select_operand" id="operand_ALL" class="js_select_operand" value="ALL" {% if logic_operation == "ALL" or not logic_operation %}checked="checked"{% endif %}>
+                                <label class='btn btn-info' for="operand_ALL">ALL</label>
+                                <input type="radio" name="select_operand" id="operand_ANY" class="js_select_operand" value="ANY" {% if logic_operation == "ANY" %}checked="checked"{% endif %}>
+                                <label class='btn btn-info' for="operand_ANY">ANY</label>
+                                <input type="radio" name="select_operand" id="operand_NONE" class="js_select_operand" value="NONE" {% if logic_operation == "NONE" %}checked{% endif %}>
+                                <label class='btn btn-info' for="operand_NONE">NO ONE</label>  
                             </div>
                         </div>
                             <!-- </div>
@@ -163,8 +161,8 @@
                                                     {% if filter.3 == 'integer' or filter.3 == 'float' %}
                                                         <option value="=" {% if filter.1 == '=' %}selected{% endif %}>=</option>
                                                         <option value="!=" {% if filter.1 == '!=' %}selected{% endif %}>&ne;</option>
-                                                        <option value=">=" {% if filter.1 == '>=' %}selected{% endif %}>&gt;=</option>
-                                                        <option value="<=" {% if filter.1 == '<=' %}selected{% endif %}>&lt;=</option>
+                                                        <option value=">=" {% if filter.1 == '>=' %}selected{% endif %}>&ge;</option>
+                                                        <option value="<=" {% if filter.1 == '<=' %}selected{% endif %}>&le;</option>
                                                         <option value=">" {% if filter.1 == '>' %}selected{% endif %}>&gt;</option>
                                                         <option value="<" {% if filter.1 == '<' %}selected{% endif %}>&lt;</option>
                                                     {% else %}
@@ -179,11 +177,10 @@
                                                 <input class="span2 js_query_value js_query" type="text" value="{% firstof filter.2 %}">
                                             </td>
                                             <td>
-                                                <a class="btn btn-danger js_del_query_item">x</a>
+                                                <a class="btn btn-danger js_del_query_item" {% if not filter.2 %}style="display: none;"{% endif %}>x</a>
                                             </td>
                                         </tr>
                                     {% endfor %}
-
                                     <tr>
                                         <td></td>
                                         <td>
@@ -216,8 +213,8 @@
             
 
             <div class="form-actions form-inline">
-                <input type="text" id="save_query_name" place-holder="Type query name">
-                <button type="button" class="btn btn-primary" onclick="save_query();">Save query</button>&nbsp;
+                <input type="text" id="save_query_name" placeholder="Type query name">
+                <a href="#js_queries_list_btn" class="btn btn-success" onclick="save_query();">Save query</a>&nbsp;
                 <button type="submit" class="btn btn-primary">Run</button>&nbsp;
             </div>
         </form>
@@ -268,7 +265,7 @@
                     </select>
                     <select name="query_field" style="width: 80px;" class="js_query_operation js_query">
                         <option value="=">=</option>
-                        <option value="!=">!=</option>
+                        <option value="!=">&ne;</option>
                         <!-- <option value="in">IN</option> -->
                     </select>
 
@@ -291,8 +288,8 @@
     <select name="query_field" style="display: none" class="js_option_for_type_integer">
         <option value="=">=</option>
         <option value="!=">&ne;</option>
-        <option value="&gt;=">&gt;=</option>
-        <option value="&lt;=">&lt;=</option>
+        <option value="&gt;=">&ge;</option>
+        <option value="&lt;=">&le;</option>
         <option value="&gt;">&gt;</option>
         <option value="&lt;">&lt;</option>
         <!-- <option value="in">IN</option> -->
@@ -312,7 +309,7 @@
                     <form method="POST" id="download_object_selection" action="">
                         {% csrf_token %}
                         {{ object_download_form|bootstrap }}
-                        <a class="btn btn-primary" onclick="download_objects();">Download</a>
+                        <a class="btn btn-primary" onclick="download_objects();">Export</a>
                     </form>
                 </div>
             </div>
@@ -326,11 +323,13 @@
 {% block endjs %}
 
 {% dajaxice_js_import %}
+<script src="{{ STATIC_URL }}js/jquery-ui-1.10.2.custom.min.js"></script>
+<!-- <script src="{{ STATIC_URL }}js/jquery-ui-1.9.2.custom.min.js"></script> -->
 <script type="text/javascript" src='{% static "/static/dajax/jquery.dajax.core.js" %}'></script>
 <!-- <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 <script src="{{ STATIC_URL }}js/bootstrap.min.js"></script> -->
 <script src="{{ STATIC_URL }}js/select2.min.js"></script>
-<script src="{{ STATIC_URL }}js/jquery-ui-1.10.2.custom.min.js"></script>
+
 
 <script type="text/javascript">
     $('.js_query_tr .js_query_field').select2({});
@@ -346,7 +345,7 @@
 
     function download_objects(){
         Dajaxice.apps.bioface.download_objects(Dajax.process, { 
-            'query_dict': '{{ query_dict_str }}',
+            'query_dict': JSON.stringify({{ query_dict_str }}),
             'form': $('#download_object_selection').serialize(true),
         });
     }
@@ -414,6 +413,7 @@
                 // ToDo Validate
             } else {
                 prep_list[2] = '"' + prep_list[2] + '"'
+                // prep_list[2] = "'" + prep_list[2] + "'"
             };
             query_list = query_list.concat(prep_list.join(' '));
         }
@@ -423,12 +423,15 @@
             // ALL and NONE
             var row_query = query_list.join(' AND ')
         }
-
-        if (logic_operation == 'NONE') {
+        if (logic_operation == 'NONE' && row_query) {
             row_query = '!(' + row_query + ')'
-        }   
+        }
         if (prepand_query) {
-            $('#js_row_query').val('('+prepand_query+') AND ' + row_query)
+            if (row_query) {
+                $('#js_row_query').val('('+prepand_query+') AND ' + row_query)
+            } else {
+                $('#js_row_query').val(prepand_query)
+            }
         } else if (old_query) {
             $('#js_row_query').val(old_query + ' AND ' + row_query)
         } else {
@@ -467,15 +470,17 @@
         query_history_json = {{ query_history|jsonify }}
 
 
-        $('.breadcrumb .js_query_history_step').tooltip({
+        $('.breadcrumb .js_operand_block').tooltip({
             show: {
                 effect: "slideDown",
                 delay: 30
             } 
         });
 
+        $(".js_operand_block").buttonset();  
+
         // Saved queries list popup 
-        $('.js_queries_list_btn').click(function(){
+        $('#js_queries_list_btn').click(function(){
             $(this).next('.js_queries_list').slideToggle()
         })
 
@@ -568,16 +573,23 @@
                 field_filters_dict[item_pk] = [filtered_field_val, filtered_operation, filter_value, filtered_field_type]
 
                 generate_row_query();
+                // filter.find('.js_del_query_item').show()
+            } else {
+                // filter.find('.js_del_query_item').hide()
             }
         });
 
         // Remove query item
         $('.js_query_table').delegate('.js_del_query_item', 'click', function(){
             filter = $(this).parent().parent()
+            if (filter.parent().find('.js_query_tr').length < 2) {
+                filter.before('<tr class="js_query_tr" data-pk="'+item_pk+'">'+filter_item_html+'</tr>')
+                $('.actual_filters .js_query_tr .js_query_field:first').select2();
+            }
             delete field_filters_dict[filter.data('pk')]
             generate_row_query();
 
-            $(this).parent().parent().remove()
+            filter.remove()
         });
 
         // Query trigger

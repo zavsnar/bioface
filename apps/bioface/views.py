@@ -26,6 +26,8 @@ from apps.bioface.utils import api_request, API_URL
 from apps.bioface.forms import *
 from apps.bioface.models import Download
 
+def index(request):
+    return redirect('select_objects')
 
 def alter_index(request):
     template_name = "test_index.html"

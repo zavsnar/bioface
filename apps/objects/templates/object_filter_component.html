@@ -1,7 +1,7 @@
 
 <div  class="filters_block offset1 span8">
     <div class="operand-block-wraper">
-        <div class="btn-group operand-block" data-toggle="buttons-radio">
+        <!-- <div class="btn-group operand-block" data-toggle="buttons-radio">
             <label class='btn btn-info  {% if logic_operation == "ALL" or not logic_operation %}active{% endif %}'>
                 <input type="radio" name="select_operand" class="js_select_operand hidden" value="ALL" checked>
                 ALL
@@ -14,8 +14,17 @@
                 <input type="radio" name="select_operand" class="js_select_operand hidden" value="NONE">
                 NO ONE
             </label>  
+        </div> -->
+        <div class="btn-group operand-block js_operand_block">
+            <input type="radio" name="select_operand_in" id="operand_ALL_in" class="js_select_operand" value="ALL" checked="checked">
+            <label class='btn btn-info' for="operand_ALL_in">ALL</label>
+            <input type="radio" name="select_operand_in" id="operand_ANY_in" class="js_select_operand" value="ANY">
+            <label class='btn btn-info' for="operand_ANY_in">ANY</label>
+            <input type="radio" name="select_operand_in" id="operand_NONE_in" class="js_select_operand" value="NONE">
+            <label class='btn btn-info' for="operand_NONE_in">NO ONE</label>  
         </div>
     </div>
+    
 
     <div class="row">
         <div class="span8">
@@ -39,7 +48,7 @@
                         </select>
                         <select name="query_field" style="width: 80px;" class="js_query_operation js_query">
                             <option value="=">=</option>
-                            <option value="!=">!=</option>
+                            <option value="!=">&ne;</option>
                             <!-- <option value="in">IN</option> -->
                         </select>
 

@@ -242,7 +242,8 @@
 {% endblock %}
 
 {% block endjs %}
-    <script src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
+    <!-- // <script src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script> -->
+    <script src="{{ STATIC_URL }}js/jquery-ui-1.10.2.custom.min.js"></script>
 
     <script type="text/javascript">
         $('#sortable .item').each(function(){
@@ -297,10 +298,10 @@
             $add_nominal = $('#add-nominal-item')
             if ($add_nominal.val()) {
                 $('#table-nominal-id tr.js_add_item').before(
-                    '<tr class="item">
-                        <td><input name="descr_nominal" value="' + $add_nominal.val() + '"></td>
-                        <td><input type="radio" class="js-nominal-default" name="descr_nominal_default" value="' + $add_nominal.val() + '"></td>
-                        <td><a class="js-nominal-delete btn btn-mini btn-danger">x</a></td>
+                    '<tr class="item"> \
+                        <td><input name="descr_nominal" value="' + $add_nominal.val() + '"></td> \
+                        <td><input type="radio" class="js-nominal-default" name="descr_nominal_default" value="' + $add_nominal.val() + '"></td> \
+                        <td><a class="js-nominal-delete btn btn-mini btn-danger">x</a></td> \
                     </tr>'
                     )
                 $add_nominal.val('');
@@ -317,11 +318,11 @@
             $add_scale = $('#add-scale-item')
             if ($add_scale.val()) {
                 $('#table-scale-id tr.js_add_item').before(
-                    '<tr class="item">
-                        <td>2</td>
-                        <td class="js-scale-name"><input name="descr_scale" value="' + $add_scale.val() + '"></td>
-                        <td><input type="radio" name="descr_scale_default" value="' + $add_scale.val() + '"></td>
-                        <td><a class="js-scale-delete btn btn-mini btn-danger">x</a></td>
+                    '<tr class="item"> \
+                        <td>2</td> \
+                        <td class="js-scale-name"><input name="descr_scale" value="' + $add_scale.val() + '"></td> \
+                        <td><input type="radio" name="descr_scale_default" value="' + $add_scale.val() + '"></td> \
+                        <td><a class="js-scale-delete btn btn-mini btn-danger">x</a></td> \
                     </tr>'
                     );
                 $add_scale.val('');

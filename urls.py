@@ -9,7 +9,7 @@ from django.contrib.auth.views import login
 from django.contrib import admin
 
 # from sitemaps import scheme as sitemaps
-from apps.bioface.views import signin, registration, logout, request_api_page, alter_index, \
+from apps.bioface.views import index, signin, registration, logout, request_api_page, alter_index, \
     create_update_item, create_organism, test, create_attribute, downloads_list
 
 admin.autodiscover()
@@ -22,7 +22,9 @@ dajaxice_autodiscover()
 # get_robots_txt = lambda r: HttpResponse(robots_txt, mimetype="text/plain")
 
 urlpatterns = patterns('',
-        url(r'^$', request_api_page, name='index'),
+        # url(r'^$', request_api_page, name='index'),
+        url(r'^$', index, name='index'),
+
         url(r'^alter-index/$', alter_index, name='alter_index'),
         url(r'^login/$', signin, name='signin'),
         url(r'^logout/$', logout, name='logout'),

@@ -8,9 +8,9 @@ httplib2 == 0.8
 python-dateutil == 2.1
 
 # Celery
-django-celery
+django-celery == 3.0.11
 #django-kombu
-redis == 2.7.2
+#redis == 2.7.2
 django-celery-with-redis == 3.0
 
 
