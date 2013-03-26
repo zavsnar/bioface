@@ -69,15 +69,17 @@ def save_query(request, name, form, field_filters_dict, query_str):
         )
         query_item = render_to_string('saved_query_components.html', {'query': saved_query})
         dajax.append('.js_query_list', 'innerHTML', query_item)
-        template_context = {'success_message': 'Query "{}" successfully added.'.format(name)}
+        template_context = {'success_message': 'Query "{}" successfully saved.'.format(name)}
+        dajax.script('save_query_success();')
     except IntegrityError:
         template_context = {'error_message': 'Name for query must be unique!'}
+        dajax.script('save_query_error();')
 
     message_body = render_to_string('components/alert_messages.html', template_context)
     dajax.assign('.extra-message-block', 'innerHTML', message_body)
     dajax.script('show_messages();')
     dajax.script('stop_show_loading();')
-    dajax.add_css_class('#js_queries_list_btn', 'btn-success')
+    
     return dajax.json()
     
 @dajaxice_register

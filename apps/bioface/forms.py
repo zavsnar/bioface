@@ -39,13 +39,13 @@ OBJECT_DOWNLOAD_OPTIONS = (
 )
 
 class DownloadForm(forms.ModelForm):
-    # description = forms.CharField(max_length=255)
+    description = forms.CharField(required=True, max_length=255, widget=forms.Textarea(attrs={'rows':2, 'style':'width: 400px;'}))
     # encodding = forms.CharField(max_length=100, required=False)
     options = forms.MultipleChoiceField(required=False, widget=forms.CheckboxSelectMultiple(), choices=OBJECT_DOWNLOAD_OPTIONS)
 
     class Meta:
     	model = Download
-    	fields = ('encoding', 'description')
+    	fields = ('description', 'encoding')
 
 class GetRequestAPIForm(forms.Form):
     # request = forms.CharField(widget=forms.Textarea, required=False)

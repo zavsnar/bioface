@@ -17,7 +17,7 @@ from itertools import repeat
 from django.conf import settings
 from django import forms
 from django.forms.formsets import formset_factory
-from django.http import StreamingHttpResponse
+from django.http import StreamingHttpResponse, Http404
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
 from django.template.loader import render_to_string
@@ -96,11 +96,16 @@ def create_object(request):
 
 
 def update_object(request, object_id = 0):
+    try:
+        object_id = int(object_id)
+    except ValueError:
+        raise Http404
+
     query_dict = {
         "method" : "get_object",
         "key": request.user.sessionkey,
         "params" : {
-            "id" : int(object_id)
+            "id" : object_id
             # "attributes_list": ["attribute_id1", "attribute_id2",  ]
         }
     }
@@ -108,9 +113,9 @@ def update_object(request, object_id = 0):
     if content_dict.has_key('result'):
         object_data = content_dict['result']['object']
         if object_data.has_key('attributes'):
-            attr_dict = content_dict['result']['object'].pop('attributes')
+            attr_list = content_dict['result']['object'].pop('attributes')
         else:
-            attr_dict = {}
+            attr_list = {}
 
         if request.method == 'POST':
             form = UpdateObjectForm(request=request, data = request.POST)
@@ -143,7 +148,6 @@ def update_object(request, object_id = 0):
 
                 obj_fields = query_dict['params']['data']['fields']
                 for key, value in form.cleaned_data.items():
-                    print key, value
                     if value:
                         obj_fields[key] = value
 
@@ -176,7 +180,7 @@ def update_object(request, object_id = 0):
 
     template_context = {
         'form': form,
-        'attr_dict': attr_dict
+        'attr_list': attr_list
         # 'formset': formset
     }
 
@@ -299,15 +303,18 @@ def get_objects(request):
     row_query_str=''
     fields = OBJECT_FIELDS
     saved_query_list = SavedQuery.objects.filter(user=request.user)
+    query_history = []
 
     if request.method == 'POST':
         form = SelectObjects(request=request, data = request.POST)
-        
         query_history = ast.literal_eval(request.POST['query_history'])
 
-        query_history_step = request.POST['query_history_step']
         # query_history_step = query_history_step.decode('utf8')
+
+        # Load from history
+        query_history_step = request.POST['query_history_step']
         if query_history_step:
+            where_search = ''
             field_filters_dict_sort={}
             all_attr_type_dict = { key: atype for (key, item, atype) in form.fields['attributes_list'].choices }
             all_attr_type_dict.update(OBJECT_FIELDS_CHOICES_WITH_TYPE)
@@ -335,7 +342,6 @@ def get_objects(request):
                     # print attr_name.encode('utf8')
                     _attr_name = attr_name.replace('attr.', '') if attr_name.startswith('attr.') else attr_name
                     # print attr_name.decode('utf8')
-                    print 888888888, attr_name
                     field_filters_dict_sort[i] = (attr_name, operation, attr_value.replace('"', ''), all_attr_type_dict[_attr_name])
 
         else:
@@ -370,7 +376,7 @@ def get_objects(request):
 
             if row_query_str:
                 prep_row_query_str = row_query_str.replace(' AND ', ' & ').replace(' OR ', ' | ')
-                row_query = row_query + ' & ' + prep_row_query_str
+                row_query = row_query + ' & (' + prep_row_query_str + ')'
                 print 9999, row_query
 
             attr_list=[]
@@ -444,6 +450,26 @@ def get_objects(request):
                     next_page = False
 
                 previous_page = False
+                if query_history:
+                    # if query_history[-1]['query'] == row_query_str.encode('utf8'):
+                    #     query_history[-1]['count'] = objects_count
+                    if query_history_step:
+                        for step in query_history:
+                            if step['query'] == query_history_step.encode('utf8'):
+                                step['count'] = objects_count
+                                idx = query_history.index(step)
+                                query_history = query_history[:idx+1]
+                                break
+                    elif where_search == 'search_in_results':
+                    # elif len(query_history) > 1 and query_history[-2]['query'] == old_row_query_str[1:-1].encode('utf8'):
+                        # Search in result
+                        query_history.append({'query': row_query_str, 'count': objects_count})
+                    else:
+                        # Change current query or new query
+                        query_history[-1] = {'query': row_query_str, 'count': objects_count}
+                else:
+                    query_history.append({'query': row_query_str, 'count': objects_count})
+                # print 99999, query_history
 
                 display_fields_str = mark_safe(json.dumps(display_fields))
                 template_context.update({
@@ -493,6 +519,20 @@ def get_objects(request):
         old_row_query_str = old_row_query_re[0] if old_row_query_re else ''
 
 
+        if row_query_str:
+            step = True
+            row_query_str_iter = row_query_str
+            query_history.append({'query': row_query_str, 'count': ''})
+            while step:
+                _query_re = re.findall('\((.+)\)', row_query_str_iter)
+                step = _query_re[0] if _query_re else None
+                if step:
+                    query_history.append({'query': step, 'count': ''})
+                    row_query_str_iter = step
+
+            
+            query_history.reverse()
+
         template_context.update({
             # 'logic_operation': saved_query.logic_operation,
             'logic_operation': "ALL",
@@ -504,16 +544,7 @@ def get_objects(request):
     else:
         form = SelectObjects(request=request)
 
-    query_history = []
-    if row_query_str:
-        step = True
-        while step:
-            _query_re = re.findall('\((.+)\)', row_query_str)
-            step = _query_re[0] if _query_re else None
-            if step:
-                query_history.append(step)
-                row_query_str = step
-        query_history.reverse()
+    
 
     attributes_from_organism = form.fields['attributes_list'].choices
 

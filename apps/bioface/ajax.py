@@ -29,6 +29,7 @@ from apps.bioface.tasks import loading_objects
 
 @dajaxice_register
 def download_objects(request, form, query_dict):
+    dajax = Dajax()
     query_dict = ast.literal_eval(query_dict)
     form_data = deserialize_form(form)
     form = DownloadForm(data = form_data)
@@ -67,14 +68,16 @@ def download_objects(request, form, query_dict):
         # })
         # thread.start()
         msg = 'Ok'
+        template_context = {'success_message': 'Downloading successfully begin. You can see the status or get file in "My downloads".'}
+        dajax.script('success_adding_download();')
     else:
         msg = 'err'
+        # template_context = {'success_message': 'Downloading successfully begin. You can see the status or get file in "My downloads".'}
     
-    dajax = Dajax()
-    template_context = {'success_message': 'Downloading successfully begin. You can see the status or get file in "My downloads".'}
+    
     render = render_to_string('components/alert_messages.html', template_context)
     dajax.assign('.extra-message-block', 'innerHTML', render)
-    dajax.script('success_adding_download();')
+    
     # dajax.assign('#js_object_result_table', 'innerHTML', render)
     # dajax.script('stop_show_loading();')
     # dajax.alert(msg)

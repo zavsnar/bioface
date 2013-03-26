@@ -20,7 +20,7 @@
 {% block main %}
 <div class="relative">
     <div class="row saved-query-block">
-        <div class="span4">
+        <div class="span4 js_saved_query_block">
             <a class="btn dropdown-toggle" id="js_queries_list_btn">Saved query<span class="caret"></span></a>
             <table class="table table-bordered js_queries_list saved-query-list" style="display: none">
                 <tbody class="js_query_list">
@@ -92,12 +92,21 @@
                 {% if query_history %}
                     <ul class="breadcrumb">
                         {% for step in query_history %}
-                            <li>
-                                <a data-toggle="tooltip" class="js_query_history_step" data-placement="bottom" title="{{ step }}" data-original-title="{{ step }}">
-                                    Query {{ forloop.counter }}
-                                </a> <span class="divider">></span></li>
+                            {% if not forloop.last %}
+                                <li>
+                                    <a class="js_query_history_step" data-placement="bottom" title="{{ step.query }}" data-original-title="{{ step.query }}">
+                                        Query {{ forloop.counter }} {% if step.count %}({{ step.count }}){% endif %}
+                                    </a> <span class="divider">></span>
+                                </li>
+                            {% else %}
+                                <li class="active">
+                                    <span class="js_query_history_step_last" data-placement="bottom" title="{{ step.query }}" data-original-title="{{ step.query }}">
+                                        This query {% if step.count %}({{ step.count }}){% endif %}
+                                    </span>
+                                </li>
+                            {% endif %}
                         {% endfor %}
-                        <li class="active">This query</li>
+                        
                     </ul>
                 {% endif %}
                 <!-- <div class="control-group">
@@ -126,11 +135,11 @@
                         <div class="operand-block-wraper">
                             <div class="btn-group operand-block js_operand_block">
                                 <input type="radio" name="select_operand" id="operand_ALL" class="js_select_operand" value="ALL" {% if logic_operation == "ALL" or not logic_operation %}checked="checked"{% endif %}>
-                                <label class='btn btn-info' for="operand_ALL">ALL</label>
+                                <label class='btn' for="operand_ALL">ALL</label>
                                 <input type="radio" name="select_operand" id="operand_ANY" class="js_select_operand" value="ANY" {% if logic_operation == "ANY" %}checked="checked"{% endif %}>
-                                <label class='btn btn-info' for="operand_ANY">ANY</label>
+                                <label class='btn' for="operand_ANY">ANY</label>
                                 <input type="radio" name="select_operand" id="operand_NONE" class="js_select_operand" value="NONE" {% if logic_operation == "NONE" %}checked{% endif %}>
-                                <label class='btn btn-info' for="operand_NONE">NO ONE</label>  
+                                <label class='btn' for="operand_NONE">NO ONE</label>  
                             </div>
                         </div>
                             <!-- </div>
@@ -177,7 +186,7 @@
                                                 <input class="span2 js_query_value js_query" type="text" value="{% firstof filter.2 %}">
                                             </td>
                                             <td>
-                                                <a class="btn btn-danger js_del_query_item" {% if not filter.2 %}style="display: none;"{% endif %}>x</a>
+                                                <a class="btn btn-danger js_del_query_item">x</a>
                                             </td>
                                         </tr>
                                     {% endfor %}
@@ -213,8 +222,8 @@
             
 
             <div class="form-actions form-inline">
-                <input type="text" id="save_query_name" placeholder="Type query name">
-                <a href="#js_queries_list_btn" class="btn btn-success" onclick="save_query();">Save query</a>&nbsp;
+                <input type="text" id="save_query_name" class="hidden" placeholder="Type query name">
+                <button type="button" class="btn btn-success" onclick="save_query();">Save query</button>&nbsp;
                 <button type="submit" class="btn btn-primary">Run</button>&nbsp;
             </div>
         </form>
@@ -227,7 +236,7 @@
 
                 <p>
                     Find {{ objects_count }} objects
-                    <a class="btn pull-right" data-toggle="modal" data-target="#DownloadObjectSelection">Download this selection</a>
+                    <a class="btn pull-right" data-toggle="modal" data-target="#DownloadObjectSelection">Export</a>
                 </p>
                 <div id="js_object_result_table">
 
@@ -306,10 +315,53 @@
                     <h3 id="ModalLabel">Download object selection</h3>
                 </div>
                 <div class="modal-body">
-                    <form method="POST" id="download_object_selection" action="">
+                    <form method="POST" id="download_object_selection" action="" class="span5">
                         {% csrf_token %}
-                        {{ object_download_form|bootstrap }}
-                        <a class="btn btn-primary" onclick="download_objects();">Export</a>
+                        {% for error in object_download_form.non_field_errors %}
+                            <div class="alert alert-error">
+                                <a data-dismiss="alert" class="close">×</a>
+                                <p>{{ error }}</p>
+                            </div>
+                        {% endfor %}
+                        
+                        {% for field in object_download_form.hidden_fields %}
+                            {{ field }}
+                        {% endfor %}
+
+                        {# <!-- Description --> #}
+                        <div class="control-group {% if object_download_form.description.errors %}error{% endif %}">
+                            <label class="control-label" for="{{ object_download_form.description.id_for_label }}">{{ object_download_form.description.label }} <i class="red">*</i></label>
+                            <div class="controls">
+                                {{ object_download_form.description }}
+                                {% for error in object_download_form.description.errors %}
+                                    <span class="help-inline">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        {# <!-- Encoding --> #}
+                        <div class="control-group {% if object_download_form.encoding.errors %}error{% endif %}">
+                            <label class="control-label">{{ object_download_form.encoding.label }}</label>
+                            <div class="controls">
+                                {{ object_download_form.encoding }}
+                                {% for error in object_download_form.encoding.errors %}
+                                    <span class="help-inline">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        {# <!-- Options --> #}
+                        <div class="control-group {% if object_download_form.options.errors %}error{% endif %}" id="js_attribute_container">
+                            <label class="control-label" for="{{ object_download_form.options.id_for_label }}">{{ object_download_form.options.label }}</label>
+                            <div class="controls list-inline">
+                                {{ object_download_form.options }}
+                                {% for error in object_download_form.options.errors %}
+                                    <span class="help-inline">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <!-- {{ object_download_form|bootstrap }} -->
+                        <a class="btn btn-primary pull-right" onclick="download_objects();">Export</a>
                     </form>
                 </div>
             </div>
@@ -341,6 +393,7 @@
     prepand_query = ''
     old_query = '{{ old_row_query_str|safe }}'
     query_history_step_result = $('#js_query_history_step_result')
+    js_queries_list_btn = $("#js_queries_list_btn")
     // $('.preloader').hide();
 
     function download_objects(){
@@ -354,22 +407,41 @@
         $('#DownloadObjectSelection').modal('hide');
     }
 
+    query_name = $('#save_query_name')
     function save_query() {
-        var query_name = $('#save_query_name').val()
-        if (query_name) {
-            start_show_loading();
-            Dajaxice.apps.objects.save_query(Dajax.process, {
-                // 'data':JSON.stringify(data),
-                'name': query_name,
-                'form': $('#js_id_form').serialize(true),
-                'field_filters_dict': field_filters_dict,
-                'query_str': $('#js_row_query').val(),
-            });
+        if (query_name.hasClass('hidden')) {
+            query_name.removeClass('hidden')
+            query_name.focus();
         } else {
-            // TODO. create alert
+            if (query_name.val()) {
+                start_show_loading();
+                Dajaxice.apps.objects.save_query(Dajax.process, {
+                    // 'data':JSON.stringify(data),
+                    'name': query_name.val(),
+                    'form': $('#js_id_form').serialize(true),
+                    'field_filters_dict': field_filters_dict,
+                    'query_str': $('#js_row_query').val(),
+                });
+                $('.js_saved_query_block').show();
+                // query_name.addClass('hidden');
+            } else {
+                query_name.addClass('hidden')
+                // TODO. create alert
+            }
         }
+        
       return false;
     };
+
+    function save_query_success(){
+        js_queries_list_btn.addClass('btn-success');
+        query_name.addClass('hidden');
+        $(document).scrollTop( js_queries_list_btn.offset().top ); 
+    }
+
+    function save_query_error(){
+        query_name.focus();
+    }
 
     function start_show_loading() {
         // preloader.show(); 
@@ -454,12 +526,12 @@
     // };
 
     $(function() {
-
+        item_pk = 0
         field_filters_dict_old = {}
         field_filters_dict_new = {}
         {% for pk, filter in field_filters_dict.items %}
             {% if pk != '' %}
-                field_filters_dict_old['{{ pk }}'] = ['{{filter.0}}', '{{filter.1}}', '{{filter.2}}', '{{filter.3}}']
+                field_filters_dict_old['{{ pk }}'] = ['{{filter.0}}', '{{ filter.1|safe }}', '{{filter.2}}', '{{filter.3}}']
                 {% if forloop.last %} 
                     item_pk = {{ pk }} +1
                 {% endif %}
@@ -470,7 +542,13 @@
         query_history_json = {{ query_history|jsonify }}
 
 
-        $('.breadcrumb .js_operand_block').tooltip({
+        $('.breadcrumb .js_query_history_step').tooltip({
+            show: {
+                effect: "slideDown",
+                delay: 30
+            } 
+        });
+        $('.breadcrumb .js_query_history_step_last').tooltip({
             show: {
                 effect: "slideDown",
                 delay: 30
@@ -495,7 +573,7 @@
 
         // Delete saved query
         $('.js_query_list').delegate('.delete_query_item', 'click', function(){
-            if (confirm("Нou agree to lose this query?")) {
+            if (confirm("You agree to lose this query?")) {
                 var query_name = $(this).data('name')
                 // alert();
                 // if (query_name) {
@@ -503,6 +581,10 @@
                 // start_show_loading();
                 Dajaxice.apps.objects.delete_saved_query(Dajax.process, {'name': query_name });
                 // alert($(this).parents('.js_saved_queries_item').html());
+                if ($(this).parents('.js_query_list').find('.js_saved_queries_item').length < 2) {
+                    $('.js_saved_query_block').hide();
+                }
+                    
                 $(this).parents('.js_saved_queries_item').remove()
 
                 // } else {
@@ -524,6 +606,7 @@
 
 
         logic_operation = '{% firstof logic_operation "ALL" %}'
+        new_query_logic_operation = '{% firstof logic_operation "ALL" %}'
         $('.js_new_query .js_select_operand').click(function(){
             new_query_logic_operation = $(this).val()
             logic_operation = new_query_logic_operation
@@ -531,7 +614,8 @@
             generate_row_query();
         })
 
-        $('.js_new_query .js_select_operand').click(function(){
+        search_in_result_logic_operation = "ALL"
+        $('.js_search_in_results .js_select_operand').click(function(){
             search_in_result_logic_operation = $(this).val()
             logic_operation = search_in_result_logic_operation
             // $(this).next('#id_select_operand').val(logic_operation)
@@ -549,7 +633,7 @@
             }
         });
 
-        item_pk = 0
+        // item_pk = 0
         // Add query item
         $('.js_query_table').delegate('.js_add_query_item', 'click', function(){
             item_pk++;
@@ -639,6 +723,7 @@
                     prepand_query = ''
                     old_query = '{{ old_row_query_str|safe }}'
                     field_filters_dict = field_filters_dict_old
+                    logic_operation = new_query_logic_operation
                     generate_row_query()
                 });
             } else {
@@ -648,6 +733,7 @@
                     prepand_query = '{{ row_query_str|safe }}'
                     old_query = '{{ old_row_query_str|safe }}'
                     field_filters_dict = field_filters_dict_new
+                    logic_operation = search_in_result_logic_operation
                     generate_row_query()
                 });
             }

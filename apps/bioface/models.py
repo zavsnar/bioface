@@ -41,7 +41,7 @@ class Download(models.Model):
     user = models.ForeignKey(CustomUser, related_name='downloads')
     file_path = models.FilePathField(path=DOWNLOADS_ROOT, match="*.zip", recursive=True, null=True)
     encoding = models.CharField(choices=ENCODING_CHOUCES, max_length="255", default='utf-8')
-    description = models.TextField()
+    description = models.TextField(null=True)
     status = models.CharField(max_length=255)
     task_id = models.CharField(max_length="255")
     created = models.DateTimeField(auto_now_add=True)

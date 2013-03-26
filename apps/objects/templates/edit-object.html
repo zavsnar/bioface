@@ -34,15 +34,15 @@
         <div class="tab-content">
             <div class="tab-pane active" id="tab1">
 
-                {% for attr_name, value in attr_dict.items %}
+                {% for attr in attr_list %}
                     {% if forloop.counter = 6 %}
                     <a onclick="toggle_filter()" id="hideBut" class="btn">></a>
                     <div class="show-hide">
                     {% endif %}
                     <div class="control-group">
-                        <label class="control-label" for="attr_{{ attr_name }}"><a href="#">{{ attr_name }}</a></label>
+                        <label class="control-label" for="attr_{{ attr.name }}"><a href="#">{{ attr.name }}</a></label>
                         <div class="controls">
-                            <input type="text" id="attr_{{ attr_name }}" name="attr_{{ attr_name }}" value="{{ value }}">
+                            <input type="text" id="attr_{{ attr.name }}" name="attr_{{ attr.name }}" value="{{ attr.value }}">
                         </div>
                     </div>
                     {% if forloop.counter >= 6 and forloop.last %}
