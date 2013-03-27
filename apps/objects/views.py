@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 # from __future__ import unicode_literals
 # from __future__ import print_function
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
+import math
 import re
 import urllib
 import httplib2 
@@ -259,8 +260,7 @@ def get_pagination_page(page, query_dict, paginate_by=5):
     if not query_dict.has_key('params'):
         query_dict['params'] = {}
 
-    # Monkey patch. Need for test exist next page, or not
-    query_dict['params']['limit'] = paginate_by+1
+    query_dict['params']['limit'] = paginate_by
 
     query_dict['params']['skip'] = paginate_by * (page-1)
     print  777777, query_dict
@@ -372,6 +372,7 @@ def get_objects(request):
 
         if form.is_valid():
             cd = form.cleaned_data
+            paginate_by = int(cd['paginate_by'])
             row_query = 'organism = {}'.format(cd['organism'])
 
             if row_query_str:
@@ -442,25 +443,33 @@ def get_objects(request):
                         'attrs': object_attrs,
                     })
 
-                # Monkey patch. If list of objects longer items per page, that show next button
-                if len(object_list) > paginate_by:
-                    next_page = True
-                    object_list = object_list[:-1]
-                else:
-                    next_page = False
-
                 previous_page = False
+                next_page = True if int(objects_count) > paginate_by else False
+
+                pages_count = int(math.ceil(objects_count/paginate_by))
+                if pages_count < 12:
+                    pages = range(1, pages_count+1)
+                else:
+                    pages = range(1, 4)
+                    pages.append('...')
+                    pages.extend(range(pages_count-2, pages_count+1))
+
+                    # object_list = object_list[:-1]
+                # else:
+                #     next_page = False
+
                 if query_history:
                     # if query_history[-1]['query'] == row_query_str.encode('utf8'):
                     #     query_history[-1]['count'] = objects_count
                     if query_history_step:
+                        # Loading from history
                         for step in query_history:
                             if step['query'] == query_history_step.encode('utf8'):
                                 step['count'] = objects_count
                                 idx = query_history.index(step)
                                 query_history = query_history[:idx+1]
                                 break
-                    elif where_search == 'search_in_results':
+                    elif where_search == 'search_in_results' and query_history[-1]['query'] != row_query_str.encode('utf8'):
                     # elif len(query_history) > 1 and query_history[-2]['query'] == old_row_query_str[1:-1].encode('utf8'):
                         # Search in result
                         query_history.append({'query': row_query_str, 'count': objects_count})
@@ -482,10 +491,12 @@ def get_objects(request):
 
                     'has_next': next_page,
                     'has_previous': previous_page,
+                    'pages': pages,
+                    'this_page': 1,
                     'next_page_number': 2,
                     # 'previous_page_number': 1,
                     'paginate_by': paginate_by,
-                    'objects_count': objects_count,  
+                    'items_count': objects_count,  
                 })
             else:   
                 msg = content_dict['error']['message']

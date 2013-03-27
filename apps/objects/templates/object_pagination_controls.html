@@ -1,46 +1,81 @@
-<ul class="pager pagination">
-    <!-- <span class="step-links"> -->
+<!-- <div class="pagination"> -->
+{% if pages > 1 %}
+    <ul class="pager pagination">
         {% if has_previous %}
-        <li>
-            <a class="js_prev_button" onclick="prev_page()">&larr; previous</a>
-        </li>
+            <li>
+                <a class="js_prev_button" onclick="prev_page()">&larr; previous</a>
+            </li>
+        {% else %}
+            <li class="disabled">
+                <a>&larr; previous</a>
+            </li>        
         {% endif %}
+            
+        <!-- <li class="disabled"><a href="#">&laquo;</a></li> -->
+        {% for page_num in pages %}
+            {% if page_num == this_page %}
+                <li class="disabled"><a>{{ page_num }}</a></li>
+            {% elif page_num == '...' %}
+                <li><span>...</span></li>
+            {% else %}
+                <li class="active"><a onclick="get_page({{ page_num }});">{{ page_num }}</a></li>
+            {% endif %}
+        {% endfor %}
 
         {% if has_next %}
-        <li>
-            <a class="js_next_button" onclick="next_page();">next &rarr;</a>
-        </li>
+            <li>
+                <a class="js_next_button" onclick="next_page();">next &rarr;</a>
+            </li>
+        {% else %}
+            <li class="disabled">
+                <a>next &rarr;</a>
+            </li>
         {% endif %}
-    <!-- </span> -->
-</ul>
+    </ul>
+    <!-- </div> -->
 
-<script type="text/javascript">
-    data = {
-        'display_fields':{{ display_fields_str }},
-        'query_dict':{{ query_dict_str }}
-    }
 
-    function next_page(){
-        $('.js_prev_button').attr('disabled', true)
-        $('.js_next_button').attr('disabled', true)
-        start_show_loading();
-        Dajaxice.apps.objects.pagination(Dajax.process, {
-            'page':{% firstof next_page_number '1' %},
-            'paginate_by':{{ paginate_by }}, 
-            'data':JSON.stringify(data)
-        });
-      return false;
-    }
 
-    function prev_page(){
-        $('.js_prev_button').attr('disabled', true)
-        $('.js_next_button').attr('disabled', true)
-        start_show_loading();
-        Dajaxice.apps.objects.pagination(Dajax.process, {
-            'page':{% firstof previous_page_number '1' %},
-            'paginate_by':{{ paginate_by }}, 
-            'data':JSON.stringify(data)
-        });
-      return false;
-    }
-</script>
+    <script type="text/javascript">
+        data = {
+            'display_fields':{{ display_fields_str }},
+            'query_dict':{{ query_dict_str }}
+        }
+
+        function next_page(){
+            // $('.js_prev_button').attr('disabled', true)
+            // $('.js_next_button').attr('disabled', true)
+            start_show_loading();
+            Dajaxice.apps.objects.pagination(Dajax.process, {
+                'page':{% firstof next_page_number '1' %},
+                'paginate_by':{{ paginate_by }},
+                'items_count': {{ items_count }},
+                'data':JSON.stringify(data)
+            });
+          // return false;
+        }
+
+        function get_page(num_page){
+            start_show_loading();
+            Dajaxice.apps.objects.pagination(Dajax.process, {
+                'page':num_page,
+                'paginate_by':{{ paginate_by }},
+                'items_count': {{ items_count }},
+                'data':JSON.stringify(data)
+            });
+        }
+
+        function prev_page(){
+            // $('.js_prev_button').attr('disabled', true)
+            // $('.js_next_button').attr('disabled', true)
+            start_show_loading();
+            Dajaxice.apps.objects.pagination(Dajax.process, {
+                'page':{% firstof previous_page_number '1' %},
+                'paginate_by':{{ paginate_by }},
+                'items_count': {{ items_count }},
+                'data':JSON.stringify(data)
+            });
+          // return false;
+        }
+    </script>
+{% endif %}

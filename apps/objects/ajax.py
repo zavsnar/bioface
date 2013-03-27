@@ -1,7 +1,9 @@
-from __future__ import unicode_literals
+from __future__ import unicode_literals, absolute_import, division
 
+import math
 from dateutil.parser import parse as datetime_parse
 import ast
+import json
 
 from dajax.core import Dajax
 from django.utils import simplejson
@@ -103,14 +105,15 @@ def delete_saved_query(request, name):
 @dajaxice_register
 # @ajax_login_required
 # def pagination(request, page, paginate_by, display_fields, attributes, row_query):
-def pagination(request, page, paginate_by, data):
+def pagination(request, page, paginate_by, items_count, data):
     print data
-    data = ast.literal_eval(data)
+    # data = ast.literal_eval(data)
+    data = json.loads(data)
     display_fields = data['display_fields']
     query_dict = data['query_dict']
-    query_dict['params']['count'] = 'false'
+    query_dict['params']['count'] = False
     if query_dict['params'].has_key('attributes_list'):
-        attributes = [ attr.decode('utf-8') for attr in query_dict['params']['attributes_list'] ]
+        attributes = [ attr for attr in query_dict['params']['attributes_list'] ]
     else:
         attributes = []
 
@@ -144,13 +147,41 @@ def pagination(request, page, paginate_by, data):
                 }
             )
 
-        if len(object_list) > paginate_by:
-            next_page = True
-            object_list = object_list[:-1]
-        else:
-            next_page = False
-
+        next_page = True if paginate_by * page < items_count else False
         previous_page = True if page > 1 else False
+
+        pages_count = int(math.ceil(items_count/paginate_by))
+        # all_pages = range(1, pages_count+1)
+        if pages_count == 11:
+            pages = range(1, 12)
+        elif page == 1 or page == pages_count:
+            pages = range(1, 4)
+            pages.append('...')
+            pages.extend(range(pages_count-2, pages_count+1))
+        elif 1 < page <= 6:
+            # page in begin
+            pages = range(1, page+2)
+            pages.append('...')
+            pages.extend(range(pages_count-2, pages_count+1))
+        elif pages_count-5 <= page < pages_count:
+            # page in end
+            pages = range(1, 4)
+            pages.append('...')
+            pages.extend(range(page-1, pages_count+1))
+        else:
+            # page in middle
+            pages = range(1, 4)
+            pages.append('...')
+            pages.extend(range(page-1, page+2))
+            pages.append('...')
+            pages.extend(range(pages_count-2, pages_count+1))
+
+        # if len(object_list) > paginate_by:
+        #     next_page = True
+        #     object_list = object_list[:-1]
+        # else:
+        #     next_page = False
+
 
         query_dict_str = mark_safe(simplejson.dumps(query_dict))
         display_fields_str = mark_safe(simplejson.dumps(display_fields))
@@ -160,6 +191,9 @@ def pagination(request, page, paginate_by, data):
             'next_page_number': page+1,
             'previous_page_number': page-1,
             'paginate_by': paginate_by,
+            'pages': pages,
+            'this_page': page,
+            'items_count': items_count,
 
             'display_fields': display_fields,
             'display_fields_str': display_fields_str,

@@ -86,6 +86,17 @@
                 </div>
             </div>
 
+            {# <!-- paginate_by --> #}
+            <div class="control-group {% if form.paginate_by.errors %}error{% endif %}">
+                <label class="control-label" for="{{ form.paginate_by.id_for_label }}">{{ form.paginate_by.label }}</label>
+                <div class="controls">
+                    {{ form.paginate_by }}
+                    {% for error in form.paginate_by.errors %}
+                        <span class="help-inline">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
         {# <!-- Filters --> #}
             <fieldset id="js_filters_block">
                 <legend>Filters</legend>
@@ -95,13 +106,13 @@
                             {% if not forloop.last %}
                                 <li>
                                     <a class="js_query_history_step" data-placement="bottom" title="{{ step.query }}" data-original-title="{{ step.query }}">
-                                        Query {{ forloop.counter }} {% if step.count %}({{ step.count }}){% endif %}
+                                        Query {{ forloop.counter }} {% if step.count %}<span class="badge badge-info">{{ step.count }}</span>{% endif %}
                                     </a> <span class="divider">></span>
                                 </li>
                             {% else %}
                                 <li class="active">
                                     <span class="js_query_history_step_last" data-placement="bottom" title="{{ step.query }}" data-original-title="{{ step.query }}">
-                                        This query {% if step.count %}({{ step.count }}){% endif %}
+                                        This query {% if step.count %}<span class="badge badge-info">{{ step.count }}</span>{% endif %}
                                     </span>
                                 </li>
                             {% endif %}
@@ -167,16 +178,16 @@
                                                 </select>
                                                 <!-- <div class="btn-group"> -->
                                                 <select name="query_field" style="width: 80px;" class="js_query_operation js_query">
-                                                    {% if filter.3 == 'integer' or filter.3 == 'float' %}
+                                                    {% if filter.3 == 'string' or filter.3 == 'nominal' %}
+                                                        <option value="=" {% if filter.1 == '=' %}selected{% endif %}>=</option>
+                                                        <option value="!=" {% if filter.1 == '!=' %}selected{% endif %}>&ne;</option>
+                                                    {% else %}
                                                         <option value="=" {% if filter.1 == '=' %}selected{% endif %}>=</option>
                                                         <option value="!=" {% if filter.1 == '!=' %}selected{% endif %}>&ne;</option>
                                                         <option value=">=" {% if filter.1 == '>=' %}selected{% endif %}>&ge;</option>
                                                         <option value="<=" {% if filter.1 == '<=' %}selected{% endif %}>&le;</option>
                                                         <option value=">" {% if filter.1 == '>' %}selected{% endif %}>&gt;</option>
                                                         <option value="<" {% if filter.1 == '<' %}selected{% endif %}>&lt;</option>
-                                                    {% else %}
-                                                        <option value="=" {% if filter.1 == '=' %}selected{% endif %}>=</option>
-                                                        <option value="!=" {% if filter.1 == '!=' %}selected{% endif %}>&ne;</option>
                                                         <!-- <option value="in">IN</option> -->
                                                     {% endif %}
                                                     
@@ -235,7 +246,7 @@
             <div class="span12">
 
                 <p>
-                    Find {{ objects_count }} objects
+                    Find {{ items_count }} objects
                     <a class="btn pull-right" data-toggle="modal" data-target="#DownloadObjectSelection">Export</a>
                 </p>
                 <div id="js_object_result_table">
@@ -360,7 +371,6 @@
                                 {% endfor %}
                             </div>
                         </div>
-                        <!-- {{ object_download_form|bootstrap }} -->
                         <a class="btn btn-primary pull-right" onclick="download_objects();">Export</a>
                     </form>
                 </div>
@@ -626,10 +636,10 @@
         $('.js_query_table').delegate('.js_query_field', 'change', function(){
             field_type = $(this).find('option:selected').data('atype')
             operation_select = $(this).next('.js_query_operation')
-            if (field_type == 'integer' | field_type == 'float') {
-                operation_select.html($('.js_option_for_type_integer').html())
-            } else {
+            if (field_type == 'string' | field_type == 'nominal') {
                 operation_select.html($('.js_option_for_type_string').html())
+            } else {
+                operation_select.html($('.js_option_for_type_integer').html())
             }
         });
 
