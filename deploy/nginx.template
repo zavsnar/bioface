@@ -12,12 +12,12 @@ server {
    }
 
     location /media/ {
-        alias /home/zavsnar/bioface/media/;
+        alias %(project_root)s/media/;
         expires 30d;
     }
 
     location /static/ {
-        alias /home/zavsnar/bioface/static/;
+        alias %(project_root)s/static/;
         expires 30d;
     }
 }

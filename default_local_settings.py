@@ -1,6 +1,6 @@
 from os.path import abspath, dirname, join
 
-SOURCE_ROOT =  dirname(abspath( __file__))
+SOURCE_ROOT =  dirname(abspath( __file__)) + '/'
 DEBUG = True
 
 # Local time zone for this installation. Choices can be found here:
@@ -72,47 +72,32 @@ LOGGING = {
 
 STATIC_FILES_VERSION = None
 
-ADMINS = MANAGERS = ('zavsnar@gmail.com')
+ADMINS = MANAGERS = ('zavsnar@gmail.com',)
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = 'gw6&l9aqg(h=$g01j02hp34min4ae2&)wnbqa^-f_djsc7ca3('
+SECRET_KEY = 'gw6&l9aqg(h=$g01j02hp34min4aexcxqa^-f_djsc7ca3('
 
 # Email backend settings
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'localhost'
-EMAIL_PORT = 25
-EMAIL_HOST_USER = None
-EMAIL_HOST_PASSWORD = None
-DEFAULT_FROM_EMAIL = u'TaskMarket<no-reply@tasks-market.levelupdev.com>'
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'localhost'
+# EMAIL_PORT = 25
+# EMAIL_HOST_USER = None
+# EMAIL_HOST_PASSWORD = None
+# DEFAULT_FROM_EMAIL = u'TaskMarket<no-reply@tasks-market.levelupdev.com>'
 
 DISALLOW_SEARCH_ROBOTS = True
 
-#FCGI settings. 'port' value should be specified explicitly
-APP_SERVER_SETTINGS = {
-    'host': '127.0.0.1',
-    'pidfile': join(SOURCE_ROOT, '../fcgi.pid'),
-    'method': 'prefork',
-    'maxchildren': 2,
-    'maxrequests': 0,
-    'debug': True,
-    'umask': '022',
-    'daemonize': 'false',
-}
-
-# FACEBOOK_APP_ID for tasks-market.levelupdev.com. It is registered to Evgeny Evseev (pelid).
-# None value disables Facebook API integration
-FACEBOOK_APP_ID = '459911757376906'
-FACEBOOK_APP_SECRET = 'ea4a98c90dce193552a7d4608adeb7c7'
-FACEBOOK_READ_ONLY = False
-
-FACEBOOK_ADMIN_ACCOUNTS = ['1333909046']    # pelid (Evgeny Evseev)
-GOOGLE_ANALITICS_ID = None
-
-ENABLE_GOOGLE_API_LIBS = not DEBUG
-
-THUMBNAIL_DUMMY = False # This will generate placeholder images for all thumbnails missing input source.
-
-GOOGLE_MAPS_API_KEY = 'AIzaSyCoxQ3CrUtILPA_q7dKezriOzuR_l_B0-4' # It is registered to Evgeny Evseev (pelid80@gmail.com)>>>>>>> other
+# #FCGI settings. 'port' value should be specified explicitly
+# APP_SERVER_SETTINGS = {
+#     'host': '127.0.0.1',
+#     'pidfile': join(SOURCE_ROOT, '../fcgi.pid'),
+#     'method': 'prefork',
+#     'maxchildren': 2,
+#     'maxrequests': 0,
+#     'debug': True,
+#     'umask': '022',
+#     'daemonize': 'false',
+# }
 
 DEBUG_TOOLBAR_PANELS = (
     'debug_toolbar.panels.version.VersionDebugPanel',
@@ -127,6 +112,18 @@ DEBUG_TOOLBAR_PANELS = (
 )
 
 INTERNAL_IPS = ('127.0.0.1',)
+
+BROKER_URL = "redis://localhost:6379/0"
+CELERY_RESULT_BACKEND = "redis"
+CELERY_REDIS_HOST = "localhost"
+CELERY_REDIS_PORT = 6379
+CELERY_REDIS_DB = 0
+CELERYD_LOG_FILE='/tmp/celery.log'
+CELERND_TASK_ERROR_EMAILS = True 
+CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
+
+import djcelery
+djcelery.setup_loader()
 
 # Eway.com.au test account , Test Credit Card is  4444333322221111
 # EWAY_AU_MERCHANT = {

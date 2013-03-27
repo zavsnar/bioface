@@ -3,9 +3,9 @@
 from local_settings import DEBUG, TIME_ZONE, SOURCE_ROOT, DATABASES, LOGGING
 from local_settings import SECRET_KEY, MANAGERS, ADMINS, DISALLOW_SEARCH_ROBOTS
 from local_settings import STATIC_FILES_VERSION
-from local_settings import DEFAULT_FROM_EMAIL, EMAIL_BACKEND, EMAIL_HOST, EMAIL_PORT, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD
-from local_settings import APP_SERVER_SETTINGS
-from local_settings import THUMBNAIL_DUMMY
+# from local_settings import DEFAULT_FROM_EMAIL, EMAIL_BACKEND, EMAIL_HOST, EMAIL_PORT, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD
+# from local_settings import APP_SERVER_SETTINGS
+# from local_settings import THUMBNAIL_DUMMY
 from local_settings import DEBUG_TOOLBAR_PANELS, INTERNAL_IPS
 #from local_settings import HOST_NAME
 
@@ -181,19 +181,6 @@ FIXTURE_DIRS = (
 )
 
 AUTO_RENDER_SELECT2_STATICS = False
-
-
-BROKER_URL = "redis://localhost:6379/0"
-CELERY_RESULT_BACKEND = "redis"
-CELERY_REDIS_HOST = "localhost"
-CELERY_REDIS_PORT = 6379
-CELERY_REDIS_DB = 0
-CELERYD_LOG_FILE='/tmp/celery.log'
-CELERND_TASK_ERROR_EMAILS = True 
-CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
-
-import djcelery
-djcelery.setup_loader()
 
 
 # BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
