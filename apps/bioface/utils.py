@@ -67,7 +67,7 @@ def get_choices(request, item_name, cache_key='', key='id', query='', append_fie
         if query:
             query_dict['params'] = {}
             query_dict['params']['query'] = query
-        print 1111, query_dict
+        # print 1111, query_dict
         content_dict = api_request(query_dict)
         
 

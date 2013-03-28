@@ -155,7 +155,6 @@ def create_attribute(request):
     description_errors=[]
     if request.method == 'POST':
         form = CreateAttributeForm(request = request, data = request.POST)
-        print request.POST
         # print 2222, request.POST['descr-nominal']
         rp = request.POST
         
@@ -210,12 +209,9 @@ def create_attribute(request):
                     }
                 }
             }
-            print 333, query_dict
 
             content_dict = api_request(query_dict)
             
-            print 5555, content_dict
-
             if content_dict.has_key('result'):
             # {u'error': {u'code': -32005,
             # u'data': u'(IntegrityError) duplicate key value violates unique constraint "objects_name_key"\nDETAIL:  Key (name)=(123) already exists.\n',
@@ -346,7 +342,6 @@ def get_item_list_by_api(item_name, content_dict):
     if item_list:
         if item_name == "objects":
             attr_name_list = [ attr['name'] for attr in content_dict['result']['attributes'] ]
-            print attr_name_list
         else:
             attr_name_list = set([param_name for item in item_list for param_name in item.keys()])
 

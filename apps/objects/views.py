@@ -246,7 +246,6 @@ def get_item_list_by_api(item_name, content_dict):
     if item_list:
         if item_name == "objects":
             attr_name_list = [ attr['name'] for attr in content_dict['result']['attributes'] ]
-            print attr_name_list
         else:
             attr_name_list = set([param_name for item in item_list for param_name in item.keys()])
 
@@ -263,7 +262,6 @@ def get_pagination_page(page, query_dict, paginate_by=5):
     query_dict['params']['limit'] = paginate_by
 
     query_dict['params']['skip'] = paginate_by * (page-1)
-    print  777777, query_dict
     content_dict = api_request(query_dict)
 
     return content_dict
@@ -378,7 +376,6 @@ def get_objects(request):
             if row_query_str:
                 prep_row_query_str = row_query_str.replace(' AND ', ' & ').replace(' OR ', ' | ')
                 row_query = row_query + ' & (' + prep_row_query_str + ')'
-                print 9999, row_query
 
             attr_list=[]
             attr_list = cd['attributes_list']
@@ -412,7 +409,6 @@ def get_objects(request):
                     display_fields = cd['display_fields']
                 else:
                     display_fields = fields
-                print display_fields, ['name'].extend(cd['display_fields']), fields
 
                 objects_count = content_dict['result']['total_count']
 
@@ -515,7 +511,6 @@ def get_objects(request):
         query_name = request.GET['saved_query']
         saved_query = SavedQuery.objects.get(name=query_name)
         form_data = {'organism': saved_query.organism_id, 'display_fields': saved_query.display_fields, 'attributes_list': saved_query.attributes_list}
-        print 888, form_data
         form = SelectObjects(request=request, data=form_data)
         # field_filters_dict_sort = saved_query.filter_fields
         if saved_query.filter_fields.items():
@@ -554,8 +549,6 @@ def get_objects(request):
         })
     else:
         form = SelectObjects(request=request)
-
-    
 
     attributes_from_organism = form.fields['attributes_list'].choices
 

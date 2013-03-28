@@ -106,7 +106,6 @@ def delete_saved_query(request, name):
 # @ajax_login_required
 # def pagination(request, page, paginate_by, display_fields, attributes, row_query):
 def pagination(request, page, paginate_by, items_count, data):
-    print data
     # data = ast.literal_eval(data)
     data = json.loads(data)
     display_fields = data['display_fields']

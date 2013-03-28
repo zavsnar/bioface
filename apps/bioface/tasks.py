@@ -12,7 +12,6 @@ def loading_objects(object_download_id, query_dict, with_attributes=False, with_
     content_dict = api_request(query_dict)
     if content_dict.has_key('result'):
         objects = content_dict['result']['objects']
-        print content_dict['result']
         with tempfile.NamedTemporaryFile(delete=False) as obj_csvfile:
             # spamwriter = csv.writer(obj_csvfile, delimiter=str(','), quotechar=str('|'), quoting=csv.QUOTE_MINIMAL)
             spamwriter = UnicodeWriter(obj_csvfile, encoding=encoding)
@@ -39,7 +38,6 @@ def loading_objects(object_download_id, query_dict, with_attributes=False, with_
                         obj_vals.append(val)
 
                 obj_vals.extend(obj_attrs_val)
-                print 22222, obj_vals
                 # try:
                 spamwriter.writerow(obj_vals)
                 # except UnicodeEncodeError:
