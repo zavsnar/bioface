@@ -1,13 +1,13 @@
 server {
 
     listen       80;
-    server_name bioface.xyzrd.com;
+    server_name %(host_name)s;
     #access_log  /var/log/nginx/access.log  main;
     #error_log   /var/log/nginx/error.log info;
 
 
    location / {
-            uwsgi_pass 127.0.0.1:49001;
+            uwsgi_pass 127.0.0.1:%(uwsgi_port)s;
             include uwsgi_params;
    }
 

@@ -4,7 +4,9 @@
         <tr>
             <th>Object Name</th>
             {% for field in display_fields %}
-                <th>{{ field }}</th>
+                {% if field != 'name' %}
+                    <th>{{ field }}</th>
+                {% endif %}
             {% endfor %}
             {% for attribute_name in attributes %}
                 <th>{{ attribute_name }}</th>
@@ -16,7 +18,9 @@
             <tr>
                 <td><a href="{{ obj.url }}">{{ obj.object_name }}</a></td>
                 {% for field_name, field in obj.fields %}
-                    <td>{{ field }}</td>
+                    {% if field_name != 'name' %}
+                        <td>{{ field }}</td>
+                    {% endif %}
                 {% endfor %}
                 {% for attr in obj.attrs %}
                     <td>{{ attr.value }}</td>

@@ -17,7 +17,7 @@ TIME_ZONE = None    # operating system timezone
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': join(dirname(SOURCE_ROOT), 'database'),  # Or path to database file if using sqlite3.
+        'NAME': join(dirname(SOURCE_ROOT), '../', 'database'),  # Or path to database file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -25,6 +25,7 @@ DATABASES = {
     }
 }
 
+UWSGI_PORT = 49001
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error.
@@ -123,9 +124,6 @@ CELERY_REDIS_DB = 0
 CELERYD_LOG_FILE='/tmp/celery.log'
 CELERND_TASK_ERROR_EMAILS = True 
 CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
-
-import djcelery
-djcelery.setup_loader()
 
 # Eway.com.au test account , Test Credit Card is  4444333322221111
 # EWAY_AU_MERCHANT = {

@@ -1,16 +1,23 @@
 # Django settings for s project.
 
 from local_settings import DEBUG, TIME_ZONE, SOURCE_ROOT, DATABASES, LOGGING
-from local_settings import PROJECT_NAME
+from local_settings import PROJECT_NAME, HOST_NAME
+from local_settings import UWSGI_PORT
 from local_settings import SECRET_KEY, MANAGERS, ADMINS, DISALLOW_SEARCH_ROBOTS
 from local_settings import STATIC_FILES_VERSION
 # from local_settings import DEFAULT_FROM_EMAIL, EMAIL_BACKEND, EMAIL_HOST, EMAIL_PORT, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD
 # from local_settings import APP_SERVER_SETTINGS
 # from local_settings import THUMBNAIL_DUMMY
 from local_settings import DEBUG_TOOLBAR_PANELS, INTERNAL_IPS
+
+from local_settings import BROKER_URL, CELERY_RESULT_BACKEND, CELERY_REDIS_HOST, CELERY_REDIS_PORT, CELERY_REDIS_DB, \
+    CELERYD_LOG_FILE, CELERND_TASK_ERROR_EMAILS, CELERYBEAT_SCHEDULER
 #from local_settings import HOST_NAME
 
 from os.path import join
+
+import djcelery
+djcelery.setup_loader()
 
 TEMPLATE_DEBUG = DEBUG
 

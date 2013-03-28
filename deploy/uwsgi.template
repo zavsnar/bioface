@@ -6,7 +6,7 @@ disable-logging=True
 vacuum=True
 pidfile=/tmp/bioface.pid
 max-requests=5000
-socket=127.0.0.1:49001
+socket=127.0.0.1:{uwsgi_port}
 processes=2
 
 pythonpath={project_root}/env/bin
