@@ -1,6 +1,7 @@
 # Django settings for s project.
 
 from local_settings import DEBUG, TIME_ZONE, SOURCE_ROOT, DATABASES, LOGGING
+from local_settings import PROJECT_NAME
 from local_settings import SECRET_KEY, MANAGERS, ADMINS, DISALLOW_SEARCH_ROBOTS
 from local_settings import STATIC_FILES_VERSION
 # from local_settings import DEFAULT_FROM_EMAIL, EMAIL_BACKEND, EMAIL_HOST, EMAIL_PORT, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD

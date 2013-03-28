@@ -1,6 +1,8 @@
 from os.path import abspath, dirname, join
 
-SOURCE_ROOT =  dirname(abspath( __file__)) + '/'
+SOURCE_ROOT = dirname(abspath( __file__)) + '/'
+PROJECT_NAME = 'bioface'
+
 DEBUG = True
 
 # Local time zone for this installation. Choices can be found here:
