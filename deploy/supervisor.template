@@ -1,5 +1,5 @@
 [program:{project_name}]
-command={project_root}/env/bin/uwsgi {project_root}/source/deploy/uwsgi.ini
+command={project_root}/env/bin/uwsgi {project_root}/uwsgi.ini
 logfile={project_root}/logs/wsgi.log
 #stderr_logfile={project_root}/logs/wsgi_err.log
 autostart=true
@@ -10,8 +10,8 @@ stopsignal=INT
 user=zavsnar
 
 [program:{project_name}_celery]
-command={project_root}/env/bin/python {project_root}/source/manage.py celeryd -E -l info
-directory={project_root}/source
+command={project_root}/env/bin/python {source_root}/manage.py celeryd -E -l info
+directory={source_root}
 environment=PYTHONPATH='{project_root}/env'
 user=zavsnar
 autostart=true

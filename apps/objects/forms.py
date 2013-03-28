@@ -59,7 +59,7 @@ class SelectObjects(forms.Form):
     organism = forms.ChoiceField(widget=forms.Select(attrs={'style': 'width:220px'}))
     display_fields = ObjectFields(required=False, widget=forms.CheckboxSelectMultiple(), choices=OBJECT_FIELDS_CHOICES, initial=('name',))
     attributes_list = ObjectFields(required=False, widget=ObjectAttributesWidget(attrs={'style': 'width:530px'}))
-    paginate_by = forms.ChoiceField(widget=forms.Select(attrs={'style': 'width:50px'}), choices=PAGINATE_BY_CHOICES, initial=10)
+    paginate_by = forms.ChoiceField(widget=forms.Select(attrs={'style': 'width:80px'}), choices=PAGINATE_BY_CHOICES, initial=10)
     # row_query = forms.CharField(required=False)
     # limit = forms.IntegerField(required=False)
     # skip = forms.IntegerField(required=False)

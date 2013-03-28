@@ -25,7 +25,7 @@ def deploy():
 
 def configure():
     with file('{0}deploy/supervisor.template'.format(SOURCE_ROOT), 'r') as supervisor_conf:
-        local_conf = supervisor_conf.read().format(project_root = PROJECT_ROOT, project_name = PROJECT_NAME)
+        local_conf = supervisor_conf.read().format(project_root = PROJECT_ROOT, source_root = SOURCE_ROOT, project_name = PROJECT_NAME)
     with file('{0}supervisor.conf'.format(PROJECT_ROOT), 'w') as local_supervisor:
         local_supervisor.write(local_conf)
 
@@ -40,7 +40,7 @@ def configure():
         local_nginx.write(local_conf)
 
 def celery():
-    run('supervisorctl restart bioface')
+    run('supervisorctl restart {0}'.format(PROJECT_NAME))
 
 
 def status():
