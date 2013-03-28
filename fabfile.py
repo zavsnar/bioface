@@ -4,10 +4,11 @@ from __future__ import with_statement
 from fabric.api import *
 from fabric.contrib.console import confirm
 
-from settings import PROJECT_ROOT, SOURCE_ROOT, PROJECT_NAME, HOST_NAME, UWSGI_PORT
+from local_settings import SOURCE_ROOT, PROJECT_NAME, HOST_NAME, UWSGI_PORT
 
 env.hosts = ['zavsnar@10.0.1.208']
 
+PROJECT_ROOT = SOURCE_ROOT + '../'
 
 def deploy():
     # local('git push')
@@ -24,12 +25,12 @@ def deploy():
 
 def configure():
     with file('{0}deploy/supervisor.template'.format(SOURCE_ROOT), 'r') as supervisor_conf:
-        local_conf = supervisor_conf.read().format(project_root = PROJECT_ROOT)
+        local_conf = supervisor_conf.read().format(project_root = PROJECT_ROOT, project_name = PROJECT_NAME)
     with file('{0}supervisor.conf'.format(PROJECT_ROOT), 'w') as local_supervisor:
         local_supervisor.write(local_conf)
 
     with file('{0}deploy/uwsgi.template'.format(SOURCE_ROOT), 'r') as uwsgi_conf:
-        local_conf = uwsgi_conf.read().format(project_root = PROJECT_ROOT, uwsgi_port = UWSGI_PORT)
+        local_conf = uwsgi_conf.read().format(project_root = PROJECT_ROOT, project_name = PROJECT_NAME, uwsgi_port = UWSGI_PORT)
     with file('{0}uwsgi.ini'.format(PROJECT_ROOT), 'w') as local_uwsgi:
         local_uwsgi.write(local_conf)
 

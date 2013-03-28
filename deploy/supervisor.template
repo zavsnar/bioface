@@ -1,4 +1,4 @@
-[program:bioface]
+[program:{project_name}]
 command={project_root}/env/bin/uwsgi {project_root}/source/deploy/uwsgi.ini
 logfile={project_root}/logs/wsgi.log
 #stderr_logfile={project_root}/logs/wsgi_err.log
@@ -9,7 +9,7 @@ stopwaitsecs = 60
 stopsignal=INT
 user=zavsnar
 
-[program:bioface_celery]
+[program:{project_name}_celery]
 command={project_root}/env/bin/python {project_root}/source/manage.py celeryd -E -l info
 directory={project_root}/source
 environment=PYTHONPATH='{project_root}/env'

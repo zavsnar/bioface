@@ -4,7 +4,7 @@ chdir={project_root}/source
 master=True
 disable-logging=True
 vacuum=True
-pidfile=/tmp/bioface.pid
+pidfile=/tmp/{project_name}.pid
 max-requests=5000
 socket=127.0.0.1:{uwsgi_port}
 processes=2
@@ -12,4 +12,4 @@ processes=2
 pythonpath={project_root}/env/bin
 env=DJANGO_SETTINGS_MODULE=settings
 module = django.core.handlers.wsgi:WSGIHandler()
-touch-reload=/tmp/bioface.txt
+touch-reload=/tmp/{project_name}.txt
