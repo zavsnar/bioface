@@ -2,6 +2,7 @@ from celery import task
 import zipfile
 import zlib
 import tempfile
+import codecs
 
 from apps.bioface.utils import api_request, UnicodeWriter
 
@@ -15,6 +16,7 @@ def loading_objects(object_download_id, query_dict, with_attributes=False, with_
         with tempfile.NamedTemporaryFile(delete=False) as obj_csvfile:
             # spamwriter = csv.writer(obj_csvfile, delimiter=str(','), quotechar=str('|'), quoting=csv.QUOTE_MINIMAL)
             spamwriter = UnicodeWriter(obj_csvfile, encoding=encoding)
+
             col_list = []
             attr_col_list = []
             for key, val in objects[0].iteritems():
@@ -42,6 +44,8 @@ def loading_objects(object_download_id, query_dict, with_attributes=False, with_
                 spamwriter.writerow(obj_vals)
                 # except UnicodeEncodeError:
                 #     print 666666, obj_vals
+
+
 
         csv_files_list = [('objects.csv', obj_csvfile.name)]
 

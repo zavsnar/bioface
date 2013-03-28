@@ -9,7 +9,7 @@ from settings import DOWNLOADS_ROOT, DOWNLOADS_URL
 
 # DOWNLOAD_PATH = MEDIA_ROOT + "/downloads"
 
-ENCODING_CHOUCES = (('utf-8', 'utf-8'), ('cp1251','cp1251'))
+ENCODING_CHOUCES = (('utf-8', 'utf-8'), ('cp1251','cp1251'), ('MacCyrillic', 'MacCyrillic'))
 
 class CustomUser(AbstractUser):
     # username = models.CharField(max_length=40, unique=True, db_index=True)

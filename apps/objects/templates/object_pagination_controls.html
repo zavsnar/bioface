@@ -1,5 +1,5 @@
 <!-- <div class="pagination"> -->
-{% if pages > 1 %}
+{% if pages|length > 1 %}
     <ul class="pager pagination">
         {% if has_previous %}
             <li>
@@ -33,8 +33,6 @@
         {% endif %}
     </ul>
     <!-- </div> -->
-
-
 
     <script type="text/javascript">
         data = {

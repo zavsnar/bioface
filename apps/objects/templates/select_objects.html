@@ -20,7 +20,7 @@
 {% block main %}
 <div class="relative">
     <div class="row saved-query-block">
-        <div class="span4 js_saved_query_block">
+        <div class="span4 js_saved_query_block" {% if not saved_query_list %}style="display: none;"{% endif %}>
             <a class="btn dropdown-toggle" id="js_queries_list_btn">Saved query<span class="caret"></span></a>
             <table class="table table-bordered js_queries_list saved-query-list" style="display: none">
                 <tbody class="js_query_list">
@@ -112,8 +112,8 @@
                             {% else %}
                                 <li class="active">
                                     <span class="js_query_history_step_last" data-placement="bottom" title="{{ step.query }}" data-original-title="{{ step.query }}">
-                                        This query {% if step.count %}<span class="badge badge-info">{{ step.count }}</span>{% endif %}
-                                    </span>
+                                        This query 
+                                    </span>{% if step.count %}<span class="badge badge-info">{{ step.count }}</span>{% endif %}
                                 </li>
                             {% endif %}
                         {% endfor %}
@@ -246,7 +246,7 @@
             <div class="span12">
 
                 <p>
-                    Find {{ items_count }} objects
+                    <span>Find {{ items_count }} objects</span>
                     <a class="btn pull-right" data-toggle="modal" data-target="#DownloadObjectSelection">Export</a>
                 </p>
                 <div id="js_object_result_table">

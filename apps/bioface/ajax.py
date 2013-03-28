@@ -50,6 +50,13 @@ def download_objects(request, form, query_dict):
         with_attributes = True if 'attributes' in form.cleaned_data['options'] else False
         with_sequences = True if 'sequences' in form.cleaned_data['options'] else False
         obj_id = object_download.id
+        # loading_objects(
+        #     query_dict = query_dict, 
+        #     object_download_id = obj_id,
+        #     with_attributes = with_attributes,
+        #     with_sequences = with_sequences,
+        #     encoding = encoding
+        #     )
         download_task = loading_objects.delay(
             query_dict = query_dict, 
             object_download_id = obj_id,
@@ -59,6 +66,8 @@ def download_objects(request, form, query_dict):
             )
         object_download.task_id = download_task.task_id
         object_download.save()
+
+        
         # thread = Thread(target = prepair_objects, kwargs = {
         #     'query_dict': query_dict, 
         #     'object_download': obj_id,

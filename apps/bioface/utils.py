@@ -140,6 +140,10 @@ class UnicodeWriter:
         self.writer = csv.writer(self.queue, dialect=dialect, **kwds)
         self.stream = f
         self.encoder = codecs.getincrementalencoder(encoding)()
+        self.encoding = encoding
+
+        if encoding == 'utf-8':
+            self.stream.write(codecs.BOM_UTF8)
 
     def writerow(self, row):
         row_list = []
@@ -154,7 +158,9 @@ class UnicodeWriter:
         data = self.queue.getvalue()
         data = data.decode("utf-8")
         # ... and reencode it into the target encoding
-        data = self.encoder.encode(data)
+        # data = self.encoder.encode(data)
+        data = data.encode(self.encoding)
+        print 3333, data.decode(self.encoding)
         # write to the target stream
         self.stream.write(data)
         # empty queue
