@@ -64,39 +64,6 @@
                 </div>
             </div>
 
-            {# <!-- display_fields --> #}
-            <div class="control-group {% if form.display_fields.errors %}error{% endif %}">
-                <label class="control-label">{{ form.display_fields.label }}</label>
-                <div class="controls list-inline">
-                    {{ form.display_fields }}
-                    {% for error in form.display_fields.errors %}
-                        <span class="help-inline">{{ error }}</span>
-                    {% endfor %}
-                </div>
-            </div>
-
-            {# <!-- attributes_list --> #}
-            <div class="control-group {% if form.attributes_list.errors %}error{% endif %}" id="js_attribute_container">
-                <label class="control-label" for="{{ form.attributes_list.id_for_label }}">{{ form.attributes_list.label }}</label>
-                <div class="controls">
-                    {{ form.attributes_list }}
-                    {% for error in form.attributes_list.errors %}
-                        <span class="help-inline">{{ error }}</span>
-                    {% endfor %}
-                </div>
-            </div>
-
-            {# <!-- paginate_by --> #}
-            <div class="control-group {% if form.paginate_by.errors %}error{% endif %}">
-                <label class="control-label" for="{{ form.paginate_by.id_for_label }}">{{ form.paginate_by.label }}</label>
-                <div class="controls">
-                    {{ form.paginate_by }}
-                    {% for error in form.paginate_by.errors %}
-                        <span class="help-inline">{{ error }}</span>
-                    {% endfor %}
-                </div>
-            </div>
-
         {# <!-- Filters --> #}
             <fieldset id="js_filters_block">
                 <legend>Filters</legend>
@@ -113,7 +80,8 @@
                                 <li class="active">
                                     <span class="js_query_history_step_last" data-placement="bottom" title="{{ step.query }}" data-original-title="{{ step.query }}">
                                         This query 
-                                    </span>{% if step.count %}<span class="badge badge-info">{{ step.count }}</span>{% endif %}
+                                    </span>
+                                    {% if step.count %}<span class="badge badge-info">{{ step.count }}</span>{% endif %}
                                 </li>
                             {% endif %}
                         {% endfor %}
@@ -230,6 +198,8 @@
                     <input class="hidden" name="query_history_step" id="js_query_history_step_result" type="text">
                 </div>
             </div>
+
+            
             
 
             <div class="form-actions form-inline">
@@ -237,6 +207,40 @@
                 <button type="button" class="btn btn-success" onclick="save_query();">Save query</button>&nbsp;
                 <button type="submit" class="btn btn-primary">Run</button>&nbsp;
             </div>
+
+            {# <!-- display_fields --> #}
+            <div class="control-group {% if form.display_fields.errors %}error{% endif %}">
+                <label class="control-label">{{ form.display_fields.label }}</label>
+                <div class="controls list-inline">
+                    {{ form.display_fields }}
+                    {% for error in form.display_fields.errors %}
+                        <span class="help-inline">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {# <!-- attributes_list --> #}
+            <div class="control-group {% if form.attributes_list.errors %}error{% endif %}" id="js_attribute_container">
+                <label class="control-label" for="{{ form.attributes_list.id_for_label }}">{{ form.attributes_list.label }}</label>
+                <div class="controls">
+                    {{ form.attributes_list }}
+                    {% for error in form.attributes_list.errors %}
+                        <span class="help-inline">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {# <!-- paginate_by --> #}
+            <div class="control-group {% if form.paginate_by.errors %}error{% endif %}">
+                <label class="control-label" for="{{ form.paginate_by.id_for_label }}">{{ form.paginate_by.label }}</label>
+                <div class="controls">
+                    {{ form.paginate_by }}
+                    {% for error in form.paginate_by.errors %}
+                        <span class="help-inline">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>  
+
         </form>
     </div>
 
@@ -656,7 +660,8 @@
         // Update query fields
         $('.js_query_table').delegate('.js_query', 'change', function(){
             var filter = $(this).parent().parent()
-            var filter_value = filter.find('.js_query_value').val()
+            var js_query_value = filter.find('.js_query_value')
+            var filter_value = js_query_value.val()
             
             if (filter_value) {
                 filtered_field = filter.find('select.js_query_field')
@@ -664,6 +669,18 @@
                 var filtered_field_type = filtered_field.find('option:selected').data('atype')
                 var filtered_operation = filter.find('.js_query_operation').val()
                 var item_pk = filter.data('pk')
+                alert(filtered_field_type + filter_value + filter_value.indexOf('.'));
+                if ((filtered_field_type == 'float' | filtered_field_type == 'range') & filter_value.indexOf('.') == -1){
+                    alert();
+                    if (filter_value.indexOf(',') != -1){
+                        filter_value = filter_value.replace(',', '.')
+                    } else {
+                        filter_value = filter_value + '.0'
+                        js_query_value.val(filter_value + '.0')
+                    }
+                    
+                }
+
                 field_filters_dict[item_pk] = [filtered_field_val, filtered_operation, filter_value, filtered_field_type]
 
                 generate_row_query();
