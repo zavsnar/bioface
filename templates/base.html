@@ -57,7 +57,11 @@
                                 </li>
                             </ul>
                             <div class="pull-right">
-                                <span>User: {{ request.user }}</span>&nbsp;<a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
+                                {% if request.user.is_authenticated %}
+                                    <span>User: {{ request.user }}</span>&nbsp;<a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
+                                {% else %}
+                                    <a href="{% url 'signin' %}" class="btn btn-primary">Login</a>
+                                {% endif %}
                             </div>
                         </div>
 
@@ -88,7 +92,7 @@
                                 {% if method == 'get_sequences' %}
                                     Sequences
                                 {% else %}
-                                    <a href="{% url 'select_sequences' %}">Sequences</a>
+                                    <a >Sequences</a>
                                 {% endif %}
                             </h1>
                             <p>Select or create sequence.</p>
