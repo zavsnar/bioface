@@ -4,6 +4,8 @@ SOURCE_ROOT = dirname(abspath( __file__)) + '/'
 HOST_NAME = 'web-bioface.ru'
 PROJECT_NAME = 'bioface'
 
+API_URL = 'https://10.0.1.208:5000/api/v1/'
+
 DEBUG = True
 
 API_URL = 'https://10.0.1.204:5000/api/v1/'

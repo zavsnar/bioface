@@ -35,7 +35,8 @@ class SavedQuery(models.Model):
     attributes_list = jsonfield.JSONField()
     filter_fields = jsonfield.JSONField()
     query_str = models.TextField()
-
+    paginate_by = models.IntegerField(default=10)
+    sort_by = models.CharField(max_length=255, null=True)
 
 class Download(models.Model):
     user = models.ForeignKey(CustomUser, related_name='downloads')

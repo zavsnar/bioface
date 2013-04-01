@@ -21,7 +21,8 @@ METHODS_FOR_CREATE_ITEM = ("add_segment", "add_object")
 
 CREATE_METHOD_CHOISES = [ (i, i.replace('add_', '')) for i in METHODS_FOR_CREATE_ITEM ]
 
-OBJECT_FIELDS = ('name', 'comment', 'lab_id', 'user_id', 'created', 'creator', 'modified', 'source', 'organism', 'id')
+OBJECT_FIELDS = ['name', 'comment', 'lab_id', 'user_id', 'created', 'creator', 'modified', 'source', 'organism', 'id']
+# DISPLAY_FIELDS = OBJECT_FIELDS.append('tags')
 OBJECT_FIELDS_CHOICES = zip(OBJECT_FIELDS, OBJECT_FIELDS)
 OBJECT_FIELDS_CHOICES_WITH_TYPE = (
     ('name', 'string'),
@@ -48,10 +49,21 @@ class ObjectAttributesWidget(forms.SelectMultiple):
         selected_choices = set(force_text(v) for v in selected_choices)
         output = []
         # I get choices with 3 items. This way for using standart form field
-        for option_value, option_label, option_atype in self.choices:
+        for choice in self.choices:
+            option_value, option_label = choice[:2]
             output.append(self.render_option(selected_choices, option_value, option_label))
         return '\n'.join(output)
 
+class ObjectSortWidget(forms.Select):
+    def render_options(self, choices, selected_choices):
+        # Rewrite standart widget.
+        selected_choices = set(force_text(v) for v in selected_choices)
+        output = []
+        # I get choices with 3 items. This way for using standart form field
+        for choice in self.choices:
+            option_value, option_label = choice[:2]
+            output.append(self.render_option(selected_choices, option_value, option_label))
+        return '\n'.join(output)
 
 class SelectObjects(forms.Form):
     # request = forms.CharField(widget=forms.Textarea, required=False)
@@ -59,7 +71,8 @@ class SelectObjects(forms.Form):
     organism = forms.ChoiceField(widget=forms.Select(attrs={'style': 'width:220px'}))
     display_fields = ObjectFields(required=False, widget=forms.CheckboxSelectMultiple(), choices=OBJECT_FIELDS_CHOICES, initial=('name',))
     attributes_list = ObjectFields(required=False, widget=ObjectAttributesWidget(attrs={'style': 'width:530px'}))
-    paginate_by = forms.ChoiceField(widget=forms.Select(attrs={'style': 'width:80px'}), choices=PAGINATE_BY_CHOICES, initial=10)
+    sort_by = forms.ChoiceField(required=False, widget=ObjectSortWidget(attrs={'style': 'width:300px'}))
+    paginate_by = forms.ChoiceField(required=False, widget=forms.Select(attrs={'style': 'width:80px'}), choices=PAGINATE_BY_CHOICES, initial=10)
     # row_query = forms.CharField(required=False)
     # limit = forms.IntegerField(required=False)
     # skip = forms.IntegerField(required=False)
@@ -78,23 +91,27 @@ class SelectObjects(forms.Form):
                 organism_id = organism_choices_list[0][0]
 
             if organism_id:
-                self.fields['attributes_list'].choices = get_choices(self.request, 
+                attr_choices = self.fields['attributes_list'].choices = get_choices(self.request, 
                     cache_key='attributes_{}'.format(organism_id), item_name='attributes', 
                     key='name', query="organism = {}".format(organism_id), append_field='atype')
-                    
+                
+                all_fields = OBJECT_FIELDS_CHOICES
+                all_fields.extend(attr_choices)
+                self.fields['sort_by'].choices = all_fields
+                print 333, self.fields['sort_by'].choices
             # else:
             #     self.fields['attributes_list'].choices = get_choices(request, item_name='attributes', key='name')
             
 
-    def clean(self):
-        if self.cleaned_data.has_key('organism') and self.cleaned_data['organism']:
-            organism_id = self.cleaned_data['organism']
-            attr_field = self.fields['attributes_list']
-            # Add choices for attributes after cleaning
-            attr_list = get_choices(self.request, cache_key='attributes_{}'.format(organism_id), item_name='attributes', 
-                key='name', query="organism = {}".format(organism_id), append_field='atype')
-            attr_field.choices = attr_list
-        return self.cleaned_data
+    # def clean(self):
+    #     if self.cleaned_data.has_key('organism') and self.cleaned_data['organism']:
+    #         organism_id = self.cleaned_data['organism']
+    #         attr_field = self.fields['attributes_list']
+    #         # Add choices for attributes after cleaning
+    #         attr_list = get_choices(self.request, cache_key='attributes_{}'.format(organism_id), item_name='attributes', 
+    #             key='name', query="organism = {}".format(organism_id), append_field='atype')
+    #         attr_field.choices = attr_list
+    #     return self.cleaned_data
 
 
 class CreateOrganismForm(forms.Form):

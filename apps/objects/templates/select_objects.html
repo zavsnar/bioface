@@ -33,7 +33,7 @@
     </div>
 
     <div class="row">
-        <form method="post" action="./#result" id="js_id_form" class="form-horizontal js-active-form span12 pull-left">
+        <form method="post" action="./" id="js_id_form" class="form-horizontal js-active-form span12 pull-left">
             {% csrf_token %}
             {% for error in form.non_field_errors %}
                 <div class="alert alert-error">
@@ -64,39 +64,6 @@
                 </div>
             </div>
 
-            {# <!-- display_fields --> #}
-            <div class="control-group {% if form.display_fields.errors %}error{% endif %}">
-                <label class="control-label">{{ form.display_fields.label }}</label>
-                <div class="controls list-inline">
-                    {{ form.display_fields }}
-                    {% for error in form.display_fields.errors %}
-                        <span class="help-inline">{{ error }}</span>
-                    {% endfor %}
-                </div>
-            </div>
-
-            {# <!-- attributes_list --> #}
-            <div class="control-group {% if form.attributes_list.errors %}error{% endif %}" id="js_attribute_container">
-                <label class="control-label" for="{{ form.attributes_list.id_for_label }}">{{ form.attributes_list.label }}</label>
-                <div class="controls">
-                    {{ form.attributes_list }}
-                    {% for error in form.attributes_list.errors %}
-                        <span class="help-inline">{{ error }}</span>
-                    {% endfor %}
-                </div>
-            </div>
-
-            {# <!-- paginate_by --> #}
-            <div class="control-group {% if form.paginate_by.errors %}error{% endif %}">
-                <label class="control-label" for="{{ form.paginate_by.id_for_label }}">{{ form.paginate_by.label }}</label>
-                <div class="controls">
-                    {{ form.paginate_by }}
-                    {% for error in form.paginate_by.errors %}
-                        <span class="help-inline">{{ error }}</span>
-                    {% endfor %}
-                </div>
-            </div>
-
         {# <!-- Filters --> #}
             <fieldset id="js_filters_block">
                 <legend>Filters</legend>
@@ -113,7 +80,8 @@
                                 <li class="active">
                                     <span class="js_query_history_step_last" data-placement="bottom" title="{{ step.query }}" data-original-title="{{ step.query }}">
                                         This query 
-                                    </span>{% if step.count %}<span class="badge badge-info">{{ step.count }}</span>{% endif %}
+                                    </span>
+                                    {% if step.count %}<span class="badge badge-info">{{ step.count }}</span>{% endif %}
                                 </li>
                             {% endif %}
                         {% endfor %}
@@ -122,7 +90,7 @@
                 {% endif %}
                 <!-- <div class="control-group">
                     <div class="controls"> -->
-                {% if row_query_str %}
+                {% if raw_query_str %}
                     <div class="where-search">
                         <!-- <label for="id_new_query" class="checkbox inline">
                             <input id="id_new_query" class="js_where_search" name="search_in_results" type="radio" value="new_query" checked="checked"> New query
@@ -221,15 +189,17 @@
 
             </fieldset>
         {# <!-- End Filters --> #}
-            <div class="control-group {% if form.attributes_list.errors %}error{% endif %}">
-                <label class="control-label" for="js_row_query">Row Query</label>
+            <div class="control-group {% if form.attributes_list.errors %}error{% endif %} hidden">
+                <label class="control-label" for="js_raw_query">Raw Query</label>
                 <div class="controls">
-                    <input class="input-xxlarge" name="row_query_str" id="js_row_query" type="text" value="{{ row_query_str }}">
+                    <input class="input-xxlarge" name="raw_query_str" id="js_raw_query" type="text" value="{{ raw_query_str }}">
                     <input class="hidden" name="field_filters_dict" id="js_field_filters_dict" type="text">
                     <input class="hidden" name="query_history" id="js_query_history" type="text">
                     <input class="hidden" name="query_history_step" id="js_query_history_step_result" type="text">
                 </div>
             </div>
+
+            
             
 
             <div class="form-actions form-inline">
@@ -237,6 +207,63 @@
                 <button type="button" class="btn btn-success" onclick="save_query();">Save query</button>&nbsp;
                 <button type="submit" class="btn btn-primary">Run</button>&nbsp;
             </div>
+
+            {# <!-- display_fields --> #}
+            <div class="control-group {% if form.display_fields.errors %}error{% endif %}">
+                <label class="control-label">{{ form.display_fields.label }}</label>
+                <div class="controls list-inline">
+                    {{ form.display_fields }}
+                    {% for error in form.display_fields.errors %}
+                        <span class="help-inline">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {# <!-- attributes_list --> #}
+            <div class="control-group {% if form.attributes_list.errors %}error{% endif %}" id="js_attribute_container">
+                <label class="control-label" for="{{ form.attributes_list.id_for_label }}">{{ form.attributes_list.label }}</label>
+                <div class="controls">
+                    {{ form.attributes_list }}
+                    {% for error in form.attributes_list.errors %}
+                        <span class="help-inline">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {# <!-- paginate_by --> #}
+            <div class="control-group {% if form.paginate_by.errors %}error{% endif %}">
+                <label class="control-label" for="{{ form.paginate_by.id_for_label }}">{{ form.paginate_by.label }}</label>
+                <div class="controls">
+                    {{ form.paginate_by }}
+                    {% for error in form.paginate_by.errors %}
+                        <span class="help-inline">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>  
+
+            {# <!-- sort_by --> #}
+            <div class="control-group {% if form.sort_by.errors %}error{% endif %}" id="js_sort_by_container">
+                <label class="control-label" for="{{ form.sort_by.id_for_label }}">{{ form.sort_by.label }}</label>
+                <div class="controls">
+                    {{ form.sort_by }}
+                    <!-- <select multiple="multiple" id="id_sort_by" name="sort_by">
+                        <optgroup label="Fields">
+                            {% for field, atype in fields_with_type %}
+                                <option value="{{ field }}">{{ field }}</option>
+                            {% endfor %}
+                        </optgroup>
+                            <optgroup label="Attributes" class="js_query_attr_list">
+                            {% for id, attr, atype in attributes_from_organism %}
+                                <option value="attr.{{ id }}">{{ attr }}</option>
+                            {% endfor %}
+                        </optgroup>
+                    </select> -->
+                    {% for error in form.sort_by.errors %}
+                        <span class="help-inline">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
         </form>
     </div>
 
@@ -362,7 +389,7 @@
                         </div>
 
                         {# <!-- Options --> #}
-                        <div class="control-group {% if object_download_form.options.errors %}error{% endif %}" id="js_attribute_container">
+                        <div class="control-group {% if object_download_form.options.errors %}error{% endif %}">
                             <label class="control-label" for="{{ object_download_form.options.id_for_label }}">{{ object_download_form.options.label }}</label>
                             <div class="controls list-inline">
                                 {{ object_download_form.options }}
@@ -401,7 +428,7 @@
     // preloader = $('.preloader-block')
     preloader_img = $('.preloader-img')
     prepand_query = ''
-    old_query = '{{ old_row_query_str|safe }}'
+    old_query = '{{ old_raw_query_str|safe }}'
     query_history_step_result = $('#js_query_history_step_result')
     js_queries_list_btn = $("#js_queries_list_btn")
     // $('.preloader').hide();
@@ -430,7 +457,7 @@
                     'name': query_name.val(),
                     'form': $('#js_id_form').serialize(true),
                     'field_filters_dict': field_filters_dict,
-                    'query_str': $('#js_row_query').val(),
+                    'query_str': $('#js_raw_query').val(),
                 });
                 $('.js_saved_query_block').show();
                 // query_name.addClass('hidden');
@@ -465,6 +492,10 @@
             maximumSelectionSize: 5,
             minimumInputLength: 0,
         });
+    $('#js_sort_by_container select').select2({
+            // maximumSelectionSize: 1,
+            // minimumInputLength: 0,
+        });
     function create_attribute_select(){
         $('#js_attribute_container select').select2({
             maximumSelectionSize: 10,
@@ -486,7 +517,7 @@
             });
     };
 
-    function generate_row_query() {
+    function generate_raw_query() {
         var query_list = [];
         for (var key in field_filters_dict) {
             var value_type = field_filters_dict[key][3]
@@ -500,24 +531,24 @@
             query_list = query_list.concat(prep_list.join(' '));
         }
         if (logic_operation == 'ANY') {
-            var row_query = query_list.join(' OR ')
+            var raw_query = query_list.join(' OR ')
         } else {
             // ALL and NONE
-            var row_query = query_list.join(' AND ')
+            var raw_query = query_list.join(' AND ')
         }
-        if (logic_operation == 'NONE' && row_query) {
-            row_query = '!(' + row_query + ')'
+        if (logic_operation == 'NONE' && raw_query) {
+            raw_query = '!(' + raw_query + ')'
         }
         if (prepand_query) {
-            if (row_query) {
-                $('#js_row_query').val('('+prepand_query+') AND ' + row_query)
+            if (raw_query) {
+                $('#js_raw_query').val('('+prepand_query+') AND ' + raw_query)
             } else {
-                $('#js_row_query').val(prepand_query)
+                $('#js_raw_query').val(prepand_query)
             }
         } else if (old_query) {
-            $('#js_row_query').val(old_query + ' AND ' + row_query)
+            $('#js_raw_query').val(old_query + ' AND ' + raw_query)
         } else {
-            $('#js_row_query').val(row_query)
+            $('#js_raw_query').val(raw_query)
         }
         
     };
@@ -621,7 +652,7 @@
             new_query_logic_operation = $(this).val()
             logic_operation = new_query_logic_operation
             // $(this).next('#id_select_operand').val(logic_operation)
-            generate_row_query();
+            generate_raw_query();
         })
 
         search_in_result_logic_operation = "ALL"
@@ -629,7 +660,7 @@
             search_in_result_logic_operation = $(this).val()
             logic_operation = search_in_result_logic_operation
             // $(this).next('#id_select_operand').val(logic_operation)
-            generate_row_query();
+            generate_raw_query();
         })
 
         // Change available operation for select field
@@ -656,7 +687,8 @@
         // Update query fields
         $('.js_query_table').delegate('.js_query', 'change', function(){
             var filter = $(this).parent().parent()
-            var filter_value = filter.find('.js_query_value').val()
+            var js_query_value = filter.find('.js_query_value')
+            var filter_value = js_query_value.val()
             
             if (filter_value) {
                 filtered_field = filter.find('select.js_query_field')
@@ -664,9 +696,19 @@
                 var filtered_field_type = filtered_field.find('option:selected').data('atype')
                 var filtered_operation = filter.find('.js_query_operation').val()
                 var item_pk = filter.data('pk')
+                if ((filtered_field_type == 'float' | filtered_field_type == 'range') & filter_value.indexOf('.') == -1){
+                    if (filter_value.indexOf(',') != -1){
+                        filter_value = filter_value.replace(',', '.')
+                    } else {
+                        filter_value = filter_value + '.0'
+                        js_query_value.val(filter_value + '.0')
+                    }
+                    
+                }
+
                 field_filters_dict[item_pk] = [filtered_field_val, filtered_operation, filter_value, filtered_field_type]
 
-                generate_row_query();
+                generate_raw_query();
                 // filter.find('.js_del_query_item').show()
             } else {
                 // filter.find('.js_del_query_item').hide()
@@ -681,7 +723,7 @@
                 $('.actual_filters .js_query_tr .js_query_field:first').select2();
             }
             delete field_filters_dict[filter.data('pk')]
-            generate_row_query();
+            generate_raw_query();
 
             filter.remove()
         });
@@ -699,19 +741,19 @@
             //         search_in_results.removeClass('actual_filters');
             //         new_query.fadeIn().addClass('actual_filters');
             //         prepand_query = ''
-            //         old_query = '{{ old_row_query_str|safe }}'
+            //         old_query = '{{ old_raw_query_str|safe }}'
             //         field_filters_dict = field_filters_dict_old
-            //         generate_row_query()
+            //         generate_raw_query()
             //     });
             //   break;
             // case 'search_in_results':
             //     new_query.fadeOut(function(){
             //         new_query.removeClass('actual_filters');
             //         search_in_results.fadeIn().addClass('actual_filters');
-            //         prepand_query = '{{ row_query_str|safe }}'
-            //         old_query = '{{ old_row_query_str|safe }}'
+            //         prepand_query = '{{ raw_query_str|safe }}'
+            //         old_query = '{{ old_raw_query_str|safe }}'
             //         field_filters_dict = field_filters_dict_new
-            //         generate_row_query()
+            //         generate_raw_query()
             //     });
             //   break;
             // case 'new_query':
@@ -721,7 +763,7 @@
             //         prepand_query = ''
             //         old_query = ''
             //         field_filters_dict = field_filters_dict_old
-            //         generate_row_query()
+            //         generate_raw_query()
             //     });
             //   break;
             // }
@@ -731,20 +773,20 @@
                     search_in_results.removeClass('actual_filters');
                     new_query.fadeIn().addClass('actual_filters');
                     prepand_query = ''
-                    old_query = '{{ old_row_query_str|safe }}'
+                    old_query = '{{ old_raw_query_str|safe }}'
                     field_filters_dict = field_filters_dict_old
                     logic_operation = new_query_logic_operation
-                    generate_row_query()
+                    generate_raw_query()
                 });
             } else {
                 new_query.fadeOut(function(){
                     new_query.removeClass('actual_filters');
                     search_in_results.fadeIn().addClass('actual_filters');
-                    prepand_query = '{{ row_query_str|safe }}'
-                    old_query = '{{ old_row_query_str|safe }}'
+                    prepand_query = '{{ raw_query_str|safe }}'
+                    old_query = '{{ old_raw_query_str|safe }}'
                     field_filters_dict = field_filters_dict_new
                     logic_operation = search_in_result_logic_operation
-                    generate_row_query()
+                    generate_raw_query()
                 });
             }
         }
