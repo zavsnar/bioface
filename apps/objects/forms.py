@@ -43,6 +43,10 @@ class ObjectFields(forms.MultipleChoiceField):
     def valid_value(self, value):
         return True
 
+class AllObjectFields(forms.ChoiceField):
+    def valid_value(self, value):
+        return True
+
 class ObjectAttributesWidget(forms.SelectMultiple):
     def render_options(self, choices, selected_choices):
         # Rewrite standart widget.
@@ -71,7 +75,7 @@ class SelectObjects(forms.Form):
     organism = forms.ChoiceField(widget=forms.Select(attrs={'style': 'width:220px'}))
     display_fields = ObjectFields(required=False, widget=forms.CheckboxSelectMultiple(), choices=OBJECT_FIELDS_CHOICES, initial=('name',))
     attributes_list = ObjectFields(required=False, widget=ObjectAttributesWidget(attrs={'style': 'width:530px'}))
-    sort_by = forms.ChoiceField(required=False, widget=ObjectSortWidget(attrs={'style': 'width:300px'}))
+    sort_by = AllObjectFields(required=False, widget=ObjectSortWidget(attrs={'style': 'width:300px'}))
     paginate_by = forms.ChoiceField(required=False, widget=forms.Select(attrs={'style': 'width:80px'}), choices=PAGINATE_BY_CHOICES, initial=10)
     # row_query = forms.CharField(required=False)
     # limit = forms.IntegerField(required=False)
