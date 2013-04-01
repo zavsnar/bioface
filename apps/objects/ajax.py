@@ -46,6 +46,7 @@ def update_attributes_from_organism(request, organism_id):
 
     dajax = Dajax()
     dajax.assign('#js_attribute_container div.controls', 'innerHTML', attr_render)
+    dajax.assign('#js_sort_by_container div.controls', 'innerHTML', attr_render)
     dajax.script('create_attribute_select();')
     dajax.assign('#js_reference_query_item .js_query_attr_list', 'innerHTML', options_render)
     dajax.script('update_query_items();')
@@ -58,6 +59,8 @@ def save_query(request, name, form, field_filters_dict, query_str):
     organism = form_data.get('organism')
     display_fields = form_data.getlist('display_fields')
     attributes_list = form_data.getlist('attributes_list')
+    paginate_by = form_data.get('paginate_by')
+    sort_by = form_data.get('sort_by')
     try:
         saved_query = SavedQuery.objects.create(
             type_query = 'get_objects',
@@ -68,6 +71,8 @@ def save_query(request, name, form, field_filters_dict, query_str):
             attributes_list = attributes_list,
             filter_fields = field_filters_dict,
             query_str = query_str,
+            paginate_by = paginate_by,
+            sort_by = sort_by
         )
         query_item = render_to_string('saved_query_components.html', {'query': saved_query})
         dajax.append('.js_query_list', 'innerHTML', query_item)

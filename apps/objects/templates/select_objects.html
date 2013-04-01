@@ -190,7 +190,7 @@
             </fieldset>
         {# <!-- End Filters --> #}
             <div class="control-group {% if form.attributes_list.errors %}error{% endif %}">
-                <label class="control-label" for="js_raw_query">Row Query</label>
+                <label class="control-label" for="js_raw_query">Raw Query</label>
                 <div class="controls">
                     <input class="input-xxlarge" name="raw_query_str" id="js_raw_query" type="text" value="{{ raw_query_str }}">
                     <input class="hidden" name="field_filters_dict" id="js_field_filters_dict" type="text">
@@ -240,6 +240,29 @@
                     {% endfor %}
                 </div>
             </div>  
+
+            {# <!-- sort_by --> #}
+            <div class="control-group {% if form.sort_by.errors %}error{% endif %}" id="js_sort_by_container">
+                <label class="control-label" for="{{ form.sort_by.id_for_label }}">{{ form.sort_by.label }}</label>
+                <div class="controls">
+                    {{ form.sort_by }}
+                    <!-- <select multiple="multiple" id="id_sort_by" name="sort_by">
+                        <optgroup label="Fields">
+                            {% for field, atype in fields_with_type %}
+                                <option value="{{ field }}">{{ field }}</option>
+                            {% endfor %}
+                        </optgroup>
+                            <optgroup label="Attributes" class="js_query_attr_list">
+                            {% for id, attr, atype in attributes_from_organism %}
+                                <option value="attr.{{ id }}">{{ attr }}</option>
+                            {% endfor %}
+                        </optgroup>
+                    </select> -->
+                    {% for error in form.sort_by.errors %}
+                        <span class="help-inline">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
 
         </form>
     </div>
@@ -366,7 +389,7 @@
                         </div>
 
                         {# <!-- Options --> #}
-                        <div class="control-group {% if object_download_form.options.errors %}error{% endif %}" id="js_attribute_container">
+                        <div class="control-group {% if object_download_form.options.errors %}error{% endif %}">
                             <label class="control-label" for="{{ object_download_form.options.id_for_label }}">{{ object_download_form.options.label }}</label>
                             <div class="controls list-inline">
                                 {{ object_download_form.options }}
@@ -468,6 +491,10 @@
     $('#js_attribute_container select').select2({
             maximumSelectionSize: 5,
             minimumInputLength: 0,
+        });
+    $('#js_sort_by_container select').select2({
+            // maximumSelectionSize: 1,
+            // minimumInputLength: 0,
         });
     function create_attribute_select(){
         $('#js_attribute_container select').select2({
@@ -669,9 +696,7 @@
                 var filtered_field_type = filtered_field.find('option:selected').data('atype')
                 var filtered_operation = filter.find('.js_query_operation').val()
                 var item_pk = filter.data('pk')
-                alert(filtered_field_type + filter_value + filter_value.indexOf('.'));
                 if ((filtered_field_type == 'float' | filtered_field_type == 'range') & filter_value.indexOf('.') == -1){
-                    alert();
                     if (filter_value.indexOf(',') != -1){
                         filter_value = filter_value.replace(',', '.')
                     } else {

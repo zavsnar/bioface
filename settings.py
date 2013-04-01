@@ -171,6 +171,8 @@ INSTALLED_APPS = (
     'apps.objects',
     'apps.sequences',
     # 'apps.attributes',
+
+    'south'
 )
 
 LOGIN_URL = '/login/'

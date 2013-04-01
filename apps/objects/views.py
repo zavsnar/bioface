@@ -382,6 +382,7 @@ def get_objects(request):
 
             # if request.GET.has_key('order_by'):
             order_field = request.GET.get('order_by', 'name')
+            order_field = cd['sort_by'][0]
 
             query_dict = {
                 "method" : 'get_objects',
@@ -510,7 +511,10 @@ def get_objects(request):
     elif request.method == 'GET' and request.GET.get('saved_query', None):
         query_name = request.GET['saved_query']
         saved_query = SavedQuery.objects.get(name=query_name)
-        form_data = {'organism': saved_query.organism_id, 'display_fields': saved_query.display_fields, 'attributes_list': saved_query.attributes_list}
+        form_data = {
+            'organism': saved_query.organism_id, 'display_fields': saved_query.display_fields, 'attributes_list': saved_query.attributes_list,
+            'paginate_by': saved_query.paginate_by, 'sort_by': saved_query.sort_by
+            }
         form = SelectObjects(request=request, data=form_data)
         # field_filters_dict_sort = saved_query.filter_fields
         if saved_query.filter_fields.items():

@@ -20,6 +20,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model, authenticate, login, logout as auth_logout
 from django.contrib import messages
+from django.core.cache import cache
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from apps.bioface.utils import api_request, API_URL
@@ -59,7 +60,7 @@ def signin(request):
 
         if not content_dict.has_key('error'):
             user = authenticate(username=username, password=password)
-            if not user or not user.is_active():
+            if not user or not user.is_active:
                 form = AuthenticationForm(data = request.POST)
                 # if form.is_valid():
                     
@@ -235,6 +236,7 @@ def create_attribute(request):
             # {u'error': {u'code': -32005,
             # u'data': u'(IntegrityError) duplicate key value violates unique constraint "objects_name_key"\nDETAIL:  Key (name)=(123) already exists.\n',
             # u'message': u'not unique'}}
+                cache.delete('attributes_{}'.format(cd['organism']))
                 messages.success(request, 'Attribute {0} with ID {1} and Version {2} successfully created.'.format(
                     form.cleaned_data['name'], content_dict['result']['id'], content_dict['result']['version'])
                 )
