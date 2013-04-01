@@ -189,7 +189,7 @@
 
             </fieldset>
         {# <!-- End Filters --> #}
-            <div class="control-group {% if form.attributes_list.errors %}error{% endif %}">
+            <div class="control-group {% if form.attributes_list.errors %}error{% endif %} hidden">
                 <label class="control-label" for="js_raw_query">Raw Query</label>
                 <div class="controls">
                     <input class="input-xxlarge" name="raw_query_str" id="js_raw_query" type="text" value="{{ raw_query_str }}">
