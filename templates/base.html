@@ -33,15 +33,28 @@
     <body class="{% block body_class %}{% endblock %}">
         <div id="wrap">
             <div class="container">
-
                 {% block menu %}
                 <div class="navbar">
                     <div class="navbar-inner">
                         <div class="container-fluid">
                             <a class="brand" href="/">Infinity Strand</a>
                             <ul class="nav">
-                                <li>
+                                <!-- <li>
                                     <a href="/" class="active">Home</a> 
+                                </li> -->
+                                <li class="dropdown">
+                                    <a id="drop1" role="button" class="dropdown-toggle" data-toggle="dropdown">Objects <b class="caret"></b></a>
+                                    <ul class="dropdown-menu" role="menu" aria-labelledby="drop1">
+                                        <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'select_objects' %}">Select</a></li>
+                                        <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'create_object' %}">Create</a></li>
+                                    </ul>
+                                </li>
+                                <li class="dropdown">
+                                    <a id="drop2" role="button" class="dropdown-toggle" data-toggle="dropdown">Sequences <b class="caret"></b></a>
+                                    <ul class="dropdown-menu" role="menu" aria-labelledby="drop2">
+                                        <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'select_sequences' %}">Select</a></li>
+                                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Create</a></li>
+                                    </ul>
                                 </li>
                                 <!-- <li>
                                     <a href="#">#Create organism#</a> 
@@ -66,7 +79,7 @@
                 </div>
                 {% endblock %}
 
-                <div class="row">
+                <!-- <div class="row">
                     <div class="span6">
                         <div class="hero-unit">
                             <h1>
@@ -97,7 +110,7 @@
                             </p>
                         </div>
                     </div>
-                </div>
+                </div> -->
                 
                 <div class="row">
                     <div class="span12 message-block">

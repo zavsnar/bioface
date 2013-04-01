@@ -33,7 +33,7 @@
     </div>
 
     <div class="row">
-        <form method="post" action="./#result" id="js_id_form" class="form-horizontal js-active-form span12 pull-left">
+        <form method="post" action="./" id="js_id_form" class="form-horizontal js-active-form span12 pull-left">
             {% csrf_token %}
             {% for error in form.non_field_errors %}
                 <div class="alert alert-error">
@@ -90,7 +90,7 @@
                 {% endif %}
                 <!-- <div class="control-group">
                     <div class="controls"> -->
-                {% if row_query_str %}
+                {% if raw_query_str %}
                     <div class="where-search">
                         <!-- <label for="id_new_query" class="checkbox inline">
                             <input id="id_new_query" class="js_where_search" name="search_in_results" type="radio" value="new_query" checked="checked"> New query
@@ -190,9 +190,9 @@
             </fieldset>
         {# <!-- End Filters --> #}
             <div class="control-group {% if form.attributes_list.errors %}error{% endif %}">
-                <label class="control-label" for="js_row_query">Row Query</label>
+                <label class="control-label" for="js_raw_query">Row Query</label>
                 <div class="controls">
-                    <input class="input-xxlarge" name="row_query_str" id="js_row_query" type="text" value="{{ row_query_str }}">
+                    <input class="input-xxlarge" name="raw_query_str" id="js_raw_query" type="text" value="{{ raw_query_str }}">
                     <input class="hidden" name="field_filters_dict" id="js_field_filters_dict" type="text">
                     <input class="hidden" name="query_history" id="js_query_history" type="text">
                     <input class="hidden" name="query_history_step" id="js_query_history_step_result" type="text">
@@ -405,7 +405,7 @@
     // preloader = $('.preloader-block')
     preloader_img = $('.preloader-img')
     prepand_query = ''
-    old_query = '{{ old_row_query_str|safe }}'
+    old_query = '{{ old_raw_query_str|safe }}'
     query_history_step_result = $('#js_query_history_step_result')
     js_queries_list_btn = $("#js_queries_list_btn")
     // $('.preloader').hide();
@@ -434,7 +434,7 @@
                     'name': query_name.val(),
                     'form': $('#js_id_form').serialize(true),
                     'field_filters_dict': field_filters_dict,
-                    'query_str': $('#js_row_query').val(),
+                    'query_str': $('#js_raw_query').val(),
                 });
                 $('.js_saved_query_block').show();
                 // query_name.addClass('hidden');
@@ -490,7 +490,7 @@
             });
     };
 
-    function generate_row_query() {
+    function generate_raw_query() {
         var query_list = [];
         for (var key in field_filters_dict) {
             var value_type = field_filters_dict[key][3]
@@ -504,24 +504,24 @@
             query_list = query_list.concat(prep_list.join(' '));
         }
         if (logic_operation == 'ANY') {
-            var row_query = query_list.join(' OR ')
+            var raw_query = query_list.join(' OR ')
         } else {
             // ALL and NONE
-            var row_query = query_list.join(' AND ')
+            var raw_query = query_list.join(' AND ')
         }
-        if (logic_operation == 'NONE' && row_query) {
-            row_query = '!(' + row_query + ')'
+        if (logic_operation == 'NONE' && raw_query) {
+            raw_query = '!(' + raw_query + ')'
         }
         if (prepand_query) {
-            if (row_query) {
-                $('#js_row_query').val('('+prepand_query+') AND ' + row_query)
+            if (raw_query) {
+                $('#js_raw_query').val('('+prepand_query+') AND ' + raw_query)
             } else {
-                $('#js_row_query').val(prepand_query)
+                $('#js_raw_query').val(prepand_query)
             }
         } else if (old_query) {
-            $('#js_row_query').val(old_query + ' AND ' + row_query)
+            $('#js_raw_query').val(old_query + ' AND ' + raw_query)
         } else {
-            $('#js_row_query').val(row_query)
+            $('#js_raw_query').val(raw_query)
         }
         
     };
@@ -625,7 +625,7 @@
             new_query_logic_operation = $(this).val()
             logic_operation = new_query_logic_operation
             // $(this).next('#id_select_operand').val(logic_operation)
-            generate_row_query();
+            generate_raw_query();
         })
 
         search_in_result_logic_operation = "ALL"
@@ -633,7 +633,7 @@
             search_in_result_logic_operation = $(this).val()
             logic_operation = search_in_result_logic_operation
             // $(this).next('#id_select_operand').val(logic_operation)
-            generate_row_query();
+            generate_raw_query();
         })
 
         // Change available operation for select field
@@ -683,7 +683,7 @@
 
                 field_filters_dict[item_pk] = [filtered_field_val, filtered_operation, filter_value, filtered_field_type]
 
-                generate_row_query();
+                generate_raw_query();
                 // filter.find('.js_del_query_item').show()
             } else {
                 // filter.find('.js_del_query_item').hide()
@@ -698,7 +698,7 @@
                 $('.actual_filters .js_query_tr .js_query_field:first').select2();
             }
             delete field_filters_dict[filter.data('pk')]
-            generate_row_query();
+            generate_raw_query();
 
             filter.remove()
         });
@@ -716,19 +716,19 @@
             //         search_in_results.removeClass('actual_filters');
             //         new_query.fadeIn().addClass('actual_filters');
             //         prepand_query = ''
-            //         old_query = '{{ old_row_query_str|safe }}'
+            //         old_query = '{{ old_raw_query_str|safe }}'
             //         field_filters_dict = field_filters_dict_old
-            //         generate_row_query()
+            //         generate_raw_query()
             //     });
             //   break;
             // case 'search_in_results':
             //     new_query.fadeOut(function(){
             //         new_query.removeClass('actual_filters');
             //         search_in_results.fadeIn().addClass('actual_filters');
-            //         prepand_query = '{{ row_query_str|safe }}'
-            //         old_query = '{{ old_row_query_str|safe }}'
+            //         prepand_query = '{{ raw_query_str|safe }}'
+            //         old_query = '{{ old_raw_query_str|safe }}'
             //         field_filters_dict = field_filters_dict_new
-            //         generate_row_query()
+            //         generate_raw_query()
             //     });
             //   break;
             // case 'new_query':
@@ -738,7 +738,7 @@
             //         prepand_query = ''
             //         old_query = ''
             //         field_filters_dict = field_filters_dict_old
-            //         generate_row_query()
+            //         generate_raw_query()
             //     });
             //   break;
             // }
@@ -748,20 +748,20 @@
                     search_in_results.removeClass('actual_filters');
                     new_query.fadeIn().addClass('actual_filters');
                     prepand_query = ''
-                    old_query = '{{ old_row_query_str|safe }}'
+                    old_query = '{{ old_raw_query_str|safe }}'
                     field_filters_dict = field_filters_dict_old
                     logic_operation = new_query_logic_operation
-                    generate_row_query()
+                    generate_raw_query()
                 });
             } else {
                 new_query.fadeOut(function(){
                     new_query.removeClass('actual_filters');
                     search_in_results.fadeIn().addClass('actual_filters');
-                    prepand_query = '{{ row_query_str|safe }}'
-                    old_query = '{{ old_row_query_str|safe }}'
+                    prepand_query = '{{ raw_query_str|safe }}'
+                    old_query = '{{ old_raw_query_str|safe }}'
                     field_filters_dict = field_filters_dict_new
                     logic_operation = search_in_result_logic_operation
-                    generate_row_query()
+                    generate_raw_query()
                 });
             }
         }

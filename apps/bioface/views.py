@@ -18,7 +18,7 @@ from django.template.loader import render_to_string
 from django.shortcuts import render, render_to_response, redirect
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login, logout as auth_logout
+from django.contrib.auth import get_user_model, authenticate, login, logout as auth_logout
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
@@ -38,50 +38,69 @@ def alter_index(request):
 def signin(request):
     # https://10.0.1.204:5000
     # a@a.ru 123
-
     if request.method == 'POST':
-        form = AuthenticationForm(data = request.POST)
-        if form.is_valid():
-            username = request.POST['username']
-            password = request.POST['password']
+        username = request.POST['username']
+        password = request.POST['password']
 
+        query = {
+            "method" : "login",
+            "params" : {
+                "email": username,
+                "password": password
+                }
+            }
+
+        # response, content = http.request(API_URL, 'POST', body = json.dumps(query), headers = headers)
+
+        # response = json.loads(content)
+
+        # Login in service by API
+        content_dict = api_request(query)
+
+        if not content_dict.has_key('error'):
             user = authenticate(username=username, password=password)
-            if user is not None:
-                if user.is_active:
+            if not user or not user.is_active():
+                form = AuthenticationForm(data = request.POST)
+                # if form.is_valid():
+                    
+                    # user = authenticate(username=username, password=password)
+                    # if user is not None:
+                    #     if user.is_active:
 
-                    # http = httplib2.Http(disable_ssl_certificate_validation=True)
-               
-                    query = {
-                        "method" : "login",
-                        "params" : {
-                            "email": username,
-                            "password": password
-                            }
-                        }
+                            # http = httplib2.Http(disable_ssl_certificate_validation=True)
+                       
+                            # if not content_dict.has_key('error'):
+                                # sessionkey = content_dict['result']['key']
 
-                    # response, content = http.request(API_URL, 'POST', body = json.dumps(query), headers = headers)
+                                # # Django login
+                                # login(request, user)
+                                # user.sessionkey = sessionkey
+                                # user.save()
+                                # messages.success(request, "You successfully logged.")
+                                # redirect_url = request.GET.get('next') if request.GET.get('next', None) else '/'
+                                # print request.GET.get('next', None)
+                                # return redirect(redirect_url)
+                            # else:
+                            #     msg = content_dict['error']['message']
+                            #     messages.error(request, msg)
+                                # print 1111, form._errors
+                                # form._errors[forms.NON_FIELD_ERRORS] = form.error_class( (msg,))
+                user_model = get_user_model()
+                user_model.objects.create_user(username, email=username, password=password)
+                user = authenticate(username=username, password=password)
 
-                    # response = json.loads(content)
-
-                    # Login in service by API
-                    content_dict = api_request(query)
-
-                    if not content_dict.has_key('error'):
-                        sessionkey = content_dict['result']['key']
-
-                        # Django login
-                        login(request, user)
-                        user.sessionkey = sessionkey
-                        user.save()
-                        messages.success(request, "You successfully logged.")
-                        redirect_url = request.GET.get('next') if request.GET.get('next', None) else '/'
-                        print request.GET.get('next', None)
-                        return redirect(redirect_url)
-                    else:
-                        msg = content_dict['error']['message']
-                        messages.error(request, msg)
-                        # print 1111, form._errors
-                        # form._errors[forms.NON_FIELD_ERRORS] = form.error_class( (msg,))
+            sessionkey = content_dict['result']['key']
+            # Django login
+            login(request, user)
+            user.sessionkey = sessionkey
+            user.save()
+            messages.success(request, "You successfully logged.")
+            redirect_url = request.GET.get('next') if request.GET.get('next', None) else '/'
+            print request.GET.get('next', None)
+            return redirect(redirect_url)
+        else:
+            msg = content_dict['error']['message']
+            messages.error(request, msg)
                         
     else:
         form = AuthenticationForm()
@@ -410,9 +429,9 @@ def request_api_page(request, method=None):
                 #     # "orderby" : [["field_name", "acs"], ["field_name2", "desc"]]
                 # }
             }
-            if cd.has_key('row_query'):
+            if cd.has_key('raw_query'):
                 query_dict['params'] = {}
-                query_dict['params']['query'] = cd['row_query']
+                query_dict['params']['query'] = cd['raw_query']
 
             page = request.GET.get('page', 1)
             template_name, template_context = get_pagination_page(page, query_dict)

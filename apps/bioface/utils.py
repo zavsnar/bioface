@@ -6,8 +6,10 @@ import csv, codecs, cStringIO
 from django.shortcuts import render, render_to_response, redirect
 from django.core.cache import cache
 
+from settings import API_URL
+
 # API_URL = 'http://10.0.1.7:5000/api/v1/'
-API_URL = 'https://10.0.1.204:5000/api/v1/'
+# API_URL = 'https://10.0.1.208:5000/api/v1/'
 
 def api_request(query_dict):
     
@@ -146,13 +148,13 @@ class UnicodeWriter:
             self.stream.write(codecs.BOM_UTF8)
 
     def writerow(self, row):
-        row_list = []
+        raw_list = []
         for s in row:
             if type(s) in (str, unicode):
-                row_list.append(s.encode("utf-8"))
+                raw_list.append(s.encode("utf-8"))
             else:
-                row_list.append(s)
-        self.writer.writerow(row_list)
+                raw_list.append(s)
+        self.writer.writerow(raw_list)
         # self.writer.writerow([s.encode("utf-8") for s in row ])
         # Fetch UTF-8 output from the queue ...
         data = self.queue.getvalue()

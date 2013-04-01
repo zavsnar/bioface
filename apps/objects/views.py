@@ -298,7 +298,7 @@ def get_objects(request):
     paginate_by = 10
     template_context = {}
     field_filters_dict_sort = {'': []}
-    row_query_str=''
+    raw_query_str=''
     fields = OBJECT_FIELDS
     saved_query_list = SavedQuery.objects.filter(user=request.user)
     query_history = []
@@ -317,12 +317,12 @@ def get_objects(request):
             all_attr_type_dict = { key: atype for (key, item, atype) in form.fields['attributes_list'].choices }
             all_attr_type_dict.update(OBJECT_FIELDS_CHOICES_WITH_TYPE)
             if re.findall('\(.+\)', query_history_step):
-                old_row_query_str, query_step_st = re.findall('(\(.+\)) AND (.+)', query_history_step)[0]
+                old_raw_query_str, query_step_st = re.findall('(\(.+\)) AND (.+)', query_history_step)[0]
             else:
-                old_row_query_str = ''
+                old_raw_query_str = ''
                 query_step_st = query_history_step
 
-            row_query_str = query_history_step
+            raw_query_str = query_history_step
 
             if query_step_st:
                 if ' AND ' in query_step_st:
@@ -345,9 +345,9 @@ def get_objects(request):
         else:
             where_search = request.POST.get('where_search')
             logic_operation = request.POST.get('select_operand_in') if where_search == 'search_in_results' else request.POST.get('select_operand')
-            row_query_str = request.POST['row_query_str']
-            old_row_query_re = re.findall('\(.+\)', row_query_str)
-            old_row_query_str = old_row_query_re[0] if old_row_query_re else ''
+            raw_query_str = request.POST['raw_query_str']
+            old_raw_query_re = re.findall('\(.+\)', raw_query_str)
+            old_raw_query_str = old_raw_query_re[0] if old_raw_query_re else ''
             field_filters_dict = ast.literal_eval(request.POST['field_filters_dict'])
             if field_filters_dict:
                 field_filters_dict_sort={}
@@ -362,8 +362,8 @@ def get_objects(request):
         # raise
         template_context.update({
             'logic_operation': logic_operation,
-            'row_query_str': row_query_str,
-            'old_row_query_str': old_row_query_str,
+            'raw_query_str': raw_query_str,
+            'old_raw_query_str': old_raw_query_str,
             'query_history_step': query_history_step
             # 'attributes_from_organism': attributes_from_organism,
         })
@@ -371,11 +371,11 @@ def get_objects(request):
         if form.is_valid():
             cd = form.cleaned_data
             paginate_by = int(cd['paginate_by'])
-            row_query = 'organism = {}'.format(cd['organism'])
+            raw_query = 'organism = {}'.format(cd['organism'])
 
-            if row_query_str:
-                prep_row_query_str = row_query_str.replace(' AND ', ' & ').replace(' OR ', ' | ')
-                row_query = row_query + ' & (' + prep_row_query_str + ')'
+            if raw_query_str:
+                prep_raw_query_str = raw_query_str.replace(' AND ', ' & ').replace(' OR ', ' | ')
+                raw_query = raw_query + ' & (' + prep_raw_query_str + ')'
 
             attr_list=[]
             attr_list = cd['attributes_list']
@@ -388,7 +388,7 @@ def get_objects(request):
                 "key": request.user.sessionkey,
                 "params" : {
                     "count": 'true',
-                    "query" : row_query,
+                    "query" : raw_query,
                 #     "limit" : int,
                 #     "skip": int,
                     "orderby" : [(order_field, "acs"),],
@@ -455,7 +455,7 @@ def get_objects(request):
                 #     next_page = False
 
                 if query_history:
-                    # if query_history[-1]['query'] == row_query_str.encode('utf8'):
+                    # if query_history[-1]['query'] == raw_query_str.encode('utf8'):
                     #     query_history[-1]['count'] = objects_count
                     if query_history_step:
                         # Loading from history
@@ -465,15 +465,15 @@ def get_objects(request):
                                 idx = query_history.index(step)
                                 query_history = query_history[:idx+1]
                                 break
-                    elif where_search == 'search_in_results' and query_history[-1]['query'] != row_query_str.encode('utf8'):
-                    # elif len(query_history) > 1 and query_history[-2]['query'] == old_row_query_str[1:-1].encode('utf8'):
+                    elif where_search == 'search_in_results' and query_history[-1]['query'] != raw_query_str.encode('utf8'):
+                    # elif len(query_history) > 1 and query_history[-2]['query'] == old_raw_query_str[1:-1].encode('utf8'):
                         # Search in result
-                        query_history.append({'query': row_query_str, 'count': objects_count})
+                        query_history.append({'query': raw_query_str, 'count': objects_count})
                     else:
                         # Change current query or new query
-                        query_history[-1] = {'query': row_query_str, 'count': objects_count}
+                        query_history[-1] = {'query': raw_query_str, 'count': objects_count}
                 else:
-                    query_history.append({'query': row_query_str, 'count': objects_count})
+                    query_history.append({'query': raw_query_str, 'count': objects_count})
                 # print 99999, query_history
 
                 display_fields_str = mark_safe(json.dumps(display_fields))
@@ -500,7 +500,7 @@ def get_objects(request):
 
             query_dict_str = mark_safe(json.dumps(query_dict))
             template_context.update({
-                # 'query_str': row_query,
+                # 'query_str': raw_query,
                 'query_dict_str': query_dict_str
                 })
         else:
@@ -520,21 +520,21 @@ def get_objects(request):
                     q[1] = mark_safe(q[1])
                     field_filters_dict_sort[int(key)] = q
 
-        row_query_str = saved_query.query_str
-        old_row_query_re = re.findall('\(.+\)', row_query_str)
-        old_row_query_str = old_row_query_re[0] if old_row_query_re else ''
+        raw_query_str = saved_query.query_str
+        old_raw_query_re = re.findall('\(.+\)', raw_query_str)
+        old_raw_query_str = old_raw_query_re[0] if old_raw_query_re else ''
 
 
-        if row_query_str:
+        if raw_query_str:
             step = True
-            row_query_str_iter = row_query_str
-            query_history.append({'query': row_query_str, 'count': ''})
+            raw_query_str_iter = raw_query_str
+            query_history.append({'query': raw_query_str, 'count': ''})
             while step:
-                _query_re = re.findall('\((.+)\)', row_query_str_iter)
+                _query_re = re.findall('\((.+)\)', raw_query_str_iter)
                 step = _query_re[0] if _query_re else None
                 if step:
                     query_history.append({'query': step, 'count': ''})
-                    row_query_str_iter = step
+                    raw_query_str_iter = step
 
             
             query_history.reverse()
@@ -542,9 +542,9 @@ def get_objects(request):
         template_context.update({
             # 'logic_operation': saved_query.logic_operation,
             'logic_operation': "ALL",
-            'row_query_str': row_query_str,
-            'old_row_query_str': old_row_query_str,
-            # 'row_query_str': '',
+            'raw_query_str': raw_query_str,
+            'old_raw_query_str': old_raw_query_str,
+            # 'raw_query_str': '',
             # 'attributes_from_organism': attributes_from_organism,
         })
     else:

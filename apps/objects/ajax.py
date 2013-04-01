@@ -104,7 +104,7 @@ def delete_saved_query(request, name):
 
 @dajaxice_register
 # @ajax_login_required
-# def pagination(request, page, paginate_by, display_fields, attributes, row_query):
+# def pagination(request, page, paginate_by, display_fields, attributes, raw_query):
 def pagination(request, page, paginate_by, items_count, data):
     # data = ast.literal_eval(data)
     data = json.loads(data)

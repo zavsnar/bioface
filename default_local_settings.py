@@ -3,6 +3,8 @@ from os.path import abspath, dirname, join
 SOURCE_ROOT = dirname(abspath( __file__)) + '/'
 PROJECT_NAME = 'bioface'
 
+API_URL = 'https://10.0.1.208:5000/api/v1/'
+
 DEBUG = True
 
 # Local time zone for this installation. Choices can be found here:

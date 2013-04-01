@@ -9,7 +9,7 @@ from local_settings import STATIC_FILES_VERSION
 # from local_settings import APP_SERVER_SETTINGS
 # from local_settings import THUMBNAIL_DUMMY
 from local_settings import DEBUG_TOOLBAR_PANELS, INTERNAL_IPS
-
+from local_settings import API_URL
 from local_settings import BROKER_URL, CELERY_RESULT_BACKEND, CELERY_REDIS_HOST, CELERY_REDIS_PORT, CELERY_REDIS_DB, \
     CELERYD_LOG_FILE, CELERND_TASK_ERROR_EMAILS, CELERYBEAT_SCHEDULER
 #from local_settings import HOST_NAME
