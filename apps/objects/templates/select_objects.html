@@ -199,9 +199,6 @@
                 </div>
             </div>
 
-            
-            
-
             <div class="form-actions form-inline">
                 <input type="text" id="save_query_name" class="hidden" placeholder="Type query name">
                 <button type="button" class="btn btn-success" onclick="save_query();">Save query</button>&nbsp;
@@ -242,22 +239,10 @@
             </div>  
 
             {# <!-- sort_by --> #}
-            <div class="control-group {% if form.sort_by.errors %}error{% endif %}" id="js_sort_by_container">
+            <div class="control-group {% if form.sort_by.errors %}error{% endif %} hidden" id="js_sort_by_container">
                 <label class="control-label" for="{{ form.sort_by.id_for_label }}">{{ form.sort_by.label }}</label>
                 <div class="controls">
                     {{ form.sort_by }}
-                    <!-- <select multiple="multiple" id="id_sort_by" name="sort_by">
-                        <optgroup label="Fields">
-                            {% for field, atype in fields_with_type %}
-                                <option value="{{ field }}">{{ field }}</option>
-                            {% endfor %}
-                        </optgroup>
-                            <optgroup label="Attributes" class="js_query_attr_list">
-                            {% for id, attr, atype in attributes_from_organism %}
-                                <option value="attr.{{ id }}">{{ attr }}</option>
-                            {% endfor %}
-                        </optgroup>
-                    </select> -->
                     {% for error in form.sort_by.errors %}
                         <span class="help-inline">{{ error }}</span>
                     {% endfor %}

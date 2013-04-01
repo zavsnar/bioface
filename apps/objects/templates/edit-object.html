@@ -8,65 +8,65 @@
 {% endblock %}
 
 {% block forejs %} 
+{% endblock %}
 
-
-    
- {% endblock %}
+{% block content_title %}
+    <h1>Edit Object</h1>
+{% endblock %}
 
 {% block main %}
-
-<form method="post" action="./" class="form-horizontal js-active-form span8 pull-left">
-    {% csrf_token %}
-    {% for error in form.non_field_errors %}
-        <div class="alert alert-error">
-            <a data-dismiss="alert" class="close">×</a>
-            <p>{{ error }}</p>
-        </div>
-    {% endfor %}
-    
-    {{ form|bootstrap }}
-
-    <div class="tabbable"> <!-- Only required for left/right tabs -->
-        <ul class="nav nav-tabs">
-            <li class="active"><a href="#tab1" data-toggle="tab">Attributes</a></li>
-            <li><a href="#tab2" data-toggle="tab">Sequences</a></li>
-        </ul>
-        <div class="tab-content">
-            <div class="tab-pane active" id="tab1">
-
-                {% for attr in attr_list %}
-                    {% if forloop.counter = 6 %}
-                    <a onclick="toggle_filter()" id="hideBut" class="btn">></a>
-                    <div class="show-hide">
-                    {% endif %}
-                    <div class="control-group">
-                        <label class="control-label" for="attr_{{ attr.name }}"><a href="#">{{ attr.name }}</a></label>
-                        <div class="controls">
-                            <input type="text" id="attr_{{ attr.name }}" name="attr_{{ attr.name }}" value="{{ attr.value }}">
-                        </div>
-                    </div>
-                    {% if forloop.counter >= 6 and forloop.last %}
-                        </div>
-                    {% endif %}
-                {% endfor %}
-                <!-- <a class="btn btn-primary pull-right">Add</a>&nbsp; -->
-                
+    <form method="post" action="./" class="form-horizontal js-active-form span8 pull-left">
+        {% csrf_token %}
+        {% for error in form.non_field_errors %}
+            <div class="alert alert-error">
+                <a data-dismiss="alert" class="close">×</a>
+                <p>{{ error }}</p>
             </div>
-            <div class="tab-pane" id="tab2">
-                <p>List of sequences.</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- <span>Attributes</span>
-    <hr/> -->
-    
-    <div class="form-actions">
+        {% endfor %}
         
-        <!-- <button type="submit" class="btn btn-primary">Save</button>&nbsp; -->
-        Save Button
-    </div>
-</form>
+        {{ form|bootstrap }}
+
+        <div class="tabbable"> <!-- Only required for left/right tabs -->
+            <ul class="nav nav-tabs">
+                <li class="active"><a href="#tab1" data-toggle="tab">Attributes</a></li>
+                <li><a href="#tab2" data-toggle="tab">Sequences</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active" id="tab1">
+
+                    {% for attr in attr_list %}
+                        {% if forloop.counter = 6 %}
+                        <a onclick="toggle_filter()" id="hideBut" class="btn">></a>
+                        <div class="show-hide">
+                        {% endif %}
+                        <div class="control-group">
+                            <label class="control-label" for="attr_{{ attr.name }}"><a href="#">{{ attr.name }}</a></label>
+                            <div class="controls">
+                                <input type="text" id="attr_{{ attr.name }}" name="attr_{{ attr.name }}" value="{{ attr.value }}">
+                            </div>
+                        </div>
+                        {% if forloop.counter >= 6 and forloop.last %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                    <!-- <a class="btn btn-primary pull-right">Add</a>&nbsp; -->
+                    
+                </div>
+                <div class="tab-pane" id="tab2">
+                    <p>List of sequences.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- <span>Attributes</span>
+        <hr/> -->
+        
+        <div class="form-actions">
+            
+            <!-- <button type="submit" class="btn btn-primary">Save</button>&nbsp; -->
+            Save Button
+        </div>
+    </form>
 
 {% endblock %}
 
