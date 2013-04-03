@@ -112,7 +112,8 @@ def upload_file(request, filename, file_data):
     if content_dict.has_key('result'):
         upload_id = content_dict['result']['upload_id']
         # API_HOST = API_HOST = 'http://10.0.1.208:8080'
-        upload_url = API_HOST + '/bioupload/' + upload_id
+        # upload_url = API_HOST + '/bioupload/' + upload_id
+        upload_url = '/bioupload/' + upload_id
         # upload_url = API_HOST + '/login/'
         # upload_url = 'http://google.com'
         print 999999, upload_url

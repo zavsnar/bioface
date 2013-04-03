@@ -104,13 +104,15 @@
             $.ajax({
                 type: 'post',
                 url: upload_url,
-                async: false,
-                crossDomain: true,
+                cache: false,
+                contentType: false,
+                processData: false,
+                // crossDomain: true,
                 data: form_data,
-                beforeSend: function (request)
-                {
-                    request.setRequestHeader('Access-Control-Allow-Origin', "*");
-                },
+                // beforeSend: function (request)
+                // {
+                //     request.setRequestHeader('Access-Control-Allow-Origin', "*");
+                // },
 
               // success: success,
               // dataType: dataType
@@ -150,7 +152,7 @@
             //      alert ( " Done ! " + data );
             //     }
             //    });
-            post_response = $.get(upload_url);
+            // post_response = $.get(upload_url);
         }
 
         function get_file(){
