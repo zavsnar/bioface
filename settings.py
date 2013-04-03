@@ -9,7 +9,7 @@ from local_settings import STATIC_FILES_VERSION
 # from local_settings import APP_SERVER_SETTINGS
 # from local_settings import THUMBNAIL_DUMMY
 from local_settings import DEBUG_TOOLBAR_PANELS, INTERNAL_IPS
-from local_settings import API_URL
+from local_settings import API_HOST
 from local_settings import BROKER_URL, CELERY_RESULT_BACKEND, CELERY_REDIS_HOST, CELERY_REDIS_PORT, CELERY_REDIS_DB, \
     CELERYD_LOG_FILE, CELERND_TASK_ERROR_EMAILS, CELERYBEAT_SCHEDULER
 #from local_settings import HOST_NAME
@@ -169,6 +169,7 @@ INSTALLED_APPS = (
     # 'apps.eway_au',
     'apps.bioface',
     'apps.objects',
+    'apps.attributes',
     'apps.sequences',
     # 'apps.attributes',
 
@@ -176,6 +177,8 @@ INSTALLED_APPS = (
 )
 
 LOGIN_URL = '/login/'
+
+API_URL = API_HOST + '/api/v1/'
 
 DOWNLOADS_ROOT = MEDIA_ROOT + 'downloads/'
 DOWNLOADS_URL = MEDIA_URL + 'downloads/'

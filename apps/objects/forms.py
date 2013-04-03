@@ -95,14 +95,14 @@ class SelectObjects(forms.Form):
                 organism_id = organism_choices_list[0][0]
 
             if organism_id:
-                attr_choices = self.fields['attributes_list'].choices = get_choices(self.request, 
+                self.fields['attributes_list'].choices = get_choices(self.request, 
                     cache_key='attributes_{}'.format(organism_id), item_name='attributes', 
                     key='name', query="organism = {}".format(organism_id), append_field='atype')
-                
+                attr_choices = self.fields['attributes_list'].choices
                 all_fields = OBJECT_FIELDS_CHOICES
                 all_fields.extend(attr_choices)
                 self.fields['sort_by'].choices = all_fields
-                print 333, self.fields['sort_by'].choices
+                # print 333, self.fields['sort_by'].choices
             # else:
             #     self.fields['attributes_list'].choices = get_choices(request, item_name='attributes', key='name')
             

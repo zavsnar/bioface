@@ -102,7 +102,7 @@ def signin(request):
         else:
             msg = content_dict['error']['message']
             messages.error(request, msg)
-                        
+            form = AuthenticationForm(data = request.POST) 
     else:
         form = AuthenticationForm()
 

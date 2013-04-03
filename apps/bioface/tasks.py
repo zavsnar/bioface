@@ -15,7 +15,7 @@ def loading_objects(object_download_id, query_dict, with_attributes=False, with_
         objects = content_dict['result']['objects']
         with tempfile.NamedTemporaryFile(delete=False) as obj_csvfile:
             # spamwriter = csv.writer(obj_csvfile, delimiter=str(','), quotechar=str('|'), quoting=csv.QUOTE_MINIMAL)
-            spamwriter = UnicodeWriter(obj_csvfile, encoding=encoding)
+            spamwriter = UnicodeWriter(obj_csvfile, encoding=encoding, quoting=csv.QUOTE_NONE, delimiter = ';')
 
             col_list = []
             attr_col_list = []

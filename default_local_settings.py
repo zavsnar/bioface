@@ -7,8 +7,7 @@ PROJECT_NAME = 'bioface'
 API_URL = 'https://10.0.1.208:5000/api/v1/'
 
 DEBUG = True
-
-API_URL = 'https://10.0.1.204:5000/api/v1/'
+API_HOST = 'https://10.0.1.204:5000'
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name

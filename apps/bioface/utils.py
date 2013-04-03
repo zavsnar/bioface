@@ -17,6 +17,7 @@ def api_request(query_dict):
     headers = {'Content-type': 'application/json'}
     http = httplib2.Http(disable_ssl_certificate_validation=True)
     print 77777, query_dict
+    print 666, json.dumps(query_dict)
     http_response, content = http.request(API_URL, 'POST', body = json.dumps(query_dict), headers = headers)
     print 888, content
     try:
@@ -35,6 +36,15 @@ def api_request(query_dict):
 
 
     return content_dict
+
+def check_response(response_dict, item_name):
+    if response_dict.has_key('result'):
+        items = organisms_dict['result'][item_name][0][0]
+    else:
+        msg = content_dict['error']['message']
+        messages.error(request, 'API ERROR: {}. {}'.format(msg, content_dict['error']['data']))
+
+    return
 
 
 def ajax_login_required(view_func):

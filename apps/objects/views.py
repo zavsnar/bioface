@@ -35,9 +35,11 @@ from django.utils.encoding import smart_text, force_text, smart_unicode
 from apps.bioface.utils import api_request
 from apps.bioface.models import SavedQuery
 from apps.bioface.forms import DownloadForm
-from apps.objects.forms import CreateObjectForm, UpdateObjectForm, CreateOrganismForm, SelectObjects
+from apps.objects.forms import CreateObjectForm, UpdateObjectForm, \
+    CreateOrganismForm, SelectObjects
 from apps.objects.forms import OBJECT_FIELDS, OBJECT_FIELDS_CHOICES_WITH_TYPE
 
+@login_required
 def create_object(request):
     template_name = 'create_object.html'
     if request.method == 'POST':
@@ -95,7 +97,7 @@ def create_object(request):
     }
     return render_to_response(template_name, template_context, context_instance=RequestContext(request))
 
-
+@login_required
 def update_object(request, object_id = 0):
     try:
         object_id = int(object_id)
@@ -119,6 +121,8 @@ def update_object(request, object_id = 0):
             attr_list = {}
 
         if request.method == 'POST':
+            print request.POST
+            raise
             form = UpdateObjectForm(request=request, data = request.POST)
             if form.is_valid():
                 cd = form.cleaned_data
@@ -187,7 +191,7 @@ def update_object(request, object_id = 0):
 
     return render_to_response('edit-object.html', template_context, context_instance=RequestContext(request))
 
-
+@login_required
 def create_organism(request):
     if request.method == 'POST':
         form = CreateOrganismForm(data = request.POST)
@@ -249,7 +253,11 @@ def get_item_list_by_api(item_name, content_dict):
         else:
             attr_name_list = set([param_name for item in item_list for param_name in item.keys()])
 
-        template_context = {'attr_name_list': attr_name_list, 'item_name': item_name, 'items': item_list}
+        template_context = {
+            'attr_name_list': attr_name_list, 
+            'item_name': item_name, 
+            'items': item_list
+            }
 
     return template_name, template_context
 
@@ -498,7 +506,8 @@ def get_objects(request):
                 })
             else:   
                 msg = content_dict['error']['message']
-                messages.error(request, 'API ERROR: {}. {}'.format(msg, content_dict['error']['data']))
+                messages.error(request, 
+                    'API ERROR: {}. {}'.format(msg, content_dict['error']['data']))
 
             query_dict_str = mark_safe(json.dumps(query_dict))
             template_context.update({
@@ -513,8 +522,11 @@ def get_objects(request):
         query_name = request.GET['saved_query']
         saved_query = SavedQuery.objects.get(name=query_name)
         form_data = {
-            'organism': saved_query.organism_id, 'display_fields': saved_query.display_fields, 'attributes_list': saved_query.attributes_list,
-            'paginate_by': saved_query.paginate_by, 'sort_by': saved_query.sort_by
+            'organism': saved_query.organism_id, 
+            'display_fields': saved_query.display_fields, 
+            'attributes_list': saved_query.attributes_list,
+            'paginate_by': saved_query.paginate_by, 
+            'sort_by': saved_query.sort_by
             }
         form = SelectObjects(request=request, data=form_data)
         # field_filters_dict_sort = saved_query.filter_fields

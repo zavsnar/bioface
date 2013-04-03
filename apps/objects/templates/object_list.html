@@ -23,7 +23,13 @@
                     {% endif %}
                 {% endfor %}
                 {% for attr in obj.attrs %}
-                    <td>{{ attr.value }}</td>
+                    <td>
+                        {% if attr.value %}
+                            {{ attr.value }}
+                        {% else %}
+                            <span class="red">n/a</span>
+                        {% endif %}
+                    </td>
                 {% endfor %}
             </tr>
         {% endfor %}

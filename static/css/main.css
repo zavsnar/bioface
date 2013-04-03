@@ -45,9 +45,9 @@ a {
 }
 
 
-.red {
-	color: red;
-}
+.red {color: red;}
+
+.list-no-style {list-style: none; margin: 0;}
 
 input.error {
 	border-color: #bd4247;

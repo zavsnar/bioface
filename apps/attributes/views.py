@@ -7,12 +7,14 @@ import urllib
 import httplib2 
 import json
 
+from dateutil.parser import parse as datetime_parse
+
 import ast
 
 from django.conf import settings
 from django import forms
 from django.forms.formsets import formset_factory
-from django.http import StreamingHttpResponse
+from django.http import Http404
 from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.shortcuts import render, render_to_response, redirect
@@ -21,9 +23,84 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout as auth_logout
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.cache import cache
+
+
 
 from apps.bioface.utils import api_request, API_URL
 from apps.bioface.forms import *
+
+def attribute_list(request):
+    organism_id = request.REQUEST.get('organism_id', '')
+
+    if not organism_id:
+        organisms = cache.get('organisms', [])
+        print 1111, organisms
+        if organisms:
+            organism_id = organisms[0][0]
+        else:
+            query_organism = {
+                "method" : "get_organisms",
+                "key": request.user.sessionkey,
+            }
+            organisms_dict = api_request(query_organism)
+
+            try:
+                organism_id = organisms_dict['result']['organisms'][0]['id']
+            except KeyError:
+                if organisms_dict.has_key('error'):
+                    msg = organisms_dict['error']['message']
+                    messages.error(request, 'API ERROR: {}. {}'.format(msg, organisms_dict['error']['data']))
+                else:
+                    raise Http404
+
+    print organism_id            
+    query_dict = {
+        "method" : "get_attributes",
+        "key": request.user.sessionkey,
+        "params" : {
+            "query" : "organism = {}".format(organism_id),
+            # "limit" : int,
+            # "skip" : int,
+            "orderby" : [["name", "asc"]]
+        }
+    }
+
+    content_dict = api_request(query_dict)
+    # {"user_id": 331, "name": "Аналитик", "creator": 331, 
+    # "created": "2013-04-02T16:58:04.183092+04:00", "atype": "nominal", 
+    # "modified": "2013-04-02T16:58:04.183092+04:00", 
+    # "primary": false, "version": 5060860, "organism": 302, 
+    # "id": 27277, 
+    # "description": {"default": "AAA", 
+    # "items": ["AAA", "BBB", "GGG", "JJJ", "EEE", "FFF", "HHH", "III", "CCC", "DDD"]}}
+
+    if content_dict.has_key('result'):
+        attr_list = content_dict['result']['attributes']
+        # result_list = []
+        # for attr in attr_list:
+        #     attr_dict = {
+        #         'name': attr['name'],
+        #         'atype': attr['atype'],
+        #         'primary': attr['primary']
+        #     }
+        #     for time_field in ('created', 'modified'):
+        #         time_value = datetime_parse(attr[time_field])
+        #         field_value = time_value.strftime("%Y-%m-%d %H:%M:%S")
+        #         attr_dict[time_field] = field_value
+
+        #     if attr['atype'] 
+
+        template_context = {'item_list': attr_list}
+    else:
+        template_context ={}
+        msg = content_dict['error']['message']
+        messages.error(request, 'API ERROR: {}. {}'.format(msg, content_dict['error']['data']))
+        
+
+
+    return render_to_response("attribute_list.html", template_context, context_instance=RequestContext(request))
+
 
 def create_attribute(request):
     description_errors=[]

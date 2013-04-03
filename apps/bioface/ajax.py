@@ -19,7 +19,7 @@ from django.core.context_processors import csrf
 from django.template.loader import render_to_string
 from django.core.files import File
 
-from settings import DOWNLOADS_ROOT
+from settings import DOWNLOADS_ROOT, API_URL, API_HOST
 
 # from apps.bioface.utils import ajax_login_required
 from apps.bioface.forms import CreateOrganismForm, DownloadForm
@@ -92,6 +92,83 @@ def download_objects(request, form, query_dict):
     # dajax.alert(msg)
     return dajax.json()
 
+@dajaxice_register
+def upload_file(request, filename, file_data):
+    dajax = Dajax()
+    query = {
+        "method" : "upload",
+        "key": request.user.sessionkey,
+        "params" : {
+            "data" : {
+                "filename": filename, 
+                "filetype": "filetype"
+                }
+            }
+        }
+
+    content_dict = api_request(query)
+    print 22222, content_dict
+
+    if content_dict.has_key('result'):
+        upload_id = content_dict['result']['upload_id']
+        # API_HOST = API_HOST = 'http://10.0.1.208:8080'
+        upload_url = API_HOST + '/bioupload/' + upload_id
+        # upload_url = API_HOST + '/login/'
+        # upload_url = 'http://google.com'
+        print 999999, upload_url
+        # dajax.add_data(upload_url, 'upload_2_server')
+        dajax.script('upload_2_server("{}");'.format(upload_url))
+    else:
+        template_context = {'error_message': 'Query does not exist.'}
+        render = render_to_string('components/alert_messages.html', template_context)
+        dajax.assign('.extra-message-block', 'innerHTML', render)
+
+    # URL="http://www.whatever.com"
+    # f=open(filename, 'rb')
+    # filebody = f.read()
+    # f.close()
+    # data = {'name':'userfile','file': filebody}
+    # import urllib
+    # import httplib2 
+    # headers = {'Content-type': 'application/json'}
+    # http = httplib2.Http(disable_ssl_certificate_validation=True)
+    # file_data = file('fabfile.py', 'r').read()
+    # u = http.request(API_URL, 'POST', files = file_data)
+    # u = urllib.urlopen(upload_url, urllib.urlencode(file_data))
+
+    # import requests
+    # files = {'files' : open('fabfile.py','rb')}
+    # r = requests.post(upload_url, files=files, verify=False)
+    # print 11111, r.content
+
+    return dajax.json()
+
+@dajaxice_register
+def get_file(request, file_id='7496f7e4745f42ceb5c2dc41d691b70c'):
+    file_id = '2a2e42c9760548de93fe365a002c1174'
+    query = {
+        "method" : "get_file",
+        "key": request.user.sessionkey,
+        "params" : {
+            "id" : file_id
+        }
+    }
+    import urllib
+    import httplib2 
+    import json
+    headers = {'Content-type': 'application/json'}
+    http = httplib2.Http(disable_ssl_certificate_validation=True)
+    print 777, json.dumps(query)
+    file_data = http.request(API_URL, 'POST', body = json.dumps(query), headers = headers)
+    print file_data
+    with file('file_data', 'w') as file_on:
+        file_on.write(file_data)
+
+    dajax = Dajax()
+    template_context = {'error_message': 'file upload'}
+    render = render_to_string('components/alert_messages.html', template_context)
+    dajax.assign('.extra-message-block', 'innerHTML', render)
+    return dajax.json()
 # def prepair_objects(query_dict, object_download, with_attributes=False, with_sequences=False, encoding='utf-8'):
 #     object_download = Download.objects.get(id = object_download)
 #     content_dict = api_request(query_dict)

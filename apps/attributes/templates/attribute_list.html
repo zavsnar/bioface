@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load bootstrap main_filters dajaxice_templatetags staticfiles %}
+
+{% block subtitle %}Attribute list{% endblock %}
+
+{% block forestyle %}
+<link href="{{ STATIC_URL }}css/select2.css" rel="stylesheet"/>
+<link rel="stylesheet" href="{{ STATIC_URL }}css/jquery-ui-1.10.2.custom.min.css" />
+<link rel="stylesheet" href="{{ STATIC_URL }}css/jquery.ui.theme.css" />
+{% endblock %}
+
+{% block forejs %} 
+{% endblock %}
+
+{% block content_title %}
+    <h1>Attribute list</h1>
+{% endblock %}
+
+{% block main %}
+
+<table class="table table-bordered">
+    <!-- <caption>Result Table</caption> -->
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Primary</th>
+            <th>Value</th>
+        </tr>
+    </thead>    
+    <tbody>
+        {% for item in item_list %}
+            <tr>
+                <td><a href="{{ item.name }}">{{ item.name }}</a></td>
+                <td>{{ item.atype }}</td>
+                <td><input type="checkbox" disabled {% if item.primary %}checked{% endif %}></td>
+                {% if item.atype == 'range' %}
+                    <td class="js_attr_description" data-placement="bottom" title="{{ step.query }}" data-original-title="{{ step.query }}">
+                        {% if item.description.default %}
+                            {{ item.description.default }}
+                        {% else %}
+                            <span class="red">n/a</span>
+                        {% endif %}
+                        <span class="js_attr_options hidden">
+                            from {{ item.description.lower }} to {{ item.description.upper }}
+                        </span>
+                    </td>
+                {% elif item.atype == 'nominal' %}
+                    <td class="js_attr_description" data-placement="bottom" title="{{ step.query }}" data-original-title="{{ step.query }}">
+                        {% if item.description.default %}
+                            {{ item.description.default }}
+                        {% else %}
+                            <span class="red">n/a</span>
+                        {% endif %}
+                        <div class="js_attr_options hidden">
+                            <ul class="list-no-style">
+                                {% for option in item.description.items %}
+                                <li>{{ option }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </td>
+                {% elif item.atype == 'scale' %}
+                    <td class="js_attr_description" data-placement="bottom" title="{{ step.query }}" data-original-title="{{ step.query }}">
+                        {% if item.description.default %}
+                            {{ item.description.default }}
+                        {% else %}
+                            <span class="red">n/a</span>
+                        {% endif %}
+                        <div class="js_attr_options hidden">
+                            <ul class="list-no-style">
+                                {% for option in item.description.scale %}
+                                <li>{{ option.name }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </td>
+                {% else %}
+                    <td>
+                        {% if item.description.default %}
+                            {{ item.description.default }}
+                        {% else %}
+                            <span class="red">n/a</span>
+                        {% endif %}
+                    </td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
+
+{% block endjs %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/select2.min.js"></script>
+    <script src="{{ STATIC_URL }}js/jquery-ui-1.10.2.custom.min.js"></script>
+    <script type="text/javascript">
+        $(function() {
+            $('.js_attr_description').tooltip({
+              // items: "img, [data-geo], [title]",
+              position: {
+                my: "left",
+                at: "right"
+              },
+
+              content: function() {
+                options_html = $( this ).find('.js_attr_options').html()
+                return options_html
+
+                // var element = $( this );
+                // if ( element.is( "[data-geo]" ) ) {
+                //   var text = element.text();
+                //   return "<img class='map' alt='" + text +
+                //     "' src='http://maps.google.com/maps/api/staticmap?" +
+                //     "zoom=11&size=350x350&maptype=terrain&sensor=false&center=" +
+                //     text + "'>";
+                // }
+                // if ( element.is( "[title]" ) ) {
+                //   return element.attr( "title" );
+                // }
+                // if ( element.is( "img" ) ) {
+                //   return element.attr( "alt" );
+                // }
+              }
+            });
+          });
+    </script>
+{% endblock %}

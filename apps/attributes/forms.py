@@ -12,10 +12,6 @@ from django.core.exceptions import ValidationError
 
 from apps.bioface.utils import api_request, get_choices
 
-class ExampleForm(forms.Form):
-    username = forms.CharField(max_length=30, label=u'Username')
-    email = forms.EmailField(label=u'Email address')
-
 METHODS_FOR_CALL_ITEM = ("get_object", "get_attribute", "get_tag", "get_tags_version", "get_sequence", "get_reference",
     "get_segment", "get_alignment", "get_annotation")
 METHODS_FOR_CALL_ITEMS = ("get_attributes", "get_tags", "get_sequences", "get_references", 

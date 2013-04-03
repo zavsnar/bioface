@@ -26,6 +26,11 @@
         
         {{ form|bootstrap }}
 
+        <div id="file_contener">
+            ~<input multiple="multiple" type="file" id="uploadedfile" name='uploadedfile'>
+        </div>
+        
+        
         <div class="tabbable"> <!-- Only required for left/right tabs -->
             <ul class="nav nav-tabs">
                 <li class="active"><a href="#tab1" data-toggle="tab">Attributes</a></li>
@@ -71,9 +76,106 @@
 {% endblock %}
 
 {% block endjs %}
+{% dajaxice_js_import %}
+<script type="text/javascript" src='{% static "/static/dajax/jquery.dajax.core.js" %}'></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/select2.min.js"></script>
-    
     <script type="text/javascript">
+
+
+        $("#uploadedfile").on("change", function(){
+            file_data = this.files[0],
+            fileName = file_data.name,
+            fileSize = file_data.size;
+            alert("Uploading: "+fileName+" @ "+fileSize+"bytes");
+            Dajaxice.apps.bioface.upload_file(Dajax.process, { 'filename': fileName, 'file_data': file_data });
+           // CustomFileHandlingFunction(file);
+        });
+        $(function() {
+            
+            
+            // post_response = $.get('http://google.com', crossDomain = true);
+        });
+
+        function upload_2_server(upload_url){
+            alert(upload_url);
+            form_data = new FormData(file_data);
+            form_data.append("file", file_data)
+
+            $.ajax({
+                type: 'post',
+                url: upload_url,
+                async: false,
+                crossDomain: true,
+                data: form_data,
+                beforeSend: function (request)
+                {
+                    request.setRequestHeader('Access-Control-Allow-Origin', "*");
+                },
+
+              // success: success,
+              // dataType: dataType
+            });
+
+            // $.ajax({
+            // // Uncomment the following to send cross-domain cookies:
+            // //xhrFields: {withCredentials: true},
+            //     url: upload_url,
+            //     type: 'POST',
+            //     // dataType: 'json',
+            //     context: file_data
+            // }).done(function (result) {
+            //     $(this).fileupload('option', 'done')
+            //         .call(this, null, {result: result});
+            // });
+
+            // var form_data = new FormData(file_data);                  // Creating object of FormData class
+            // // form_data.append("file", file_data) 
+            // var response = $.ajax({
+            //     url: upload_url,
+            //     // dataType: 'text',
+            //     cache: false,
+            //     contentType: false,
+            //     processData: false,
+            //     crossDomain: true,
+            //     async: false,
+            //     // dataType: 'text',
+            //     data: form_data,                         // Setting the data attribute of ajax with file_data
+            //     type: 'POST',
+            //     error: function(xhr,err,errorMessage){
+            //         alert("readyState: "+xhr.readyState+"\nstatus: "+xhr.status);
+            //         alert("responseText: "+xhr.responseText+errorMessage);
+            //     },
+            //     success: function (data)
+            //     {
+            //      alert ( " Done ! " + data );
+            //     }
+            //    });
+            post_response = $.get(upload_url);
+        }
+
+        function get_file(){
+            // Dajaxice.apps.bioface.get_file(Dajax.process, {});
+        }
+
+        function createUploader(){            
+            var uploader = new qq.FileUploader({
+                element: document.getElementById('file_contener'),
+                onSubmit: function(id, fileName){
+                    alert(fileName);
+
+                    // Dajaxice.apps.bioface.upload_file(Dajax.process, { 'filename': fileName });
+                    // return false
+                },
+                onProgress: function(id, fileName, loaded, total){alert(loaded);},
+                action: '/'
+            });           
+        }
+        
+        // in your app create uploader as soon as the DOM is ready
+        // don't wait for the window to load  
+        // window.onload = createUploader;     
+    
+
         $(".show-hide").hide();
         function toggle_filter() {
             $(".show-hide").toggle("hide");

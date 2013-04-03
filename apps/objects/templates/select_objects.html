@@ -239,7 +239,7 @@
             </div>  
 
             {# <!-- sort_by --> #}
-            <div class="control-group {% if form.sort_by.errors %}error{% endif %} hidden" id="js_sort_by_container">
+            <div class="control-group {% if form.sort_by.errors %}error{% endif %}" id="js_sort_by_container">
                 <label class="control-label" for="{{ form.sort_by.id_for_label }}">{{ form.sort_by.label }}</label>
                 <div class="controls">
                     {{ form.sort_by }}
@@ -397,9 +397,11 @@
 {% block endjs %}
 
 {% dajaxice_js_import %}
+<script type="text/javascript" src='{% static "/static/dajax/jquery.dajax.core.js" %}'></script>
+
 <script src="{{ STATIC_URL }}js/jquery-ui-1.10.2.custom.min.js"></script>
 <!-- <script src="{{ STATIC_URL }}js/jquery-ui-1.9.2.custom.min.js"></script> -->
-<script type="text/javascript" src='{% static "/static/dajax/jquery.dajax.core.js" %}'></script>
+
 <!-- <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 <script src="{{ STATIC_URL }}js/bootstrap.min.js"></script> -->
 <script src="{{ STATIC_URL }}js/select2.min.js"></script>
