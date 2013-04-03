@@ -391,7 +391,6 @@ def get_objects(request):
             # if request.GET.has_key('order_by'):
             order_field = request.GET.get('order_by', 'name')
             order_field = cd['sort_by'] if cd['sort_by'] in OBJECT_FIELDS else 'attr.' + cd['sort_by']
-            print order_field
 
             query_dict = {
                 "method" : 'get_objects',
