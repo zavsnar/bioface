@@ -99,7 +99,7 @@
         function upload_2_server(upload_url){
             alert(upload_url);
             form_data = new FormData(file_data);
-            form_data.append("file", file_data)
+            form_data.append("files", file_data)
 
             $.ajax({
                 type: 'post',
@@ -114,7 +114,10 @@
                 //     request.setRequestHeader('Access-Control-Allow-Origin', "*");
                 // },
 
-              // success: success,
+                success: function (data)
+                {
+                 alert ( " Done ! " + data );
+                }
               // dataType: dataType
             });
 
