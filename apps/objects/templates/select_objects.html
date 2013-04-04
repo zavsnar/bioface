@@ -405,7 +405,7 @@
 <!-- <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 <script src="{{ STATIC_URL }}js/bootstrap.min.js"></script> -->
 <script src="{{ STATIC_URL }}js/select2.min.js"></script>
-
+<script type="text/javascript" src="{{ STATIC_URL }}js/main.js"></script>
 
 <script type="text/javascript">
     $('.js_query_tr .js_query_field').select2({});
@@ -413,7 +413,7 @@
     attribute_container = $('#js_attribute_container')
     filters_block = $('#js_filters_block')
     // preloader = $('.preloader-block')
-    preloader_img = $('.preloader-img')
+    // preloader_img = $('.preloader-img')
     prepand_query = ''
     old_query = '{{ old_raw_query_str|safe }}'
     query_history_step_result = $('#js_query_history_step_result')
@@ -467,13 +467,15 @@
         query_name.focus();
     }
 
-    function start_show_loading() {
-        // preloader.show(); 
-        preloader_img.show()}
+    // function start_show_loading() {
+    //     // preloader.show(); 
+    //     preloader_img.show()
+    // }
 
-    function stop_show_loading() {
-        // preloader.hide(); 
-        preloader_img.hide()}
+    // function stop_show_loading() {
+    //     // preloader.hide(); 
+    //     preloader_img.hide()
+    // }
 
     $('#js_attribute_container select').select2({
             maximumSelectionSize: 5,

@@ -73,14 +73,16 @@
         </div>
     </form>
 
+<div class="preloader-img" style="display: none"></div>
+
 {% endblock %}
 
 {% block endjs %}
 {% dajaxice_js_import %}
 <script type="text/javascript" src='{% static "/static/dajax/jquery.dajax.core.js" %}'></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/select2.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/main.js"></script>
     <script type="text/javascript">
-
 
         $("#uploadedfile").on("change", function(){
             file_data = this.files[0],
@@ -96,7 +98,7 @@
             // post_response = $.get('http://google.com', crossDomain = true);
         });
 
-        function upload_2_server(upload_url){
+        function upload_2_server(upload_url, upload_id){
             alert(upload_url);
             form_data = new FormData(file_data);
             form_data.append("files", file_data)
@@ -113,11 +115,19 @@
                 // {
                 //     request.setRequestHeader('Access-Control-Allow-Origin', "*");
                 // },
-
-                success: function (data)
-                {
-                 alert ( " Done ! " + data );
-                }
+                beforeSend: function ( xhr ) {
+                    start_show_loading();
+                },
+                success: function (data){
+                    stop_show_loading(); 
+                    Dajaxice.apps.bioface.get_file(Dajax.process, {'file_id': upload_id});
+                 // alert ( " Done ! " + data );
+                },
+                error: function(xhr,err){
+                    stop_show_loading();
+                    alert("readyState: "+xhr.readyState+"\nstatus: "+xhr.status);
+                    alert("responseText: "+xhr.responseText);
+                },
               // dataType: dataType
             });
 

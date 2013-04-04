@@ -118,7 +118,7 @@ def upload_file(request, filename, file_data):
         # upload_url = 'http://google.com'
         print 999999, upload_url
         # dajax.add_data(upload_url, 'upload_2_server')
-        dajax.script('upload_2_server("{}");'.format(upload_url))
+        dajax.script('upload_2_server("{0}, {1}");'.format(upload_url, upload_id))
     else:
         template_context = {'error_message': 'Query does not exist.'}
         render = render_to_string('components/alert_messages.html', template_context)
@@ -146,7 +146,7 @@ def upload_file(request, filename, file_data):
 
 @dajaxice_register
 def get_file(request, file_id='7496f7e4745f42ceb5c2dc41d691b70c'):
-    file_id = '2a2e42c9760548de93fe365a002c1174'
+    # file_id = '2a2e42c9760548de93fe365a002c1174'
     query = {
         "method" : "get_file",
         "key": request.user.sessionkey,
@@ -166,7 +166,7 @@ def get_file(request, file_id='7496f7e4745f42ceb5c2dc41d691b70c'):
         file_on.write(file_data)
 
     dajax = Dajax()
-    template_context = {'error_message': 'file upload'}
+    template_context = {'success_message': 'file upload'}
     render = render_to_string('components/alert_messages.html', template_context)
     dajax.assign('.extra-message-block', 'innerHTML', render)
     return dajax.json()
