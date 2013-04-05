@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load bootstrap main_filters dajaxice_templatetags staticfiles jsonify %}
+{% load bootstrap widget_tweaks main_filters dajaxice_templatetags staticfiles jsonify %}
 
 {% block subtitle %}Select Objects{% endblock %}
 
@@ -8,9 +8,11 @@
 <!-- <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery-ui-1.10.2.custom.min.css" /> -->
 <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery-ui-1.10.2.custom.min.css" />
 <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery.ui.theme.css" />
+<link rel="stylesheet" href="{{ STATIC_URL }}fuelux/css/fuelux.min.css" />
 {% endblock %}
 
 {% block forejs %} 
+<!-- <script src="{{ STATIC_URL }}js/require.js"></script> -->
  {% endblock %}
 
 {% block content_title %}
@@ -64,9 +66,54 @@
                 </div>
             </div>
 
+            {# <!-- display_fields --> #}
+            <div class="control-group {% if form.display_fields.errors %}error{% endif %}">
+                <label class="control-label">{{ form.display_fields.label }}</label>
+                <div class="controls list-inline">
+                    {{ form.display_fields }}
+                    {% for error in form.display_fields.errors %}
+                        <span class="help-inline">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {# <!-- attributes_list --> #}
+            <div class="control-group {% if form.attributes_list.errors %}error{% endif %}" id="js_attribute_container">
+                <label class="control-label" for="{{ form.attributes_list.id_for_label }}">{{ form.attributes_list.label }}</label>
+                <div class="controls">
+                    {{ form.attributes_list }}
+                    {% for error in form.attributes_list.errors %}
+                        <span class="help-inline">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {# <!-- paginate_by --> #}
+            <div class="control-group {% if form.paginate_by.errors %}error{% endif %}">
+                <label class="control-label" for="{{ form.paginate_by.id_for_label }}">{{ form.paginate_by.label }}</label>
+                <div class="controls">
+                    {{ form.paginate_by }}
+                    {% for error in form.paginate_by.errors %}
+                        <span class="help-inline">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>  
+
+            {# <!-- sort_by --> #}
+            <div class="control-group {% if form.sort_by.errors %}error{% endif %}" id="js_sort_by_container">
+                <label class="control-label" for="{{ form.sort_by.id_for_label }}">{{ form.sort_by.label }}</label>
+                <div class="controls">
+                    {{ form.sort_by }}
+                    {% for error in form.sort_by.errors %}
+                        <span class="help-inline">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
         {# <!-- Filters --> #}
             <fieldset id="js_filters_block">
                 <legend>Filters</legend>
+                {% comment %}
                 {% if query_history %}
                     <ul class="breadcrumb">
                         {% for step in query_history %}
@@ -88,6 +135,44 @@
                         
                     </ul>
                 {% endif %}
+                {% endcomment %}
+
+
+
+                <!-- WIZARD -->
+                {% if query_history %}
+                <div class="fuelux">
+                    <div id="MyWizard" class="wizard">
+                        <ul class="steps">
+                            {% for step in query_history %}
+                                {% if not forloop.last %}
+                                    <li data-target="#step{{ forloop.counter }}" class="complete js_query_history_step"
+                                        data-placement="bottom" 
+                                        title="{{ step.query }}" 
+                                        data-original-title="{{ step.query }}">
+                                        <span class="badge badge-success">{{ step.count }}</span>Query {{ forloop.counter }}
+                                        <span class="chevron"></span>
+                                    </li>
+                                {% else %}
+                                    <li data-target="#step{{ forloop.counter }}" class="active js_query_history_step_last"
+                                        data-placement="bottom" 
+                                        title="{{ step.query }}" 
+                                        data-original-title="{{ step.query }}">
+                                        <span class="badge badge-info">{{ step.count }}</span>Query {{ forloop.counter }}
+                                        <span class="chevron"></span>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                        <!-- <div class="actions">
+                            <button type="button" class="btn btn-mini btn-prev"> <i class="icon-arrow-left"></i>Prev</button>
+                            <button type="button" class="btn btn-mini btn-next" data-last="Finish">Next<i class="icon-arrow-right"></i></button>
+                        </div> -->
+                    </div>
+                </div>
+                {% endif %}
+
+
                 <!-- <div class="control-group">
                     <div class="controls"> -->
                 {% if raw_query_str %}
@@ -203,50 +288,6 @@
                 <input type="text" id="save_query_name" class="hidden" placeholder="Type query name">
                 <button type="button" class="btn btn-success" onclick="save_query();">Save query</button>&nbsp;
                 <button type="submit" class="btn btn-primary">Run</button>&nbsp;
-            </div>
-
-            {# <!-- display_fields --> #}
-            <div class="control-group {% if form.display_fields.errors %}error{% endif %}">
-                <label class="control-label">{{ form.display_fields.label }}</label>
-                <div class="controls list-inline">
-                    {{ form.display_fields }}
-                    {% for error in form.display_fields.errors %}
-                        <span class="help-inline">{{ error }}</span>
-                    {% endfor %}
-                </div>
-            </div>
-
-            {# <!-- attributes_list --> #}
-            <div class="control-group {% if form.attributes_list.errors %}error{% endif %}" id="js_attribute_container">
-                <label class="control-label" for="{{ form.attributes_list.id_for_label }}">{{ form.attributes_list.label }}</label>
-                <div class="controls">
-                    {{ form.attributes_list }}
-                    {% for error in form.attributes_list.errors %}
-                        <span class="help-inline">{{ error }}</span>
-                    {% endfor %}
-                </div>
-            </div>
-
-            {# <!-- paginate_by --> #}
-            <div class="control-group {% if form.paginate_by.errors %}error{% endif %}">
-                <label class="control-label" for="{{ form.paginate_by.id_for_label }}">{{ form.paginate_by.label }}</label>
-                <div class="controls">
-                    {{ form.paginate_by }}
-                    {% for error in form.paginate_by.errors %}
-                        <span class="help-inline">{{ error }}</span>
-                    {% endfor %}
-                </div>
-            </div>  
-
-            {# <!-- sort_by --> #}
-            <div class="control-group {% if form.sort_by.errors %}error{% endif %}" id="js_sort_by_container">
-                <label class="control-label" for="{{ form.sort_by.id_for_label }}">{{ form.sort_by.label }}</label>
-                <div class="controls">
-                    {{ form.sort_by }}
-                    {% for error in form.sort_by.errors %}
-                        <span class="help-inline">{{ error }}</span>
-                    {% endfor %}
-                </div>
             </div>
 
         </form>
@@ -400,6 +441,7 @@
 <script type="text/javascript" src='{% static "/static/dajax/jquery.dajax.core.js" %}'></script>
 
 <script src="{{ STATIC_URL }}js/jquery-ui-1.10.2.custom.min.js"></script>
+<!-- <script src="{{ STATIC_URL }}fuelux/wizard.js"></script> -->
 <!-- <script src="{{ STATIC_URL }}js/jquery-ui-1.9.2.custom.min.js"></script> -->
 
 <!-- <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
@@ -419,6 +461,7 @@
     query_history_step_result = $('#js_query_history_step_result')
     js_queries_list_btn = $("#js_queries_list_btn")
     // $('.preloader').hide();
+
 
     function download_objects(){
         Dajaxice.apps.bioface.download_objects(Dajax.process, { 
@@ -556,6 +599,7 @@
     // };
 
     $(function() {
+
         item_pk = 0
         field_filters_dict_old = {}
         field_filters_dict_new = {}

@@ -157,7 +157,7 @@ INSTALLED_APPS = (
 
     'django_extensions',
     # 'runfcgi',
-    # 'widget_tweaks',
+    'widget_tweaks',
     # 'pipeline',
     'bootstrapform',
     # 'sorl.thumbnail',
