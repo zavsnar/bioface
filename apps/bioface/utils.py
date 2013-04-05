@@ -11,6 +11,10 @@ from settings import API_URL
 # API_URL = 'http://10.0.1.7:5000/api/v1/'
 # API_URL = 'https://10.0.1.208:5000/api/v1/'
 
+class LoginFailError(Exception):
+    # def __init__(self):
+    pass
+
 
 def api_request(query_dict):
     
@@ -18,13 +22,15 @@ def api_request(query_dict):
     http = httplib2.Http(disable_ssl_certificate_validation=True)
     print 77777, query_dict
     print 666, json.dumps(query_dict)
-    http_response, content = http.request(API_URL, 'POST', body = json.dumps(query_dict), headers = headers)
+    http_response, content = http.request(API_URL, 'POST', 
+        body = json.dumps(query_dict), headers = headers)
     print 888, content
     try:
         content_dict = json.loads(content)
         if content_dict.has_key('error'):
             if content_dict['error']['message'] == 'invalid session':
-                return redirect('signin')
+                raise LoginFailError()
+                # return redirect('signin')
     except ValueError:
         content_dict = {
             'error': {

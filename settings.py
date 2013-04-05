@@ -99,6 +99,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.transaction.TransactionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    
+    'apps.bioface.middleware.LoginRedirectMiddleware',
     # 'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
@@ -185,6 +187,7 @@ DOWNLOADS_URL = MEDIA_URL + 'downloads/'
 
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_COOKIE_AGE = 86400
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # SESSION_COOKIE_AGE = 15
 
 AUTH_USER_MODEL = 'bioface.CustomUser'

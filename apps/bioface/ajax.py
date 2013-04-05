@@ -117,8 +117,8 @@ def upload_file(request, filename, file_data):
         # upload_url = API_HOST + '/login/'
         # upload_url = 'http://google.com'
         print 999999, upload_url
-        # dajax.add_data(upload_url, 'upload_2_server')
-        dajax.script('upload_2_server("{0}, {1}");'.format(upload_url, upload_id))
+        dajax.add_data({'upload_url': upload_url, 'upload_id': upload_id}, 'upload_2_server')
+        # dajax.script('upload_2_server("{}");'.format(upload_id))
     else:
         template_context = {'error_message': 'Query does not exist.'}
         render = render_to_string('components/alert_messages.html', template_context)
@@ -145,8 +145,9 @@ def upload_file(request, filename, file_data):
     return dajax.json()
 
 @dajaxice_register
-def get_file(request, file_id='7496f7e4745f42ceb5c2dc41d691b70c'):
+def get_file(request, file_id='333124c5a10a43148480f960c7e7ff78'):
     # file_id = '2a2e42c9760548de93fe365a002c1174'
+    print 1111111
     query = {
         "method" : "get_file",
         "key": request.user.sessionkey,
@@ -161,9 +162,9 @@ def get_file(request, file_id='7496f7e4745f42ceb5c2dc41d691b70c'):
     http = httplib2.Http(disable_ssl_certificate_validation=True)
     print 777, json.dumps(query)
     file_data = http.request(API_URL, 'POST', body = json.dumps(query), headers = headers)
-    print file_data
+    print type(file_data), file_data[0]
     with file('file_data', 'w') as file_on:
-        file_on.write(file_data)
+        file_on.write(file_data[1])
 
     dajax = Dajax()
     template_context = {'success_message': 'file upload'}

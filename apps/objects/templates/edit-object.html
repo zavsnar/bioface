@@ -26,52 +26,68 @@
         
         {{ form|bootstrap }}
 
-        <div id="file_contener">
-            ~<input multiple="multiple" type="file" id="uploadedfile" name='uploadedfile'>
+        <div class="hidden">
+            <input name="file_id" id="file_id">
         </div>
         
-        
-        <div class="tabbable"> <!-- Only required for left/right tabs -->
-            <ul class="nav nav-tabs">
-                <li class="active"><a href="#tab1" data-toggle="tab">Attributes</a></li>
-                <li><a href="#tab2" data-toggle="tab">Sequences</a></li>
-            </ul>
-            <div class="tab-content">
-                <div class="tab-pane active" id="tab1">
 
-                    {% for attr in attr_list %}
-                        {% if forloop.counter = 6 %}
-                        <a onclick="toggle_filter()" id="hideBut" class="btn">></a>
-                        <div class="show-hide">
-                        {% endif %}
-                        <div class="control-group">
-                            <label class="control-label" for="attr_{{ attr.name }}"><a href="#">{{ attr.name }}</a></label>
-                            <div class="controls">
-                                <input type="text" id="attr_{{ attr.name }}" name="attr_{{ attr.name }}" value="{{ attr.value }}">
-                            </div>
-                        </div>
-                        {% if forloop.counter >= 6 and forloop.last %}
-                            </div>
-                        {% endif %}
-                    {% endfor %}
-                    <!-- <a class="btn btn-primary pull-right">Add</a>&nbsp; -->
-                    
-                </div>
-                <div class="tab-pane" id="tab2">
-                    <p>List of sequences.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- <span>Attributes</span>
-        <hr/> -->
-        
         <div class="form-actions">
-            
             <!-- <button type="submit" class="btn btn-primary">Save</button>&nbsp; -->
             Save Button
         </div>
     </form>
+
+    <div class="row">
+        <div class="span8">
+            <div id="file_contener">
+                <input multiple="multiple" type="file" id="uploadedfile" name='uploadedfile'>
+            </div>
+        
+            
+            <div class="tabbable"> <!-- Only required for left/right tabs -->
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="#tab1" data-toggle="tab">Attributes</a></li>
+                    <li><a href="#tab2" data-toggle="tab">Sequences</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="tab1">
+
+                        {% for attr in attr_list %}
+                            {% if forloop.counter = 6 %}
+                            <a onclick="toggle_filter()" id="hideBut" class="btn">></a>
+                            <div class="show-hide">
+                            {% endif %}
+                            <div class="control-group">
+                                <label class="control-label" for="attr_{{ attr.name }}"><a href="#">{{ attr.name }}</a></label>
+                                <div class="controls">
+                                    <input type="text" id="attr_{{ attr.name }}" name="attr_{{ attr.name }}" value="{{ attr.value }}">
+                                </div>
+                            </div>
+                            {% if forloop.counter >= 6 and forloop.last %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        <!-- <a class="btn btn-primary pull-right">Add</a>&nbsp; -->
+                        
+                    </div>
+                    <div class="tab-pane" id="tab2">
+                        <p>List of sequences.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- <span>Attributes</span>
+            <hr/> -->
+            
+            <div class="form-actions">
+                
+                <!-- <button type="submit" class="btn btn-primary">Save</button>&nbsp; -->
+                Save Button
+            </div>
+        <!-- </form> -->
+        </div>
+    </div>
+        
 
 <div class="preloader-img" style="display: none"></div>
 
@@ -92,13 +108,10 @@
             Dajaxice.apps.bioface.upload_file(Dajax.process, { 'filename': fileName, 'file_data': file_data });
            // CustomFileHandlingFunction(file);
         });
-        $(function() {
-            
-            
-            // post_response = $.get('http://google.com', crossDomain = true);
-        });
 
-        function upload_2_server(upload_url, upload_id){
+        function upload_2_server(upload_data){
+            upload_url = upload_data.upload_url
+            upload_id = upload_data.upload_id
             alert(upload_url);
             form_data = new FormData(file_data);
             form_data.append("files", file_data)
@@ -115,7 +128,7 @@
                 // {
                 //     request.setRequestHeader('Access-Control-Allow-Origin', "*");
                 // },
-                beforeSend: function ( xhr ) {
+                beforeSend: function (xhr) {
                     start_show_loading();
                 },
                 success: function (data){
@@ -130,7 +143,11 @@
                 },
               // dataType: dataType
             });
+        };
 
+        function get_file(file_id){
+            Dajaxice.apps.bioface.get_file(Dajax.process, {'file_id': file_id});
+        };
             // $.ajax({
             // // Uncomment the following to send cross-domain cookies:
             // //xhrFields: {withCredentials: true},
@@ -166,11 +183,7 @@
             //     }
             //    });
             // post_response = $.get(upload_url);
-        }
-
-        function get_file(){
-            // Dajaxice.apps.bioface.get_file(Dajax.process, {});
-        }
+        // }
 
         function createUploader(){            
             var uploader = new qq.FileUploader({
