@@ -66,50 +66,6 @@
                 </div>
             </div>
 
-            {# <!-- display_fields --> #}
-            <div class="control-group {% if form.display_fields.errors %}error{% endif %}">
-                <label class="control-label">{{ form.display_fields.label }}</label>
-                <div class="controls list-inline">
-                    {{ form.display_fields }}
-                    {% for error in form.display_fields.errors %}
-                        <span class="help-inline">{{ error }}</span>
-                    {% endfor %}
-                </div>
-            </div>
-
-            {# <!-- attributes_list --> #}
-            <div class="control-group {% if form.attributes_list.errors %}error{% endif %}" id="js_attribute_container">
-                <label class="control-label" for="{{ form.attributes_list.id_for_label }}">{{ form.attributes_list.label }}</label>
-                <div class="controls">
-                    {{ form.attributes_list }}
-                    {% for error in form.attributes_list.errors %}
-                        <span class="help-inline">{{ error }}</span>
-                    {% endfor %}
-                </div>
-            </div>
-
-            {# <!-- paginate_by --> #}
-            <div class="control-group {% if form.paginate_by.errors %}error{% endif %}">
-                <label class="control-label" for="{{ form.paginate_by.id_for_label }}">{{ form.paginate_by.label }}</label>
-                <div class="controls">
-                    {{ form.paginate_by }}
-                    {% for error in form.paginate_by.errors %}
-                        <span class="help-inline">{{ error }}</span>
-                    {% endfor %}
-                </div>
-            </div>  
-
-            {# <!-- sort_by --> #}
-            <div class="control-group {% if form.sort_by.errors %}error{% endif %}" id="js_sort_by_container">
-                <label class="control-label" for="{{ form.sort_by.id_for_label }}">{{ form.sort_by.label }}</label>
-                <div class="controls">
-                    {{ form.sort_by }}
-                    {% for error in form.sort_by.errors %}
-                        <span class="help-inline">{{ error }}</span>
-                    {% endfor %}
-                </div>
-            </div>
-
         {# <!-- Filters --> #}
             <fieldset id="js_filters_block">
                 <legend>Filters</legend>
@@ -203,7 +159,7 @@
                                 <input type="radio" name="select_operand" id="operand_ANY" class="js_select_operand" value="ANY" {% if logic_operation == "ANY" %}checked="checked"{% endif %}>
                                 <label class='btn' for="operand_ANY">ANY</label>
                                 <input type="radio" name="select_operand" id="operand_NONE" class="js_select_operand" value="NONE" {% if logic_operation == "NONE" %}checked{% endif %}>
-                                <label class='btn' for="operand_NONE">NONE</label>  
+                                <label class='btn' for="operand_NONE">NO ONE</label>  
                             </div>
                         </div>
                             <!-- </div>
@@ -290,8 +246,146 @@
                 <button type="submit" class="btn btn-primary">Run</button>&nbsp;
             </div>
 
+            {# <!-- display_fields --> #}
+            <div class="control-group {% if form.display_fields.errors %}error{% endif %}">
+                <label class="control-label">{{ form.display_fields.label }}</label>
+                <div class="controls list-inline">
+                    {{ form.display_fields }}
+                    {% for error in form.display_fields.errors %}
+                        <span class="help-inline">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {# <!-- attributes_list --> #}
+            <div class="control-group {% if form.attributes_list.errors %}error{% endif %}" id="js_attribute_container">
+                <label class="control-label" for="{{ form.attributes_list.id_for_label }}">{{ form.attributes_list.label }}</label>
+                <div class="controls">
+                    {{ form.attributes_list }}
+                    {% for error in form.attributes_list.errors %}
+                        <span class="help-inline">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {# <!-- paginate_by --> #}
+            <div class="control-group {% if form.paginate_by.errors %}error{% endif %}">
+                <label class="control-label" for="{{ form.paginate_by.id_for_label }}">{{ form.paginate_by.label }}</label>
+                <div class="controls">
+                    {{ form.paginate_by }}
+                    {% for error in form.paginate_by.errors %}
+                        <span class="help-inline">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>  
+
+            {# <!-- sort_by --> #}
+            <!-- <div class="control-group {% if form.sort_by.errors %}error{% endif %}" id="js_sort_by_container">
+                <label class="control-label" for="{{ form.sort_by.id_for_label }}">{{ form.sort_by.label }}</label>
+                <div class="controls">
+                    {{ form.sort_by }}
+                    {% for error in form.sort_by.errors %}
+                        <span class="help-inline">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div> -->
+
         </form>
     </div>
+
+
+
+    <div class="fuelux">
+        <table id="MyStretchGrid" class="table table-bordered datagrid">
+
+            <thead>
+            <tr>
+                <th colspan="4">
+                    <span class="datagrid-header-title">Geographic Data Sample</span>
+
+                    <div class="datagrid-header-left">
+                        <div class="input-append search datagrid-search">
+                            <input type="text" class="input-medium" placeholder="Search">
+                            <button class="btn"><i class="icon-search"></i></button>
+                        </div>
+                    </div>
+                    <span class="datagrid-header-title" for="{{ form.sort_by.id_for_label }}">{{ form.sort_by.label }}</span>
+                    <div class="datagrid-header-left" id="js_sort_by_container">
+                        <div class="input-append search datagrid-search" id="js_sort_by_container">
+                            {{ form.sort_by|add_class:"input-medium" }}
+                            <!-- <input type="text" class="input-medium" placeholder="Search"> -->
+                            <!-- <button class="btn"><i class="icon-search"></i></button> -->
+                        </div>
+                    </div>
+                    <div class="datagrid-header-right">
+                        <div class="select filter" data-resize="auto">
+                            <button data-toggle="dropdown" class="btn dropdown-toggle">
+                                <span class="dropdown-label"></span>
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li data-value="all" data-selected="true"><a href="#">All</a></li>
+                                <li data-value="lt5m"><a href="#">Population &lt; 5M</a></li>
+                                <li data-value="gte5m"><a href="#">Population &gt;= 5M</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </th>
+            </tr>
+            <tr>
+                <th data-property="toponymName" class="sortable">Name</th>
+                <th data-property="countrycode" class="sortable">Country</th>
+                <th data-property="population" class="sortable">Population</th>
+                <th data-property="fcodeName" class="sortable">Type</th>
+            </tr>
+            </thead>
+            <tfoot>
+            <tr>
+                <th colspan="4">
+                    <div class="datagrid-footer-left">
+                        <div class="grid-controls">
+                            <span>
+                                <span class="grid-start"></span> -
+                                <span class="grid-end"></span> of
+                                <span class="grid-count"></span>
+                            </span>
+                            <div class="select grid-pagesize" data-resize="auto">
+                                <button data-toggle="dropdown" class="btn dropdown-toggle">
+                                    <span class="dropdown-label"></span>
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li data-value="5" data-selected="true"><a href="#">5</a></li>
+                                    <li data-value="10"><a href="#">10</a></li>
+                                    <li data-value="20"><a href="#">20</a></li>
+                                    <li data-value="50"><a href="#">50</a></li>
+                                    <li data-value="100"><a href="#">100</a></li>
+                                </ul>
+                            </div>
+                            <span>Per Page</span>
+                        </div>
+                    </div>
+                    <div class="datagrid-footer-right" style="display:none;">
+                        <div class="grid-pager">
+                            <button type="button" class="btn grid-prevpage"><i class="icon-chevron-left"></i></button>
+                            <span>Page</span>
+
+                            <div class="input-append dropdown combobox">
+                                <input class="span1" type="text">
+                                <button class="btn" data-toggle="dropdown"><i class="caret"></i></button>
+                                <ul class="dropdown-menu"></ul>
+                            </div>
+                            <span>of <span class="grid-pages"></span></span>
+                            <button type="button" class="btn grid-nextpage"><i class="icon-chevron-right"></i></button>
+                        </div>
+                    </div>
+                </th>
+            </tr>
+            </tfoot>
+
+        </table>
+    </div>
+
 
     {% if object_list %}
     <div class="object_result_table" id="result">
@@ -449,6 +543,11 @@
 <script src="{{ STATIC_URL }}js/select2.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/main.js"></script>
 
+<script>
+        
+    </script>
+
+
 <script type="text/javascript">
     $('.js_query_tr .js_query_field').select2({});
 
@@ -599,6 +698,53 @@
     // };
 
     $(function() {
+
+
+        // requirejs.config({
+        //     paths: {
+        //         // 'jquery': 'lib/jquery',
+        //         // 'underscore': 'http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.3.3/underscore-min',
+        //         // 'bootstrap': 'lib/bootstrap/js',
+        //         'fuelux': '{{ STATIC_URL }}fuelux'
+        //     }
+        // });
+
+        // require(['fuelux/wizard'], 
+        //     function () {
+
+        //     // WIZARD
+        //     // $('#MyWizard').on('change', function(e, data) {
+        //     //     console.log('change');
+        //     //     if(data.step===3 && data.direction==='next') {
+        //     //         // return e.preventDefault();
+        //     //     }
+        //     // });
+        //     // $('#MyWizard').on('changed', function(e, data) {
+        //     //     console.log('changed');
+        //     // });
+        //     // $('#MyWizard').on('finished', function(e, data) {
+        //     //     console.log('finished');
+        //     // });
+        //     $('#btnWizardPrev').on('click', function(){
+        //         $('#MyWizard').wizard('previous');
+        //     });
+        //     $('#btnWizardNext').on('click', function() {
+        //         $('#MyWizard').wizard('next','foo');
+        //     });
+        //     $('#btnWizardStep').on('click', function() {
+        //         var item = $('#MyWizard').wizard('selectedItem');
+        //         console.log(item.step);
+        //     });
+        //     // $('#MyWizard').on('stepclick', function(e, data) {
+        //     //     console.log('step' + data.step + ' clicked');
+        //     //     if(data.step===1) {
+        //             // return e.preventDefault();
+        //     //     }
+        //     // });
+
+        // });
+
+
 
         item_pk = 0
         field_filters_dict_old = {}
