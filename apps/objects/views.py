@@ -398,6 +398,7 @@ def get_objects(request):
                 "params" : {
                     "count": 'true',
                     "query" : raw_query,
+                    "nulls_filler": "n/a",
                 #     "limit" : int,
                 #     "skip": int,
                     "orderby" : [(order_field, "asc"),],

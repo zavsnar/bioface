@@ -24,10 +24,10 @@
                 {% endfor %}
                 {% for attr in obj.attrs %}
                     <td>
-                        {% if attr.value %}
-                            {{ attr.value }}
-                        {% else %}
+                        {% if attr.value == 'n/a' %}
                             <span class="red">n/a</span>
+                        {% else %}
+                            {{ attr.value }}
                         {% endif %}
                     </td>
                 {% endfor %}

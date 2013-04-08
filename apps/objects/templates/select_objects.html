@@ -231,7 +231,7 @@
                                                 </select>
                                                 <!-- <div class="btn-group"> -->
                                                 <select name="query_field" style="width: 80px;" class="js_query_operation js_query">
-                                                    {% if filter.3 == 'string' or filter.3 == 'nominal' %}
+                                                    {% if filter.3 == 'string' or filter.3 == 'nominal' or not filter %}
                                                         <option value="=" {% if filter.1 == '=' %}selected{% endif %}>=</option>
                                                         <option value="!=" {% if filter.1 == '!=' %}selected{% endif %}>&ne;</option>
                                                     {% else %}
@@ -616,13 +616,13 @@
         query_history_json = {{ query_history|jsonify }}
 
 
-        $('.breadcrumb .js_query_history_step').tooltip({
+        $('.js_query_history_step').tooltip({
             show: {
                 effect: "slideDown",
                 delay: 30
             } 
         });
-        $('.breadcrumb .js_query_history_step_last').tooltip({
+        $('.js_query_history_step_last').tooltip({
             show: {
                 effect: "slideDown",
                 delay: 30
