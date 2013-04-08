@@ -24,7 +24,6 @@
         <tr>
             <th>Name</th>
             <th>Type</th>
-            <th>Primary</th>
             <th>Value</th>
         </tr>
     </thead>    
@@ -33,7 +32,6 @@
             <tr>
                 <td><a href="{{ item.name }}">{{ item.name }}</a></td>
                 <td>{{ item.atype }}</td>
-                <td><input type="checkbox" disabled {% if item.primary %}checked{% endif %}></td>
                 {% if item.atype == 'range' %}
                     <td class="js_attr_description" data-placement="bottom" title="{{ step.query }}" data-original-title="{{ step.query }}">
                         {% if item.description.default %}

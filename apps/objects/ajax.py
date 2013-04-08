@@ -29,8 +29,12 @@ def update_attributes_from_organism(request, organism_id):
     # form_data = deserialize_form(form)
     # form = SelectObjects(request=request, data=deserialize_form(form), with_choices=False)
     # attr_field = form.fields['attributes_list']
+    query_params = {
+        "query": "organism = {}".format(organism_id),
+        "orderby" : [["name", "asc"]]
+    }
     attr_list = get_choices(request, item_name='attributes', cache_key='attributes_{}'.format(organism_id), 
-        key='name', query="organism = {}".format(organism_id), append_field = 'atype')
+        key='name', query_params=query_params, append_field = 'atype')
     # attr_field.choices = attr_list
     # value = form_data.getlist('attributes_list')
     # render = attr_field.widget.render(name='attributes_list', value = value)
@@ -156,8 +160,8 @@ def pagination(request, page, paginate_by, items_count, data):
 
         pages_count = int(math.ceil(items_count/paginate_by))
         # all_pages = range(1, pages_count+1)
-        if pages_count == 11:
-            pages = range(1, 12)
+        if pages_count <= 11:
+            pages = range(1, pages_count+1)
         elif page == 1 or page == pages_count:
             pages = range(1, 4)
             pages.append('...')

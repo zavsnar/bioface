@@ -73,10 +73,14 @@ class SelectObjects(forms.Form):
     # request = forms.CharField(widget=forms.Textarea, required=False)
     # method = forms.ChoiceField(choices = GET_METHOD_CHOISES, initial = 'get_objects')
     organism = forms.ChoiceField(widget=forms.Select(attrs={'style': 'width:220px'}))
-    display_fields = ObjectFields(required=False, widget=forms.CheckboxSelectMultiple(), choices=OBJECT_FIELDS_CHOICES, initial=('name',))
-    attributes_list = ObjectFields(required=False, widget=ObjectAttributesWidget(attrs={'style': 'width:530px'}))
-    sort_by = AllObjectFields(required=False, widget=ObjectSortWidget(attrs={'style': 'width:300px'}))
-    paginate_by = forms.ChoiceField(required=False, widget=forms.Select(attrs={'style': 'width:80px'}), choices=PAGINATE_BY_CHOICES, initial=10)
+    display_fields = ObjectFields(required=False, 
+        widget=forms.CheckboxSelectMultiple(), choices=OBJECT_FIELDS_CHOICES, initial=('name',))
+    attributes_list = ObjectFields(required=False, 
+        widget=ObjectAttributesWidget(attrs={'style': 'width:530px'}))
+    sort_by = AllObjectFields(required=False, 
+        widget=ObjectSortWidget(attrs={'style': 'width:300px'}))
+    paginate_by = forms.ChoiceField(required=False, 
+        widget=forms.Select(attrs={'style': 'width:80px'}), choices=PAGINATE_BY_CHOICES, initial=10)
     # row_query = forms.CharField(required=False)
     # limit = forms.IntegerField(required=False)
     # skip = forms.IntegerField(required=False)
@@ -95,9 +99,13 @@ class SelectObjects(forms.Form):
                 organism_id = organism_choices_list[0][0]
 
             if organism_id:
+                query_params = {
+                    "query": "organism = {}".format(organism_id),
+                    "orderby" : [["name", "asc"]]
+                }
                 self.fields['attributes_list'].choices = get_choices(self.request, 
                     cache_key='attributes_{}'.format(organism_id), item_name='attributes', 
-                    key='name', query="organism = {}".format(organism_id), append_field='atype')
+                    key='name', query_params = query_params, append_field='atype')
                 attr_choices = self.fields['attributes_list'].choices
                 all_fields = OBJECT_FIELDS_CHOICES
                 all_fields.extend(attr_choices)

@@ -64,7 +64,7 @@ def ajax_login_required(view_func):
     wrap.__dict__ = view_func.__dict__
     return wrap
 
-def get_choices(request, item_name, cache_key='', key='id', query='', append_field=''):
+def get_choices(request, item_name, cache_key='', key='id', query_params='', append_field=''):
     # choices_list = []
     
     if not cache_key:
@@ -83,9 +83,10 @@ def get_choices(request, item_name, cache_key='', key='id', query='', append_fie
             "key": request.user.sessionkey,
         }
 
-        if query:
-            query_dict['params'] = {}
-            query_dict['params']['query'] = query
+        if query_params:
+            query_dict['params'] = query_params
+            # query_dict['params']['query'] = query
+            
         # print 1111, query_dict
         content_dict = api_request(query_dict)
         
