@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load bootstrap main_filters dajaxice_templatetags staticfiles %}
+{% load bootstrap main_filters dajaxice_templatetags staticfiles jsonify %}
 
 {% block subtitle %}Edit My profile{% endblock %}
 
@@ -120,8 +120,8 @@
             <!-- <label class="control-label" for="object_file">File</label> -->
             <div class="controls">
                 <ul>
-                    {% for file in object_data.files %}
-                        <li>id: {{ file.id }} type: {{ file.type }} name: {{ file.name }}</li>
+                    {% for id, file_name in files_dict.items %}
+                        <li>id: {{ id }} name: {{ file_name }}</li>
                     {% endfor %}
                 </ul>
                 <!-- <input name="file_description" type="text" placeholder="file description" id="file_description"> -->
@@ -148,7 +148,7 @@
         <!-- <input name="object_files" type="file"> -->
 
         <div class="hidden">
-            <input name="files_id" id="files_id" value="{{ files_id }}">
+            <input name="files_id" id="files_dict" value="">
         </div>
         
         <div class="form-actions">
@@ -231,6 +231,8 @@
 
     <script type="text/javascript">
 
+        files_dict = {{ files_dict|jsonify }}
+
         $('.fileupload').fileupload({});
 
         // $('#id_tags').select2({tags:[{% for id, value in form.fields.tags.choices %}{'id':"{{ id }}", "label": "{{value}}"}, {% endfor %}]})
@@ -287,7 +289,7 @@
                 success: function (data){
                     stop_show_loading(); 
                     Dajaxice.apps.bioface.get_file(Dajax.process, {'file_id': upload_id});
-                    $('#files_id').val($('#files_id').val(upload_id) + ' , ' + upload_id)
+                    $('#files_id').val($('#files_id').val() + ',' + upload_id)
                     $("#start_fileupload").hide()
                     not_all_file_upload = false
                     if (form_submit) {
@@ -362,7 +364,7 @@
         form_submit = false
         $('#update-form').submit(function(){
             upload_file = $('#object_file')[0].files
-            if (upload_file & not_all_file_upload) {
+            if (upload_file.length > 0 && not_all_file_upload) {
                 file_data = upload_file[0],
                 fileName = file_data.name,
                 fileSize = file_data.size;
@@ -372,8 +374,8 @@
                 form_submit = true
                 return false
             }
-                        
 
+            $('#files_dict').val(JSON.stringify(files_dict));    
         })
 
         // in your app create uploader as soon as the DOM is ready

@@ -119,6 +119,10 @@ def update_object(request, object_id = 0):
             attr_list = content_dict['result']['object'].pop('attributes')
         else:
             attr_list = {}
+        print 111111, object_data['files']
+        files_dict = { f['id']: f['name'] for f in object_data['files'] }
+
+        print 222222, files_dict
 
         if request.method == 'POST':
             print request.POST
@@ -152,11 +156,14 @@ def update_object(request, object_id = 0):
                     }
                 }
 
+                
+
                 if cd.get('tags', ''):
                     query_dict['params']['data']['fields']['tags'] = form.tags_id_list
 
-                if cd.get('files_id', ''):
-                    query_dict['params']['data']['fields']['files'] = cd.get('files_id').split(',')
+                if request.POST.get('files_dict', ''):
+                    files_dict = ast.literal_eval(request.POST['files_dict'])
+                    query_dict['params']['data']['fields']['files'] = files_dict.keys()
 
                 content_dict = api_request(query_dict)
                 # form._changed_data = {'source': '123'}
@@ -170,7 +177,8 @@ def update_object(request, object_id = 0):
                     )
 
                     form.object_version = content_dict['result']['version']
-                    
+                    # files_id = cd.get('files_id')
+
                 elif content_dict.has_key('error'):
                     messages.error(request, 'ERROR: {}'.format(content_dict['error']))
 
@@ -184,13 +192,13 @@ def update_object(request, object_id = 0):
 
             form = UpdateObjectForm(request = request, initial=object_data)
 
-        files_id = ' , '.join([ f['id'] for f in object_data['files'] ])
+        
 
         template_context = {
             'form': form,
             'attr_list': attr_list,
             'object_data': object_data,
-            'files_id': files_id
+            'files_dict': files_dict
             # 'formset': formset
         }
 
