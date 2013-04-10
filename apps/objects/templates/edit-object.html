@@ -148,7 +148,7 @@
         <!-- <input name="object_files" type="file"> -->
 
         <div class="hidden">
-            <input name="files_id" id="files_dict" value="">
+            <input name="files_dict" id="files_dict" value="">
         </div>
         
         <div class="form-actions">
@@ -292,6 +292,7 @@
                     $('#files_id').val($('#files_id').val() + ',' + upload_id)
                     $("#start_fileupload").hide()
                     not_all_file_upload = false
+                    files_dict[upload_id] = fileName
                     if (form_submit) {
                         $('#update-form').submit()
                     }
