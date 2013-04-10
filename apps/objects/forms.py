@@ -3,10 +3,6 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 
 from django import forms
-from django.core.cache import cache
-from django.contrib.auth.forms import UserCreationForm
-from django.core.exceptions import ValidationError
-from django.utils.html import format_html
 from django.utils.encoding import force_text
 
 #from django_select2 import *
@@ -130,7 +126,7 @@ class CreateOrganismForm(forms.Form):
     name = forms.CharField(label='Name')
 
 class TagMixin(forms.Form):
-    tags = forms.CharField(label = 'Tag', required=False, widget=forms.TextInput(attrs={'style': 'width:220px'}))
+    tags = forms.CharField(label = 'Tags', required=False, widget=forms.TextInput(attrs={'style': 'width:220px'}))
 
     def __init__(self, request, *args, **kwargs):
         super(TagMixin, self).__init__(*args, **kwargs)
@@ -144,6 +140,7 @@ class TagMixin(forms.Form):
             tag_exist = False
             for id, name in self.fields['tags'].choices:
                 if tag == name:
+                    print 7777777
                     tags.append(id)
                     tag_exist = True
                     break

@@ -163,7 +163,7 @@ def get_file(request, file_id='333124c5a10a43148480f960c7e7ff78'):
     print 777, json.dumps(query)
     file_data = http.request(API_URL, 'POST', body = json.dumps(query), headers = headers)
     print type(file_data), file_data[0]
-    with file('file_data', 'w') as file_on:
+    with file('../static/file_data.txt', 'w') as file_on:
         file_on.write(file_data[1])
 
     dajax = Dajax()

@@ -122,7 +122,7 @@ def update_object(request, object_id = 0):
 
         if request.method == 'POST':
             print request.POST
-            raise
+            # raise
             form = UpdateObjectForm(request=request, data = request.POST)
             if form.is_valid():
                 cd = form.cleaned_data
@@ -130,34 +130,30 @@ def update_object(request, object_id = 0):
                     "method" : "update_object",
                     "key": request.user.sessionkey,
                     "params" : {
-                        "id" : cd.pop('id'),
-                        "version" : cd.pop('version'),
-                        "attributes_autoexpand" : True,
+                        "id" : cd.get('id'),
+                        "version" : cd.get('version'),
+                        "attributes_autoexpand" : False,
                         "data" : {
                             "fields": {
-                            #     "name" : name, //str
-                            #     "lab_id":  Лабораторный идентификатор, //str
-                            #     "organism": организм, //str
-                            #     "source": источник, //str
-                            #     "comment": comment, //str
+                                "name" : cd.get('name'),
+                                "lab_id": cd.get('lab_id'),
+                                "organism": cd.get('organism'),
+                                "source": cd.get('source'),
+                                "comment": cd.get('comment'),
                             #     "refs": ["id1", "id2"], //список id референсов
                             #     "tags": ["id", "id"], 
                             },
-                            "attributes": [
+                            # "attributes": [
                             #     ["attribute_id", "value1"],
                             #     etc...
-                            ]
+                            # ]
                         }
                     }
                 }
 
-                obj_fields = query_dict['params']['data']['fields']
-                for key, value in form.cleaned_data.items():
-                    if value:
-                        obj_fields[key] = value
-
                 content_dict = api_request(query_dict)
-                
+                # form._changed_data = {'source': '123'}
+                print 666666, form.changed_data
                 if content_dict.has_key('result'):
                 # {u'error': {u'code': -32005,
                 # u'data': u'(IntegrityError) duplicate key value violates unique constraint "objects_name_key"\nDETAIL:  Key (name)=(123) already exists.\n',
@@ -165,6 +161,9 @@ def update_object(request, object_id = 0):
                     messages.success(request, 'Object {0} with ID {1} and Version {2} successfully updated.'.format(
                         form.cleaned_data['name'], content_dict['result']['id'], content_dict['result']['version'])
                     )
+
+                    form.object_version = content_dict['result']['version']
+                    
                 elif content_dict.has_key('error'):
                     messages.error(request, 'ERROR: {}'.format(content_dict['error']))
 
@@ -176,7 +175,7 @@ def update_object(request, object_id = 0):
                 # sequense_form = InlineSequenseForm(initial={})
                 # formset = formset_factory(InlineSequenseForm, extra=2, can_delete=True)
 
-                form = UpdateObjectForm(request = request, initial=object_data)
+            form = UpdateObjectForm(request = request, initial=object_data)
 
     elif content_dict.has_key('error'):
         form = UpdateObjectForm(request=request)
