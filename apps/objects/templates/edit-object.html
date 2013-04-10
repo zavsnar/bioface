@@ -4,8 +4,16 @@
 {% block subtitle %}Edit My profile{% endblock %}
 
 {% block forestyle %}
-<link href="{{ STATIC_URL }}css/select2.css" rel="stylesheet"/>
+<!-- <link href="{{ STATIC_URL }}css/select2.css" rel="stylesheet"/> -->
 <link href="{{ STATIC_URL }}css/bootstrap-fileupload.css" rel="stylesheet"/>
+
+<!-- <link href="{{ STATIC_URL }}css/tagit.css" rel="stylesheet"/> -->
+<!-- <link href="{{ STATIC_URL }}css/tagit-bootstrap.css" rel="stylesheet"/> -->
+  <!-- <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/jquery-ui-base-1.8.20.css"> -->
+
+  
+  <!-- <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/jquery-ui-base-1.8.20.css"> -->
+  <!-- <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/tagit-stylish-yellow.css"> -->
 {% endblock %}
 
 {% block forejs %} 
@@ -16,7 +24,7 @@
 {% endblock %}
 
 {% block main %}
-    <form method="post" action="./" class="form-horizontal js-active-form span8 pull-left">
+    <form method="post" action="./" id="update-form" class="form-horizontal js-active-form span8 pull-left">
         {% csrf_token %}
         {% for error in form.non_field_errors %}
             <div class="alert alert-error">
@@ -55,7 +63,7 @@
         </div>
 
         {# <!-- Tag --> #}
-        <div class="control-group {% if form.tags.errors %}error{% endif %}">
+        <!-- <div class="control-group {% if form.tags.errors %}error{% endif %}">
             <label class="control-label" for="{{ form.tags.id_for_label }}">{{ form.tags.label }}</label>
             <div class="controls">
                 {{ form.tags }}
@@ -63,7 +71,16 @@
                     <span class="help-inline">{{ error }}</span>
                 {% endfor %}
             </div>
-        </div>
+        </div> -->
+
+        <!-- <div class="box"> -->
+            <!-- <ul id="demo2" data-name="demo2"> -->
+            <!-- </ul> -->
+          <!-- <div class="buttons">
+            <button id="demo2GetTags" value="Get Tags">Get Tags</button>
+            <button id="demo2ResetTags" value="Reset Tags">Reset Tags</button>
+          </div> -->
+        <!-- </div> -->
 
         {# <!-- lab_id --> #}
         <div class="control-group {% if form.lab_id.errors %}error{% endif %}">
@@ -102,6 +119,11 @@
         <div class="control-group">
             <!-- <label class="control-label" for="object_file">File</label> -->
             <div class="controls">
+                <ul>
+                    {% for file in object_data.files %}
+                        <li>id: {{ file.id }} type: {{ file.type }} name: {{ file.name }}</li>
+                    {% endfor %}
+                </ul>
                 <!-- <input name="file_description" type="text" placeholder="file description" id="file_description"> -->
                 <div class="fileupload fileupload-new" data-provides="fileupload">
                     <div class="input-append">
@@ -133,7 +155,6 @@
         </div>
     </form>
 
-    
         <!-- Redirect browsers with JavaScript disabled to the origin page -->
     </form>
 
@@ -196,7 +217,13 @@
 {% block endjs %}
     {% dajaxice_js_import %}
     <script type="text/javascript" src='{% static "/static/dajax/jquery.dajax.core.js" %}'></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/select2.min.js"></script>
+
+    <script src="{{ STATIC_URL }}js/jquery-ui-1.10.2.custom.min.js"></script>
+
+    <!-- // <script type="text/javascript" src="{{ STATIC_URL }}js/select2.min.js"></script> -->
+    <!-- // <script type="text/javascript" src="{{ STATIC_URL }}js/tagit.js"></script> -->
+    <!-- // <script type="text/javascript" src="{{ STATIC_URL }}js/tagit-themeroller.js"></script> -->
+    
     <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-fileupload.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/main.js"></script>
 
@@ -204,7 +231,25 @@
 
         $('.fileupload').fileupload({});
 
-        $('#id_tags').select2({tags:[{% for id, value in form.fields.tags.choices %}"{{value}}", {% endfor %}]})
+        // $('#id_tags').select2({tags:[{% for id, value in form.fields.tags.choices %}{'id':"{{ id }}", "label": "{{value}}"}, {% endfor %}]})
+
+        
+        //   var availableTags = [
+        //     {% for id, value in form.fields.tags.choices %}
+        //         {
+        //           label: '{{ value }}',
+        //           value: '{{ id }}',
+        //         },
+        //     {% endfor %}
+        //   ]
+
+        // $('#demo2').tagit(
+        //     {
+        //         tagSource: availableTags, 
+        //         caseSensitive: true,
+        //         select: true, 
+        //         sortable: true,
+        //     });
 
         $("#start_fileupload").click(function(){
             file_data = $('#object_file')[0].files[0],
@@ -241,6 +286,11 @@
                     stop_show_loading(); 
                     Dajaxice.apps.bioface.get_file(Dajax.process, {'file_id': upload_id});
                     $('#file_id').val(upload_id)
+                    $("#start_fileupload").hide()
+                    not_all_file_upload = false
+                    if (form_submit) {
+                        $('#update-form').submit()
+                    }
                  // alert ( " Done ! " + data );
                 },
                 error: function(xhr,err){
@@ -306,6 +356,24 @@
             });           
         }
         
+        not_all_file_upload = true
+        form_submit = false
+        $('#update-form').submit(function(){
+            upload_file = $('#object_file')[0].files
+            if (upload_file & not_all_file_upload) {
+                file_data = upload_file[0],
+                fileName = file_data.name,
+                fileSize = file_data.size;
+                alert("Uploading: "+fileName+" @ "+fileSize+"bytes");
+                Dajaxice.apps.bioface.upload_file(Dajax.process, { 'filename': fileName, 'file_data': file_data });
+
+                form_submit = true
+                return false
+            }
+                        
+
+        })
+
         // in your app create uploader as soon as the DOM is ready
         // don't wait for the window to load  
         // window.onload = createUploader;     

@@ -134,14 +134,14 @@ class TagMixin(forms.Form):
         self.fields['tags'].choices = get_choices(request, item_name='tags')
 
     def clean_tags(self):
-        tags=[]
+        tags_id=[]
         new_tags=[]
         for tag in self.cleaned_data['tags'].split(','):
             tag_exist = False
             for id, name in self.fields['tags'].choices:
                 if tag == name:
                     print 7777777
-                    tags.append(id)
+                    tags_id.append(id)
                     tag_exist = True
                     break
 
@@ -156,12 +156,12 @@ class TagMixin(forms.Form):
                 if content_dict['result']:
                     new_tags.append(content_dict['result']['id'])
 
-        tags.extend(new_tags)
+        tags_id.extend(new_tags)
 
         if new_tags:
             self.fields['tags'].choices = get_choices(self.request, item_name='tags')
-
-        self.cleaned_data['tags'] = tags
+        self.tags_id_list = tags_id
+        # self.cleaned_data['tags'] = ','.join(tags)
         return self.cleaned_data['tags']
 
 
@@ -173,6 +173,7 @@ class CreateObjectForm(TagMixin):
     # tags = forms.CharField(required=False)
     source = forms.CharField(required=False)
     comment = forms.CharField(required=False)
+    files_id = forms.CharField(required=False)
 
     def __init__(self, request, *args, **kwargs):
         super(CreateObjectForm, self).__init__(request, *args, **kwargs)

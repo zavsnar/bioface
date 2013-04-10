@@ -141,7 +141,8 @@ def update_object(request, object_id = 0):
                                 "source": cd.get('source'),
                                 "comment": cd.get('comment'),
                             #     "refs": ["id1", "id2"], //список id референсов
-                            #     "tags": ["id", "id"], 
+                                # "tags": cd.get('tags'),
+                                # "files": cd.get('files_id').split(',')
                             },
                             # "attributes": [
                             #     ["attribute_id", "value1"],
@@ -150,6 +151,12 @@ def update_object(request, object_id = 0):
                         }
                     }
                 }
+
+                if cd.get('tags', ''):
+                    query_dict['params']['data']['fields']['tags'] = form.tags_id_list
+
+                if cd.get('files_id', ''):
+                    query_dict['params']['data']['fields']['files'] = cd.get('files_id').split(',')
 
                 content_dict = api_request(query_dict)
                 # form._changed_data = {'source': '123'}
@@ -184,7 +191,8 @@ def update_object(request, object_id = 0):
 
     template_context = {
         'form': form,
-        'attr_list': attr_list
+        'attr_list': attr_list,
+        'object_data': object_data
         # 'formset': formset
     }
 
