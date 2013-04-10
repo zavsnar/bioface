@@ -145,8 +145,10 @@
             </div>
         </div>
 
+        <!-- <input name="object_files" type="file"> -->
+
         <div class="hidden">
-            <input name="file_id" id="file_id">
+            <input name="files_id" id="files_id" value="{{ files_id }}">
         </div>
         
         <div class="form-actions">
@@ -285,7 +287,7 @@
                 success: function (data){
                     stop_show_loading(); 
                     Dajaxice.apps.bioface.get_file(Dajax.process, {'file_id': upload_id});
-                    $('#file_id').val(upload_id)
+                    $('#files_id').val($('#files_id').val(upload_id) + ' , ' + upload_id)
                     $("#start_fileupload").hide()
                     not_all_file_upload = false
                     if (form_submit) {

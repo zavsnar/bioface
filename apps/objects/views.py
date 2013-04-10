@@ -184,17 +184,21 @@ def update_object(request, object_id = 0):
 
             form = UpdateObjectForm(request = request, initial=object_data)
 
+        files_id = ' , '.join([ f['id'] for f in object_data['files'] ])
+
+        template_context = {
+            'form': form,
+            'attr_list': attr_list,
+            'object_data': object_data,
+            'files_id': files_id
+            # 'formset': formset
+        }
+
     elif content_dict.has_key('error'):
         form = UpdateObjectForm(request=request)
         messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))
 
-
-    template_context = {
-        'form': form,
-        'attr_list': attr_list,
-        'object_data': object_data
-        # 'formset': formset
-    }
+        template_context = {}
 
     return render_to_response('edit-object.html', template_context, context_instance=RequestContext(request))
 

@@ -173,7 +173,7 @@ class CreateObjectForm(TagMixin):
     # tags = forms.CharField(required=False)
     source = forms.CharField(required=False)
     comment = forms.CharField(required=False)
-    files_id = forms.CharField(required=False)
+    files_id = forms.CharField(widget=forms.HiddenInput,required=False)
 
     def __init__(self, request, *args, **kwargs):
         super(CreateObjectForm, self).__init__(request, *args, **kwargs)

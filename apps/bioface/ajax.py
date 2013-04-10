@@ -1,29 +1,29 @@
 from __future__ import unicode_literals
 
 import ast
-import csv
-from multiprocessing import Process
-from threading import Thread
-import zipfile
-import zlib
-import tempfile
+# import csv
+# from multiprocessing import Process
+# from threading import Thread
+# import zipfile
+# import zlib
+# import tempfile
 
 from dajax.core import Dajax
 from django.utils import simplejson
 from dajaxice.decorators import dajaxice_register
 from dajaxice.utils import deserialize_form
 
-from django.contrib.auth.decorators import login_required
+# from django.contrib.auth.decorators import login_required
 from django.forms.util import ErrorList
 from django.core.context_processors import csrf
 from django.template.loader import render_to_string
-from django.core.files import File
+# from django.core.files import File
 
-from settings import DOWNLOADS_ROOT, API_URL, API_HOST
+from settings import API_URL
 
 # from apps.bioface.utils import ajax_login_required
 from apps.bioface.forms import CreateOrganismForm, DownloadForm
-from apps.bioface.utils import api_request, UnicodeWriter
+from apps.bioface.utils import api_request
 from apps.bioface.models import Download
 from apps.bioface.tasks import loading_objects
 
@@ -155,7 +155,6 @@ def get_file(request, file_id='333124c5a10a43148480f960c7e7ff78'):
             "id" : file_id
         }
     }
-    import urllib
     import httplib2 
     import json
     headers = {'Content-type': 'application/json'}

@@ -43,6 +43,15 @@ LOGGING = {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler'
         },
+
+        'logfile': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': SOURCE_ROOT + "../logs/django_log",
+            'maxBytes': 50000,
+            'backupCount': 2,
+            # 'formatter': 'standard',
+        },
         'console': {
             'level':'DEBUG',
             'class':'logging.StreamHandler',
@@ -54,24 +63,24 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
-        'tasks': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-        },
-        'open_facebook': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-        },
-        'financial_accounts': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-        },
-        'eway_au': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-        },
-        'accounts': {
-            'handlers': ['console'],
+        # 'tasks': {
+        #     'handlers': ['console'],
+        #     'level': 'DEBUG',
+        # },
+        # 'open_facebook': {
+        #     'handlers': ['console'],
+        #     'level': 'DEBUG',
+        # },
+        # 'financial_accounts': {
+        #     'handlers': ['console'],
+        #     'level': 'DEBUG',
+        # },
+        # 'eway_au': {
+        #     'handlers': ['console'],
+        #     'level': 'DEBUG',
+        # },
+        'api_request': {
+            'handlers': ['logfile'],
             'level': 'DEBUG',
         },
     }

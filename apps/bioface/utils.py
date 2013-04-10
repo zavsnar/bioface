@@ -1,12 +1,13 @@
-import urllib
+import logging
 import httplib2 
 import json
 import csv, codecs, cStringIO
 
-from django.shortcuts import render, render_to_response, redirect
 from django.core.cache import cache
 
 from settings import API_URL
+
+logger = logging.getLogger('api_request')
 
 # API_URL = 'http://10.0.1.7:5000/api/v1/'
 # API_URL = 'https://10.0.1.208:5000/api/v1/'
@@ -17,14 +18,15 @@ class LoginFailError(Exception):
 
 
 def api_request(query_dict):
-    
     headers = {'Content-type': 'application/json'}
     http = httplib2.Http(disable_ssl_certificate_validation=True)
     print 77777, query_dict
+    logger.debug(str(query_dict))
     print 666, json.dumps(query_dict)
     http_response, content = http.request(API_URL, 'POST', 
         body = json.dumps(query_dict), headers = headers)
     print 888, content
+    logger.debug(str(content))
     try:
         content_dict = json.loads(content)
         if content_dict.has_key('error'):
