@@ -214,10 +214,10 @@
 
 <div class="preloader-img" style="display: none"></div>
 
-<form method="post" enctype="application/json" 
+<!-- <form method="post" enctype="application/json" 
     id="downloadform_id" accept-charset="utf-8" name="myForm" onsubmit="addJSON(data)">
     <input type = "hidden" name="data" >
-</form>
+</form> -->
 
 {% endblock %}
 
@@ -233,6 +233,7 @@
     
     <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-fileupload.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/main.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/FileSaver.js"></script>
 
     <script type="text/javascript">
 
@@ -246,12 +247,12 @@
                 "method" : "get_file",
                 "key": "{{ request.user.sessionkey }}",
                 "params" : {
-                    "id" : $(this).data('file-id')
-            }
-            function addJSON(el){
-                el.value=JSON.stringify(query)
-            }
-            $('#downloadform_id').submit()
+                    "id" : $(this).data('fileId')
+            }}
+            // function addJSON(el){
+            //     el.value=JSON.stringify(query)
+            // }
+            // $('#downloadform_id').submit()
 
             alert(query)
             // $.post("/api/v1", query);
@@ -264,13 +265,16 @@
             // $.form('/api/v1', query)
 
 
-            // $.ajax({
-            //     url: "/api/v1",
-            //     contentType: 'application/json',
-            //     dataType: 'json',
-            //     data: query,
-            //     type: 'POST',
-            // })
+            $.ajax({
+                url: "/api/v1",
+                contentType: 'application/json',
+                dataType: 'json',
+                data: query,
+                type: 'POST',
+                success: function(data){
+                    saveAs(new Blob([data]), "$(this).text()");
+                }
+            })
 
             // var formHTML = '<form action="/api/v1" method="post">'+
             //             '<input type="hidden" name="data" value="" />'+
