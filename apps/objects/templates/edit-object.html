@@ -269,12 +269,18 @@
                 url: "/api/v1",
                 contentType: 'application/json',
                 dataType: 'json',
-                data: query,
+                data: JSON.stringify(query),
                 type: 'POST',
                 success: function(data){
-                    saveAs(new Blob([data]), "$(this).text()");
+                    content = data;
+                    uriContent = "data:application/octet-stream," + encodeURIComponent(content);
+                    // или в Base64...
+                    newWindow=window.open(uriContent, "myDocument");
+                    // или лучше location.href = uriContent, что позволит избежать ругани с открытием окна
+                    
+                    // saveAs(new Blob([data]), $(this).text());
                 }
-            })
+            }).always(function() { alert() });
 
             // var formHTML = '<form action="/api/v1" method="post">'+
             //             '<input type="hidden" name="data" value="" />'+
