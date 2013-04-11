@@ -602,7 +602,7 @@
 
         item_pk = 0
         field_filters_dict_old = {}
-        field_filters_dict_new = {}
+        field_filters_dictters_dict_new = {}
         {% for pk, filter in field_filters_dict.items %}
             {% if pk != '' %}
                 field_filters_dict_old['{{ pk }}'] = ['{{filter.0}}', '{{ filter.1|safe }}', '{{filter.2}}', '{{filter.3}}']

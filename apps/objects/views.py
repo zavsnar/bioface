@@ -108,7 +108,8 @@ def update_object(request, object_id = 0):
         "method" : "get_object",
         "key": request.user.sessionkey,
         "params" : {
-            "id" : object_id
+            "id" : object_id,
+            "nulls_filler": "n/a",
             # "attributes_list": ["attribute_id1", "attribute_id2",  ]
         }
     }

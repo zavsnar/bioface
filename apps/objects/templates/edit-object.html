@@ -121,7 +121,7 @@
             <div class="controls">
                 <ul>
                     {% for id, file_name in files_dict.items %}
-                        <li>id: {{ id }} name: {{ file_name }}</li>
+                        <li><a class="js_download_file" data-file-id="{{ id }}">{{ file_name }}</a></li>
                     {% endfor %}
                 </ul>
                 <!-- <input name="file_description" type="text" placeholder="file description" id="file_description"> -->
@@ -234,6 +234,17 @@
         files_dict = {{ files_dict|jsonify }}
 
         $('.fileupload').fileupload({});
+
+        $('.js_download_file').click(function(){
+            var query = {
+                "method" : "get_file",
+                "key": {{ request.user.sessionkey }},
+                "params" : {
+                    "id" : $(this).data('file-id')
+            }
+            alert(query)
+            $.post("/api/v1", query);
+        })
 
         // $('#id_tags').select2({tags:[{% for id, value in form.fields.tags.choices %}{'id':"{{ id }}", "label": "{{value}}"}, {% endfor %}]})
 
