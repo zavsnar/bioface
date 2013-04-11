@@ -214,6 +214,11 @@
 
 <div class="preloader-img" style="display: none"></div>
 
+<form method="post" enctype="application/json" 
+    id="downloadform_id" accept-charset="utf-8" name="myForm" onsubmit="addJSON(data)">
+    <input type = "hidden" name="data" >
+</form>
+
 {% endblock %}
 
 {% block endjs %}
@@ -236,14 +241,41 @@
         $('.fileupload').fileupload({});
 
         $('.js_download_file').click(function(){
+
             var query = {
                 "method" : "get_file",
-                "key": {{ request.user.sessionkey }},
+                "key": "{{ request.user.sessionkey }}",
                 "params" : {
                     "id" : $(this).data('file-id')
             }
+            function addJSON(el){
+                el.value=JSON.stringify(query)
+            }
+            $('#downloadform_id').submit()
+
             alert(query)
-            $.post("/api/v1", query);
+            // $.post("/api/v1", query);
+            // $form = $("<form>").appendTo("body");
+            // $form.hide()
+            //     .attr('method', "POST")
+            //     .attr('action', fileUrl)
+
+
+            // $.form('/api/v1', query)
+
+
+            // $.ajax({
+            //     url: "/api/v1",
+            //     contentType: 'application/json',
+            //     dataType: 'json',
+            //     data: query,
+            //     type: 'POST',
+            // })
+
+            // var formHTML = '<form action="/api/v1" method="post">'+
+            //             '<input type="hidden" name="data" value="" />'+
+            //             '</form>';
+
         })
 
         // $('#id_tags').select2({tags:[{% for id, value in form.fields.tags.choices %}{'id':"{{ id }}", "label": "{{value}}"}, {% endfor %}]})
