@@ -243,18 +243,18 @@
 
         $('.js_download_file').click(function(){
 
-            var query = {
-                "method" : "get_file",
-                "key": "{{ request.user.sessionkey }}",
-                "params" : {
-                    "id" : $(this).data('fileId')
-            }}
+            // var query = {
+            //     "method" : "get_file",
+            //     "key": "{{ request.user.sessionkey }}",
+            //     "params" : {
+            //         "id" : $(this).data('fileId')
+            // }}
             // function addJSON(el){
             //     el.value=JSON.stringify(query)
             // }
             // $('#downloadform_id').submit()
 
-            alert(query)
+            alert()
             // $.post("/api/v1", query);
             // $form = $("<form>").appendTo("body");
             // $form.hide()
@@ -265,27 +265,30 @@
             // $.form('/api/v1', query)
 
 
-            $.ajax({
-                url: "/api/v1",
-                contentType: 'application/json',
-                dataType: 'json',
-                data: JSON.stringify(query),
-                type: 'POST',
-                success: function(data){
-                    content = data;
-                    uriContent = "data:application/octet-stream," + encodeURIComponent(content);
-                    // или в Base64...
-                    // newWindow=window.open(uriC÷ontent, "myDocument");
-                    location.href = uriContent
-                    // или лучше location.href = uriContent, что позволит избежать ругани с открытием окна
+            // $.ajax({
+            //     url: "/api/v1",
+            //     contentType: 'application/json',
+            //     dataType: 'json',
+            //     data: JSON.stringify(query),
+            //     type: 'POST',
+            //     success: function(data){
+            //         content = data;
+            //         uriContent = "data:application/octet-stream," + encodeURIComponent(content);
+            //         // или в Base64...
+            //         // newWindow=window.open(uriC÷ontent, "myDocument");
+            //         location.href = uriContent
+            //         // или лучше location.href = uriContent, что позволит избежать ругани с открытием окна
 
-                    // saveAs(new Blob([data]), $(this).text());
-                }
-            }).always(function() { alert() });
+            //         // saveAs(new Blob([data]), $(this).text());
+            //     }
+            // }).always(function() { alert() });
 
-            // var formHTML = '<form action="/api/v1" method="post">'+
-            //             '<input type="hidden" name="data" value="" />'+
-            //             '</form>';
+            var formHTML = '<form action="/download" method="post">'+
+                '<input type="hidden" name="id" value="'+$(this).data('fileId')+'" />'+
+                '<input type="hidden" name="key" value="{{ request.user.sessionkey }}" />'+
+                '</form>';
+            $(formHTML).submit()
+
 
         })
 
