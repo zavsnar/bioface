@@ -103,7 +103,8 @@ class SelectObjects(forms.Form):
                     cache_key='attributes_{}'.format(organism_id), item_name='attributes', 
                     key='name', query_params = query_params, append_field='atype')
                 attr_choices = self.fields['attributes_list'].choices
-                all_fields = OBJECT_FIELDS_CHOICES
+                # Copy list
+                all_fields = list(OBJECT_FIELDS_CHOICES)
                 all_fields.extend(attr_choices)
                 self.fields['sort_by'].choices = all_fields
                 # print 333, self.fields['sort_by'].choices

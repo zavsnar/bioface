@@ -1,8 +1,8 @@
 from django.conf.urls import patterns, url, include
 from django.conf import settings
-from django.http import HttpResponse
-from django.shortcuts import render
-from django.contrib.auth.views import login
+# from django.http import HttpResponse
+# from django.shortcuts import render
+# from django.contrib.auth.views import login
 # from django.views.decorators.cache import cache_page
 
 # from django.contrib.sitemaps import views as sitemaps_views
@@ -10,7 +10,7 @@ from django.contrib import admin
 
 # from sitemaps import scheme as sitemaps
 from apps.bioface.views import index, signin, registration, logout, request_api_page, alter_index, \
-    create_update_item, create_organism, test, create_attribute, downloads_list
+    create_update_item, create_organism, test, downloads_list
 
 admin.autodiscover()
 
@@ -42,7 +42,7 @@ urlpatterns = patterns('',
         url(r'^create/organism/$', create_organism, name='create_organism'),
         # url(r'^create/object/$', create_object, name='create_object'),
         # url(r'^object/(?P<object_id>\d+)/$', update_object, name='update_object'),
-        url(r'^create/attribute/$', create_attribute, name='create_attribute'),
+        # url(r'^create/attribute/$', create_attribute, name='create_attribute'),
 #         url(r'^terms/$', render, kwargs={'template_name': 'terms.html'}, name='terms'),
 #         url(r'^support/$', render, kwargs={'template_name': 'support.html'}, name='support'),
 

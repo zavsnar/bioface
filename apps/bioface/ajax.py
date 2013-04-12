@@ -277,7 +277,7 @@ def sayhello(request):
 def send_form(request, form):
     dajax = Dajax()
     form = ExampleForm(deserialize_form(form))
-
+    
     if form.is_valid():
         dajax.remove_css_class('#my_form input', 'error')
         dajax.alert("Form is_valid(), your username is: %s" % form.cleaned_data.get('username'))

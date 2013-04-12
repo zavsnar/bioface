@@ -30,7 +30,7 @@
     <tbody>
         {% for item in item_list|dictsort:"name" %}
             <tr>
-                <td><a href="{{ item.name }}">{{ item.name }}</a></td>
+                <td><a href="{% url 'edit_attribute' item.id %}">{{ item.name }}</a></td>
                 <td>{{ item.atype }}</td>
                 {% if item.atype == 'range' %}
                     <td class="js_attr_description" data-placement="bottom" title="{{ step.query }}" data-original-title="{{ step.query }}">

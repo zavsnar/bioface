@@ -275,9 +275,10 @@
                     content = data;
                     uriContent = "data:application/octet-stream," + encodeURIComponent(content);
                     // или в Base64...
-                    newWindow=window.open(uriContent, "myDocument");
+                    // newWindow=window.open(uriC÷ontent, "myDocument");
+                    location.href = uriContent
                     // или лучше location.href = uriContent, что позволит избежать ругани с открытием окна
-                    
+
                     // saveAs(new Blob([data]), $(this).text());
                 }
             }).always(function() { alert() });
