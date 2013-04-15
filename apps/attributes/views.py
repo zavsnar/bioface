@@ -19,7 +19,7 @@ from django.template import RequestContext
 # from django.template.loader import render_to_string
 from django.shortcuts import render_to_response
 # from django.contrib.auth.forms import AuthenticationForm
-# from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required
 # from django.contrib.auth import authenticate, login, logout as auth_logout
 from django.contrib import messages
 # from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -30,6 +30,7 @@ from django.core.cache import cache
 from apps.bioface.utils import api_request
 from apps.attributes.forms import CreateAttributeForm, EditAttributeForm
 
+@login_required
 def attribute_list(request):
     organism_id = request.REQUEST.get('organism_id', '')
 
@@ -101,7 +102,7 @@ def attribute_list(request):
 
     return render_to_response("attribute_list.html", template_context, context_instance=RequestContext(request))
 
-
+@login_required
 def create_attribute(request):
     description_errors=[]
     if request.method == 'POST':
@@ -192,7 +193,7 @@ def create_attribute(request):
     return render_to_response('create_attribute.html', template_context, 
         context_instance=RequestContext(request))
 
-
+@login_required
 def edit_attribute(request, attr_id):
     description_errors=[]
     template_context = {}
@@ -290,44 +291,45 @@ def edit_attribute(request, attr_id):
             if attr_data['atype'] not in ('scale', 'nominal'):
                 attr_data.update(content_dict['result']['attribute']['description'])
 
-            form = EditAttributeForm(request = request, data=attr_data)
+            form = EditAttributeForm(request=request, data=attr_data)
             
-            template_context.update({
-                    'descr_{}_default'.format(attr_data['atype']): attr_data['description']['default'],
-                })
-
             if attr_data['atype'] == 'range':
-                descr_integer_default = attr_data['description']['default']
-
-                template_context.update({
-                    'descr_integer_default': descr_integer_default,
-                })
-
+                description = {
+                    'descr_range_lower': attr_data['description']['lower'],
+                    'descr_range_upper': attr_data['description']['upper'],
+                }
             elif attr_data['atype'] == 'scale':
-                scale_default = attr_data['description']['default']
-                scale_list = attr_data['description']['scale']
-
-                template_context.update({
-                    'descr_scale_default': scale_default,
-                    'descr_scale_list': scale_list
-                })
+                description = {'descr_scale_list': attr_data['description']['scale']}
             elif attr_data['atype'] == 'nominal':
-                nominal_default = attr_data['description']['default']
-                nominal_list = attr_data['description']['items']
-
-                template_context.update({
-                    'descr_nominal_default': nominal_default,
-                    'descr_nominal_list': nominal_list
-                })
+                description = {'descr_nominal_list': attr_data['description']['items']}
             else:
-                pass
+                description = ''
+
+            attr_dict = {
+                'name': attr_data['name'],
+                'organism': attr_data['organism'],
+                'atype': attr_data['atype'],
+                'description': description,
+                'descr_{}_default'.format(attr_data['atype']): attr_data['description']['default']
+            }
+            print 33333, attr_dict
+
+            if description:
+                template_context.update(description)
+
+            template_context.update({
+                'id': attr_data['id'],
+                'version': attr_data['version'],
+                'attr_dict': attr_dict,
+                'descr_{}_default'.format(attr_data['atype']): attr_data['description']['default']
+            })
+            
 
             # {u'default': None, u'scale': [{u'name': u'1A', u'weight': 1}, {u'name': u'2A', u'weight': 2}, {u'name': u'3A', u'weight': 3}, {u'name': u'4A', u'weight': 4}, {u'name': u'5A', u'weight': 5}, {u'name': u'6A', u'weight': 6}, {u'name': u'7A', u'weight': 7}, {u'name': u'8A', u'weight': 8}, {u'name': u'9A', u'weight': 9}, {u'name': u'10A', u'weight': 10}]}
         elif content_dict.has_key('error'):
             messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))        
 
             form = CreateAttributeForm(request = request)
-
 
     template_context.update({
         'form': form,
