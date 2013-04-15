@@ -97,13 +97,14 @@ class CreateAttributeForm(forms.Form):
     #             del self._errors[field]
     #     return cd
 
-class EditAttributeForm(CreateAttributeForm):
+# class EditAttributeForm(CreateAttributeForm):
+class EditAttributeForm(forms.Form):
     id = forms.IntegerField(widget=forms.HiddenInput, required=False)
     version = forms.IntegerField(widget=forms.HiddenInput, required=False)
-    atype = forms.ChoiceField(label = 'Type', choices=ATYPE_ATTRIBUTES_CHOISES, 
-        widget=forms.Select(attrs={'style': 'width:220px', 'disabled': 'disabled'}))
-    organism = forms.ChoiceField(widget=forms.Select(
-        attrs={'style': 'width:220px', 'disabled': 'disabled'}))
+    # atype = forms.ChoiceField(label = 'Type', choices=ATYPE_ATTRIBUTES_CHOISES, 
+    #     widget=forms.Select(attrs={'style': 'width:220px', 'disabled': 'disabled'}))
+    # organism = forms.ChoiceField(widget=forms.Select(
+    #     attrs={'style': 'width:220px', 'disabled': 'disabled'}))
 
 
 

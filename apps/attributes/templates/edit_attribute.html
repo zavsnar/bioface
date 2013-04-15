@@ -12,11 +12,58 @@
 {% endblock %}
 
 {% block content_title %}
-    <h1>Edit Attribute</h1>
+    <h2>Attribute: {{ name }}</h2>
 {% endblock %}
 
 {% block main %}
-<!-- <div class="row"> -->
+<div class="row">
+
+    <div class="span5">
+        <dl class="dl-horizontal">
+            <dt>Name</dt><dd>{{ name }}</dd>
+            <dt>Organism</dt><dd>{{ organism }}</dd>
+            <dt>Type</dt><dd>{{ atype }}</dd>
+            <dt>
+                {% if atype == 'nominal' or atype == 'scale' %}
+                    Options
+                {% elif atype == 'range' %}
+                    Description
+                {% else %}
+                    Default value
+                {% endif %}
+            </dt>
+            <dd>
+                {% if atype == 'range' %}
+
+                {% elif atype == 'nominal' %}
+                    <ul class="list-no-style">
+                    {% for item in description.items %}
+                        <li><input type="checkbox" {% if description.default == item %} checked {% endif %} disabled> - {{ item }}</li>
+                    {% endfor %}
+                    </ul> 
+                {% elif atype == 'scale' %}
+                    <ul class="list-no-style">
+                    {% for scale in description.scale|dictsort:"weight" %}
+                        <li><input type="checkbox" {% if scale.default == scale.name %} checked {% endif %} disabled> - {{ scale.name }}</li>
+                    {% endfor %}
+                    </ul>   
+                {% else %}
+                    {{ description.default }}
+                {% endif %}
+            </dd>
+        </dl>
+        <form action="./">
+            <div class="hidden">
+                <input name="id" value="{{ id }}">
+                <input name="version" value="{{ version }}">
+            </div>
+            <button class="btn btn-danger">Delete attribute</button>
+        </form>
+    </div>
+
+    
+</div>
+{% comment %}
     <form method="post" class="form-horizontal js-active-form span12 pull-left" id="attribute-form-id">
         {% csrf_token %}
         {% for error in form.non_field_errors %}
@@ -38,7 +85,6 @@
         {% endfor %}
 
         {# <!-- Primary --> #}
-        {% comment %}
         <div class="control-group {% if form.primary.errors %}error{% endif %}">
             <!-- <label class="control-label" for="{{ form.primary.id_for_label }}">{{ form.primary.label }} <i class="red">*</i></label> -->
             <div class="controls">
@@ -49,7 +95,6 @@
                 {% endfor %}
             </div>
         </div>
-        {% endcomment %}
 
         {# <!-- Name --> #}
         <div class="control-group {% if form.name.errors %}error{% endif %}">
@@ -87,10 +132,12 @@
         111111  {{ form.atype.value }}
         <fieldset>
             <legend>Description</legend>
-            
+
+        {% if form.atype.value == 'integer' or form.atype.value == 'string' or form.atype.value == 'float' %}
+
             {# <!-- Description: Integer --> #}
-            <div class="js-description-form control-group {% if form.descr_integer_default.errors %}error{% endif %}" id="form-for-integer">
-                <label class="control-label" for="descr_integer_default">Integer <i class="red">*</i></label>
+            <div class="js-description-form control-group">
+                <label class="control-label" for="descr_integer_default">Description</label>
                 <div class="controls">
                     <input class="input-small js-default-value" type="text" name="descr_integer_default" id="descr_integer_default" 
                         placeholder="default value" value="{% firstof descr_integer_default.value %}">
@@ -123,7 +170,7 @@
                     {% endfor %}
                 </div>
             </div>
-
+        {% endif %}
             {# <!-- Description: Range --> #}
             <div class="js-description-form hide control-group {% if form.descr_range_default.errors or form.descr_range_lower.errors or form.descr_range_upper.errors %}error{% endif %}" 
                 id="form-for-range">
@@ -267,7 +314,7 @@
         </div> -->
     </form>
 <!-- </div> -->
-
+{% endcomment %}
 {% endblock %}
 
 {% block endjs %}
