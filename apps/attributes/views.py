@@ -111,18 +111,24 @@ def create_attribute(request):
         rp = request.POST
         
         if form.is_valid():
-            atype = rp.get('atype')
             cd = form.cleaned_data
+            atype = cd.get('atype')
             default_name = 'descr_{}_default'.format(atype)
-            default_value = cd.get(default_name, rp.get(default_name))
+            default_value = cd.get(default_name, None)
+            if not default_value:
+                default_value = None
             primary = bool(rp.get('primary'))
+            print 333, default_value
+            # raise
 
             if atype == 'integer':
-                description_dict = {'default': int(default_value)}
+                #  27303
+                #  27308
+                description_dict = {'default': int(default_value) if default_value else default_value}
             elif atype == 'string':
                 description_dict = {'default': default_value}
             elif atype == 'float':
-                description_dict = {'default': float(default_value)}
+                description_dict = {'default': float(default_value) if default_value else default_value}
             elif atype == 'nominal':
                 # default_value = rp.get('descr-nominal-default')
                 nominal_list = cd.get('descr_nominal')
@@ -133,7 +139,7 @@ def create_attribute(request):
                 # {"default": str, "scale": [{name: str, weight: int},...]}
                 scale_list=[]
                 for i, scale in enumerate(cd.get('descr_scale')):
-                    scale_list.append({'name': scale, 'weight': i})
+                    scale_list.append({'name': scale, 'weight': i*10})
                 
                 # for _l in cd.get('descr_{}'.format(atype)).split('; '):
                 #     name, weight = _l.split(', ')
@@ -144,8 +150,8 @@ def create_attribute(request):
             elif atype == 'range':
                 description_dict = {
                     "default": default_value, 
-                    "upper": cd.get('descr_range_from'), 
-                    "lower": cd.get('descr_range_to')
+                    "upper": cd.get('descr_range_from', ''), 
+                    "lower": cd.get('descr_range_to', '')
                     }
 
             query_dict = {
@@ -172,6 +178,9 @@ def create_attribute(request):
                 messages.success(request, 'Attribute {0} with ID {1} and Version {2} successfully created.'.format(
                     form.cleaned_data['name'], content_dict['result']['id'], content_dict['result']['version'])
                 )
+                return redirect('attributes')
+
+
             elif content_dict.has_key('error'):
                 if 'Key ({0})=({1}) already exists.'.format('name', cd['name']) in content_dict['error']['data']:
                     form.errors['name'] = form.error_class([content_dict['error']['message']])
@@ -198,8 +207,7 @@ def edit_attribute(request, attr_id):
     template_context = {}
     if request.method == 'POST':
         rp = request.POST
-        
-        if ('id', 'version') in rp:
+        if rp.get('id', None) and rp.get('version', None):
             query_dict = {
                 "method" : "delete_attribute",
                 "key": request.user.sessionkey,
@@ -213,48 +221,50 @@ def edit_attribute(request, attr_id):
             
             if content_dict.has_key('result'):
                 messages.success(request, 'Attribute delete.')
+                cache.delete('attributes')
                 return redirect('attributes')
+
             elif content_dict.has_key('error'):
                     messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))
-    else:
+    # else:
+    query_dict = {
+        "method" : "get_attribute",
+        "key": request.user.sessionkey,
+        "params" : {
+            "id" : int(attr_id)
+        }
+    }
+
+    content_dict = api_request(query_dict)
+    if content_dict.has_key('result'):
+        attr_data = content_dict['result']['attribute']
+        template_context.update({
+            'id': attr_data['id'],
+            'version': attr_data['version'],
+            'name': attr_data['name'],
+            'atype': attr_data['atype'],
+            'description': attr_data['description'],
+            # 'attr_dict': attr_dict,
+            # 'descr_{}_default'.format(attr_data['atype']): attr_data['description']['default']
+        })
+
         query_dict = {
-            "method" : "get_attribute",
+            "method" : "get_organism",
             "key": request.user.sessionkey,
             "params" : {
-                "id" : int(attr_id)
+                "id" : int(attr_data['organism'])
             }
         }
-
         content_dict = api_request(query_dict)
         if content_dict.has_key('result'):
-            attr_data = content_dict['result']['attribute']
             template_context.update({
-                'id': attr_data['id'],
-                'version': attr_data['version'],
-                'name': attr_data['name'],
-                'atype': attr_data['atype'],
-                'description': attr_data['description'],
-                # 'attr_dict': attr_dict,
-                # 'descr_{}_default'.format(attr_data['atype']): attr_data['description']['default']
+                'organism': content_dict['result']['organism']['name']
             })
-
-            query_dict = {
-                "method" : "get_organism",
-                "key": request.user.sessionkey,
-                "params" : {
-                    "id" : int(attr_data['organism'])
-                }
-            }
-            content_dict = api_request(query_dict)
-            if content_dict.has_key('result'):
-                template_context.update({
-                    'organism': content_dict['result']['organism']['name']
-                })
-            elif content_dict.has_key('error'):
-                messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))  
-            
         elif content_dict.has_key('error'):
-            messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))        
+            messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))  
+        
+    elif content_dict.has_key('error'):
+        messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))        
 
             # form = CreateAttributeForm(request = request)
 

@@ -45,57 +45,58 @@ class CreateAttributeForm(forms.Form):
     organism = forms.ChoiceField(widget=forms.Select(attrs={'style': 'width:220px'}))
     # primary = forms.ChoiceField(widget=forms.RadioSelect, choices=ATTRIBUTES_STATE, initial=1)
     
-    # descr_integer_default = forms.IntegerField()
-    # descr_string_default = forms.CharField()
-    # descr_float_default = forms.FloatField()
+    descr_integer_default = forms.IntegerField(required=False)
+    descr_string_default = forms.CharField(required=False)
+    descr_float_default = forms.FloatField(required=False)
 
-    # descr_range_default = forms.FloatField()
-    # descr_range_from = forms.FloatField()
-    # descr_range_to = forms.FloatField()
+    descr_range_default = forms.FloatField(required=False)
+    descr_range_from = forms.FloatField()
+    descr_range_to = forms.FloatField()
 
-    # descr_nominal = CustomMultipleField()
-    # descr_nominal_default = forms.CharField()
+    descr_nominal = CustomMultipleField()
+    descr_nominal_default = forms.CharField(required=False)
     
-    # descr_scale = CustomMultipleField()
-    # descr_scale_default = forms.CharField()
+    descr_scale = CustomMultipleField()
+    descr_scale_default = forms.CharField(required=False)
 
     def __init__(self, request, *args, **kwargs):
         super(CreateAttributeForm, self).__init__(*args, **kwargs)
         self.fields['organism'].choices = get_choices(request, item_name='organisms')
 
 
-    #TODO Validation for string-fields
-    # def clean(self):
-    #     cd = super(CreateAttributeForm, self).clean()
-    #     atype = cd['atype']
-    #     # All description-fields
-    #     description_field_list = ['descr_integer_default', 'descr_string_default', 'descr_float_default',
-    #         'descr_range_default', 'descr_range_from', 'descr_range_to']
-    #         # 'descr_nominal', 'descr_nominal_default', 'descr_scale', 'descr_scale_default']
+    # TODO Validation for string-fields
+    def clean(self):
+        cd = super(CreateAttributeForm, self).clean()
+        atype = cd['atype']
+        # All description-fields
+        description_field_list = ['descr_integer_default', 'descr_string_default', 'descr_float_default',
+            'descr_range_default', 'descr_range_from', 'descr_range_to', 
+            'descr_nominal', 'descr_nominal_default', 'descr_scale', 'descr_scale_default']
 
-    #     # Remove selected field form description-fields
-    #     if atype == 'integer':
-    #         description_field_list.remove('descr_integer_default')
-    #     elif atype == 'string':
-    #         description_field_list.remove('descr_string_default')
-    #     elif atype == 'float':
-    #         description_field_list.remove('descr_float_default')
-    #     elif atype == 'range':
-    #         description_field_list.remove('descr_range_default')
-    #         description_field_list.remove('descr_range_from')
-    #         description_field_list.remove('descr_range_to')
-    #     # elif atype == 'nominal':
-    #     #   description_field_list.remove('descr_nominal')
-    #     #   description_field_list.remove('descr_nominal_default')
-    #     # elif atype == 'scale':
-    #     #   description_field_list.remove('descr_scale')
-    #     #   description_field_list.remove('descr_scale_default')
+        # Remove selected field form description-fields
+        if atype == 'integer':
+            description_field_list.remove('descr_integer_default')
+        elif atype == 'string':
+            description_field_list.remove('descr_string_default')
+        elif atype == 'float':
+            description_field_list.remove('descr_float_default')
+        elif atype == 'range':
+            description_field_list.remove('descr_range_default')
+            description_field_list.remove('descr_range_from')
+            description_field_list.remove('descr_range_to')
+        elif atype == 'nominal':
+          description_field_list.remove('descr_nominal')
+          description_field_list.remove('descr_nominal_default')
+        elif atype == 'scale':
+          description_field_list.remove('descr_scale')
+          description_field_list.remove('descr_scale_default')
 
-    #     # Delete all description-fields exclude selected
-    #     for field in description_field_list:
-    #         if self._errors.has_key(field):
-    #             del self._errors[field]
-    #     return cd
+        # Delete all description-fields exclude selected
+        for field in description_field_list:
+            if self._errors.has_key(field):
+                del self._errors[field]
+        print 333, self._errors
+        return cd
 
 # class EditAttributeForm(CreateAttributeForm):
 class EditAttributeForm(forms.Form):

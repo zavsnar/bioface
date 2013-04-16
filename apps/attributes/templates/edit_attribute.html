@@ -34,7 +34,9 @@
             </dt>
             <dd>
                 {% if atype == 'range' %}
-
+                        <b>Default value</b> {% firstof description.default '<span class="red">n/a</span>' %} 
+                        <p><b>From:</b> {{ description.lower }} 
+                        <b>To:</b> {{ description.upper }}</p>
                 {% elif atype == 'nominal' %}
                     <ul class="list-no-style">
                     {% for item in description.items %}
@@ -48,11 +50,12 @@
                     {% endfor %}
                     </ul>   
                 {% else %}
-                    {{ description.default }}
+                    {% firstof description.default '<span class="red">n/a</span>' %} 
                 {% endif %}
             </dd>
         </dl>
-        <form action="./">
+        <form action="./" method='POST' id="delete_attr_id">
+            {% csrf_token %}
             <div class="hidden">
                 <input name="id" value="{{ id }}">
                 <input name="version" value="{{ version }}">
@@ -341,6 +344,15 @@
 
         //     $("#sortable").disableSelection();
         // });
+
+        $('#delete_attr_id').submit(function(){
+            if (confirm("Are you want DELETE THIS ATTRIBUTE and ALL VALUES IN RELATED OBJECTS?")) {
+                // Submit
+                return
+            }
+            return false;
+        })
+
         attr_id = {{ id }}
         attr_version = {{ version }}
 

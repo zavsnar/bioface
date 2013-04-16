@@ -300,6 +300,7 @@
         $('#submit-add-nominal-item').click(function(){
             $add_nominal = $('#add-nominal-item')
             if ($add_nominal.val()) {
+                alert()
                 $('#table-nominal-id tr.js_add_item').before(
                     '<tr class="item"> \
                         <td><input name="descr_nominal" value="' + $add_nominal.val() + '"></td> \
@@ -308,10 +309,10 @@
                     </tr>'
                     )
                 $add_nominal.val('');
-                if ($('.js-nominal-default:checked').attr('checked')) {}
-                else {
-                    $('.js-nominal-default:first').prop('checked', true)
-                };
+                // if ($('.js-nominal-default:checked').attr('checked')) {}
+                // else {
+                //     $('.js-nominal-default:first').prop('checked', true)
+                // };
             };
 
         });
@@ -340,10 +341,10 @@
             // TODO if delete checked item check other item as default
             $(this).parent().parent().remove()
 
-            if ($('.js-nominal-default:checked').attr('checked')) {}
-            else {
-                $('.js-nominal-default:first').prop('checked', true)
-            };
+            // if ($('.js-nominal-default:checked').attr('checked')) {}
+            // else {
+            //     $('.js-nominal-default:first').prop('checked', true)
+            // };
         })
 
         // Delete Scale Button
