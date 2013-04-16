@@ -3,14 +3,13 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 
 from django import forms
-from django.core.cache import cache
-from django.contrib.auth.forms import UserCreationForm
+# from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
 
 #from django_select2 import *
 #from django_select2.widgets import *
 
-from apps.bioface.utils import api_request, get_choices
+from apps.bioface.utils import get_choices
 
 METHODS_FOR_CALL_ITEM = ("get_object", "get_attribute", "get_tag", "get_tags_version", "get_sequence", "get_reference",
     "get_segment", "get_alignment", "get_annotation")
@@ -95,19 +94,19 @@ class CreateAttributeForm(forms.Form):
         for field in description_field_list:
             if self._errors.has_key(field):
                 del self._errors[field]
-        print 333, self._errors
         return cd
 
 # class EditAttributeForm(CreateAttributeForm):
 class EditAttributeForm(forms.Form):
     id = forms.IntegerField(widget=forms.HiddenInput, required=False)
     version = forms.IntegerField(widget=forms.HiddenInput, required=False)
-    # atype = forms.ChoiceField(label = 'Type', choices=ATYPE_ATTRIBUTES_CHOISES, 
-    #     widget=forms.Select(attrs={'style': 'width:220px', 'disabled': 'disabled'}))
-    # organism = forms.ChoiceField(widget=forms.Select(
-    #     attrs={'style': 'width:220px', 'disabled': 'disabled'}))
+    name = forms.CharField(label='Name')
+    atype = forms.ChoiceField(label='Type', choices=ATYPE_ATTRIBUTES_CHOISES, 
+        widget=forms.Select(attrs={'style': 'width:220px', 'disabled': 'disabled'}))
+    organism = forms.ChoiceField(widget=forms.Select(
+        attrs={'style': 'width:220px', 'disabled': 'disabled'}))
 
-
-
-
+    def __init__(self, request, *args, **kwargs):
+        super(EditAttributeForm, self).__init__(*args, **kwargs)
+        self.fields['organism'].choices = get_choices(request, item_name='organisms')
 

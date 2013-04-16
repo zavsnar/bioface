@@ -1,18 +1,13 @@
 {% extends 'base.html' %}
-{% load bootstrap main_filters dajaxice_templatetags staticfiles %}
 
-{% block subtitle %}Edit My profile{% endblock %}
+{% block subtitle %}Create attribute{% endblock %}
 
 {% block forestyle %}
-<link href="{{ STATIC_URL }}css/select2.css" rel="stylesheet"/>
-<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />
+<link rel="stylesheet" href="{{ STATIC_URL }}css/jquery-ui.min.css" />
 {% endblock %}
 
 {% block forejs %} 
-
-
-    
- {% endblock %}
+{% endblock %}
 
 {% block main %}
 <h2>Create Attribute</h2>
@@ -300,7 +295,6 @@
         $('#submit-add-nominal-item').click(function(){
             $add_nominal = $('#add-nominal-item')
             if ($add_nominal.val()) {
-                alert()
                 $('#table-nominal-id tr.js_add_item').before(
                     '<tr class="item"> \
                         <td><input name="descr_nominal" value="' + $add_nominal.val() + '"></td> \
@@ -338,7 +332,6 @@
 
         // Delete Nominal Button
         $('#form-for-nominal').delegate('.js-nominal-delete', 'click', function(){
-            // TODO if delete checked item check other item as default
             $(this).parent().parent().remove()
 
             // if ($('.js-nominal-default:checked').attr('checked')) {}

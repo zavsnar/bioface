@@ -168,3 +168,7 @@ table#table-nominal-id {
 .pagination a {
     cursor: pointer;
 }
+
+#table-scale-id .item{
+    cursor:move;
+}

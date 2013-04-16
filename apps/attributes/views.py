@@ -28,7 +28,7 @@ from django.core.cache import cache
 
 
 from apps.bioface.utils import api_request
-from apps.attributes.forms import CreateAttributeForm
+from apps.attributes.forms import CreateAttributeForm, EditAttributeForm
 
 @login_required
 def attribute_list(request):
@@ -208,24 +208,33 @@ def edit_attribute(request, attr_id):
     if request.method == 'POST':
         rp = request.POST
         if rp.get('id', None) and rp.get('version', None):
-            query_dict = {
-                "method" : "delete_attribute",
-                "key": request.user.sessionkey,
-                "params" : {
-                    "id" : int(rp.get('id')),
-                    "version" :  int(rp.get('version'))
+            attr_id = int(rp.get('id'))
+            attr_version = int(rp.get('version'))
+
+            if rp.get('is_delete', None):
+                success = delete_attribute(request=request, id=attr_id, version=attr_version)
+                if success:
+                    return redirect('attributes')
+
+            elif rp.get('name', None):
+                form = EditAttributeForm(request)
+                query_dict = {
+                    "method" : "update_attribute",
+                    "key": request.user.sessionkey,
+                    "params" : {
+                        "id" : attr_id,
+                        "version": attr_version,
+                        "data": { "name": rp['name'] }
+                    }
                 }
-            }
 
-            content_dict = api_request(query_dict)
-            
-            if content_dict.has_key('result'):
-                messages.success(request, 'Attribute delete.')
-                cache.delete('attributes')
-                return redirect('attributes')
-
-            elif content_dict.has_key('error'):
-                    messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))
+                content_dict = api_request(query_dict)
+                
+                if content_dict.has_key('result'):
+                    messages.success(request, 'Attribute change.')
+                    cache.delete('attributes')
+                elif content_dict.has_key('error'):
+                        messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))
     # else:
     query_dict = {
         "method" : "get_attribute",
@@ -248,20 +257,24 @@ def edit_attribute(request, attr_id):
             # 'descr_{}_default'.format(attr_data['atype']): attr_data['description']['default']
         })
 
-        query_dict = {
-            "method" : "get_organism",
-            "key": request.user.sessionkey,
-            "params" : {
-                "id" : int(attr_data['organism'])
-            }
-        }
-        content_dict = api_request(query_dict)
-        if content_dict.has_key('result'):
-            template_context.update({
-                'organism': content_dict['result']['organism']['name']
-            })
-        elif content_dict.has_key('error'):
-            messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))  
+        form = EditAttributeForm(request=request, data=attr_data)
+        template_context.update({
+            'form': form,
+        })
+        # query_dict = {
+        #     "method" : "get_organism",
+        #     "key": request.user.sessionkey,
+        #     "params" : {
+        #         "id" : int(attr_data['organism'])
+        #     }
+        # }
+        # content_dict = api_request(query_dict)
+        # if content_dict.has_key('result'):
+        #     template_context.update({
+        #         'organism': content_dict['result']['organism']['name']
+        #     })
+        # elif content_dict.has_key('error'):
+        #     messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))  
         
     elif content_dict.has_key('error'):
         messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))        
@@ -269,11 +282,34 @@ def edit_attribute(request, attr_id):
             # form = CreateAttributeForm(request = request)
 
     # template_context.update({
-        # 'form': form,
+    #     'form': form,
         # 'description_errors': description_errors,
     # })
     return render_to_response('edit_attribute.html', template_context, 
         context_instance=RequestContext(request))
+
+
+def delete_attribute(request, id, version):
+    query_dict = {
+        "method" : "delete_attribute",
+        "key": request.user.sessionkey,
+        "params" : {
+            "id" : id,
+            "version" : version
+        }
+    }
+    content_dict = api_request(query_dict)
+    
+    if content_dict.has_key('result'):
+        messages.success(request, 'Attribute delete.')
+        cache.delete('attributes')
+        success = True
+
+    elif content_dict.has_key('error'):
+        messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))
+        success = False
+
+    return success
 
 
 def get_item_list_by_api(item_name, content_dict):

@@ -1,12 +1,10 @@
 {% extends 'base.html' %}
-{% load bootstrap main_filters dajaxice_templatetags staticfiles %}
 
 {% block subtitle %}Attribute list{% endblock %}
 
 {% block forestyle %}
-<link href="{{ STATIC_URL }}css/select2.css" rel="stylesheet"/>
 <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery-ui-1.10.2.custom.min.css" />
-<link rel="stylesheet" href="{{ STATIC_URL }}css/jquery.ui.theme.css" />
+<!-- <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery.ui.theme.css" /> -->
 {% endblock %}
 
 {% block forejs %} 
@@ -19,7 +17,6 @@
 {% block main %}
 
 <table class="table table-bordered">
-    <!-- <caption>Result Table</caption> -->
     <thead>
         <tr>
             <th>Name</th>
@@ -92,7 +89,6 @@
 {% endblock %}
 
 {% block endjs %}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/select2.min.js"></script>
     <script src="{{ STATIC_URL }}js/jquery-ui-1.10.2.custom.min.js"></script>
     <script type="text/javascript">
         $(function() {
@@ -106,21 +102,6 @@
               content: function() {
                 options_html = $( this ).find('.js_attr_options').html()
                 return options_html
-
-                // var element = $( this );
-                // if ( element.is( "[data-geo]" ) ) {
-                //   var text = element.text();
-                //   return "<img class='map' alt='" + text +
-                //     "' src='http://maps.google.com/maps/api/staticmap?" +
-                //     "zoom=11&size=350x350&maptype=terrain&sensor=false&center=" +
-                //     text + "'>";
-                // }
-                // if ( element.is( "[title]" ) ) {
-                //   return element.attr( "title" );
-                // }
-                // if ( element.is( "img" ) ) {
-                //   return element.attr( "alt" );
-                // }
               }
             });
           });
