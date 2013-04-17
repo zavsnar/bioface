@@ -115,16 +115,14 @@
             </div>
         </div>
 
-        <legend>Files</legend>
+        <!-- <legend>Files</legend>
         <div class="control-group">
-            <!-- <label class="control-label" for="object_file">File</label> -->
             <div class="controls">
                 <ul>
                     {% for id, file_name in files_dict.items %}
                         <li><a class="js_download_file" data-file-id="{{ id }}">{{ file_name }}</a></li>
                     {% endfor %}
                 </ul>
-                <!-- <input name="file_description" type="text" placeholder="file description" id="file_description"> -->
                 <div class="fileupload fileupload-new" data-provides="fileupload">
                     <div class="input-append">
                         <div class="uneditable-input span3">
@@ -138,12 +136,11 @@
 
                         <a href="#" class="btn fileupload-exists" data-dismiss="fileupload">Remove</a>
                         <a id="start_fileupload" class="btn btn-primary fileupload-exists">Upload</a>
-                        <!-- <input type="text" /> -->
                     </div>
                 </div>
                 
             </div>
-        </div>
+        </div> -->
 
         <!-- <input name="object_files" type="file"> -->
 
@@ -151,65 +148,85 @@
             <input name="files_dict" id="files_dict" value="">
         </div>
         
-        <div class="form-actions">
+        <!-- <div class="form-actions">
             <button type="submit" class="btn btn-primary">Save</button>&nbsp;
             Save Button
-        </div>
-    </form>
+        </div> -->
 
-        <!-- Redirect browsers with JavaScript disabled to the origin page -->
-    </form>
+        <div class="row">
+            <div class="span8">
 
-    <div class="row">
-        <div class="span8">
+                <div class="tabbable"> <!-- Only required for left/right tabs -->
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a href="#tab1" data-toggle="tab">Attributes</a></li>
+                        <li><a href="#tab2" data-toggle="tab">Sequences</a></li>
+                        <li><a href="#tab-file" data-toggle="tab">Files</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="tab1">
 
-            <div id="file_contener">
-                <input multiple="multiple" type="file" id="uploadedfile" name='uploadedfile'>
-            </div>
-            
-            <div class="tabbable"> <!-- Only required for left/right tabs -->
-                <ul class="nav nav-tabs">
-                    <li class="active"><a href="#tab1" data-toggle="tab">Attributes</a></li>
-                    <li><a href="#tab2" data-toggle="tab">Sequences</a></li>
-                </ul>
-                <div class="tab-content">
-                    <div class="tab-pane active" id="tab1">
+                            {% for attr in attr_list %}
+                                {% if forloop.counter = 6 %}
+                                <a onclick="toggle_filter()" id="hideBut" class="btn">></a>
+                                <div class="show-hide">
+                                {% endif %}
+                                <div class="control-group">
+                                    <label class="control-label" for="attr_{{ attr.name }}"><a href="#">{{ attr.name }}</a></label>
+                                    <div class="controls">
+                                        <input type="text" id="attr_{{ attr.name }}" name="attr_{{ attr.name }}" value="{{ attr.value }}">
+                                    </div>
+                                </div>
+                                {% if forloop.counter >= 6 and forloop.last %}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                            <!-- <a class="btn btn-primary pull-right">Add</a>&nbsp; -->
+                            
+                        </div>
+                        <div class="tab-pane" id="tab2">
+                            <p>List of sequences.</p>
+                        </div>
+                        <div class="tab-pane" id="tab-file">
+                            <div class="fileupload fileupload-new" data-provides="fileupload">
+                                <div class="input-append">
+                                    <div class="uneditable-input span3">
+                                        <i class="icon-file fileupload-exists"></i> <span class="fileupload-preview"></span>
+                                    </div>
+                                    <span class="btn btn-file">
+                                        <span class="fileupload-new">Select file</span>
+                                        <span class="fileupload-exists">Change</span>
+                                        <input id="object_file" name="object_file" type="file" />
+                                    </span>
 
-                        {% for attr in attr_list %}
-                            {% if forloop.counter = 6 %}
-                            <a onclick="toggle_filter()" id="hideBut" class="btn">></a>
-                            <div class="show-hide">
-                            {% endif %}
-                            <div class="control-group">
-                                <label class="control-label" for="attr_{{ attr.name }}"><a href="#">{{ attr.name }}</a></label>
-                                <div class="controls">
-                                    <input type="text" id="attr_{{ attr.name }}" name="attr_{{ attr.name }}" value="{{ attr.value }}">
+                                    <a href="#" class="btn fileupload-exists" data-dismiss="fileupload">Remove</a>
+                                    <a id="start_fileupload" class="btn btn-primary fileupload-exists">Upload</a>
+                                    <!-- <input type="text" /> -->
                                 </div>
                             </div>
-                            {% if forloop.counter >= 6 and forloop.last %}
-                                </div>
-                            {% endif %}
-                        {% endfor %}
-                        <!-- <a class="btn btn-primary pull-right">Add</a>&nbsp; -->
-                        
-                    </div>
-                    <div class="tab-pane" id="tab2">
-                        <p>List of sequences.</p>
+
+                            <ul>
+                                {% for id, file_name in files_dict.items %}
+                                    <li><a class="js_download_file" data-file-id="{{ id }}">{{ file_name }}</a></li>
+                                {% endfor %}
+                            </ul>
+                            <!-- <input name="file_description" type="text" placeholder="file description" id="file_description"> -->
+                            
+
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- <span>Attributes</span>
-            <hr/> -->
-            
-            <div class="form-actions">
+                <!-- <span>Attributes</span>
+                <hr/> -->
                 
-                <!-- <button type="submit" class="btn btn-primary">Save</button>&nbsp; -->
-                Save Button
+                <div class="form-actions">
+                    <!-- <button type="submit" class="btn btn-success">Save</button>&nbsp; -->
+                    Save button
+                </div>
+            <!-- </form> -->
             </div>
-        <!-- </form> -->
         </div>
-    </div>
+    </form>
         
 
 <div class="preloader-img" style="display: none"></div>
@@ -254,7 +271,6 @@
             // }
             // $('#downloadform_id').submit()
 
-            alert()
             // $.post("/api/v1", query);
             // $form = $("<form>").appendTo("body");
             // $form.hide()
@@ -292,7 +308,7 @@
 
         })
 
-        // $('#id_tags').select2({tags:[{% for id, value in form.fields.tags.choices %}{'id':"{{ id }}", "label": "{{value}}"}, {% endfor %}]})
+        // $('#id_tags').select2({tags:[{% for name in form.fields.tags.choices %}{{ name }}, {% endfor %}]})
 
         
         //   var availableTags = [
@@ -315,8 +331,8 @@
         $("#start_fileupload").click(function(){
             file_data = $('#object_file')[0].files[0],
             fileName = file_data.name,
-            fileSize = file_data.size;
-            alert("Uploading: "+fileName+" @ "+fileSize+"bytes");
+            // fileSize = file_data.size;
+            // alert("Uploading: "+fileName+" @ "+fileSize+"bytes");
             Dajaxice.apps.bioface.upload_file(Dajax.process, { 'filename': fileName, 'file_data': file_data });
            // CustomFileHandlingFunction(file);
         });
@@ -324,7 +340,7 @@
         function upload_2_server(upload_data){
             upload_url = upload_data.upload_url
             upload_id = upload_data.upload_id
-            alert(upload_url);
+            // alert(upload_url);
             form_data = new FormData(file_data);
             form_data.append("files", file_data)
 
@@ -357,8 +373,8 @@
                 },
                 error: function(xhr,err){
                     stop_show_loading();
-                    alert("readyState: "+xhr.readyState+"\nstatus: "+xhr.status);
-                    alert("responseText: "+xhr.responseText);
+                    alert("status: "+xhr.status);
+                    // alert("responseText: "+xhr.responseText);
                 },
               // dataType: dataType
             });
@@ -404,19 +420,19 @@
             // post_response = $.get(upload_url);
         // }
 
-        function createUploader(){            
-            var uploader = new qq.FileUploader({
-                element: document.getElementById('file_contener'),
-                onSubmit: function(id, fileName){
-                    alert(fileName);
+        // function createUploader(){            
+        //     var uploader = new qq.FileUploader({
+        //         element: document.getElementById('file_contener'),
+        //         onSubmit: function(id, fileName){
+        //             alert(fileName);
 
-                    // Dajaxice.apps.bioface.upload_file(Dajax.process, { 'filename': fileName });
-                    // return false
-                },
-                onProgress: function(id, fileName, loaded, total){alert(loaded);},
-                action: '/'
-            });           
-        }
+        //             // Dajaxice.apps.bioface.upload_file(Dajax.process, { 'filename': fileName });
+        //             // return false
+        //         },
+        //         onProgress: function(id, fileName, loaded, total){alert(loaded);},
+        //         action: '/'
+        //     });           
+        // }
         
         not_all_file_upload = true
         form_submit = false
@@ -425,8 +441,8 @@
             if (upload_file.length > 0 && not_all_file_upload) {
                 file_data = upload_file[0],
                 fileName = file_data.name,
-                fileSize = file_data.size;
-                alert("Uploading: "+fileName+" @ "+fileSize+"bytes");
+                // fileSize = file_data.size;
+                // alert("Uploading: "+fileName+" @ "+fileSize+"bytes");
                 Dajaxice.apps.bioface.upload_file(Dajax.process, { 'filename': fileName, 'file_data': file_data });
 
                 form_submit = true
@@ -445,8 +461,6 @@
         function toggle_filter() {
             $(".show-hide").toggle("hide");
         };
-
-        
 
     </script>
 {% endblock %}
