@@ -7,7 +7,7 @@ from __future__ import absolute_import
 # import httplib2 
 # import json
 
-# from dateutil.parser import parse as datetime_parse
+from dateutil.parser import parse as datetime_parse
 
 # import ast
 
@@ -91,6 +91,10 @@ def attribute_list(request):
         #         attr_dict[time_field] = field_value
 
         #     if attr['atype'] 
+
+        for attr in attr_list:
+            time_value = datetime_parse(attr['created'])
+            attr['created'] = time_value.strftime("%Y-%m-%d %H:%M:%S")
 
         template_context = {'item_list': attr_list}
     else:

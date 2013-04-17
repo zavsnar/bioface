@@ -107,69 +107,40 @@ def upload_file(request, filename, file_data):
         }
 
     content_dict = api_request(query)
-    print 22222, content_dict
 
     if content_dict.has_key('result'):
         upload_id = content_dict['result']['upload_id']
-        # API_HOST = API_HOST = 'http://10.0.1.208:8080'
-        # upload_url = API_HOST + '/bioupload/' + upload_id
         upload_url = '/bioupload/' + upload_id
-        # upload_url = API_HOST + '/login/'
-        # upload_url = 'http://google.com'
-        print 999999, upload_url
         dajax.add_data({'upload_url': upload_url, 'upload_id': upload_id}, 'upload_2_server')
-        # dajax.script('upload_2_server("{}");'.format(upload_id))
     else:
         template_context = {'error_message': 'Query does not exist.'}
         render = render_to_string('components/alert_messages.html', template_context)
         dajax.assign('.extra-message-block', 'innerHTML', render)
 
-    # URL="http://www.whatever.com"
-    # f=open(filename, 'rb')
-    # filebody = f.read()
-    # f.close()
-    # data = {'name':'userfile','file': filebody}
-    # import urllib
-    # import httplib2 
-    # headers = {'Content-type': 'application/json'}
-    # http = httplib2.Http(disable_ssl_certificate_validation=True)
-    # file_data = file('fabfile.py', 'r').read()
-    # u = http.request(API_URL, 'POST', files = file_data)
-    # u = urllib.urlopen(upload_url, urllib.urlencode(file_data))
-
-    # import requests
-    # files = {'files' : open('fabfile.py','rb')}
-    # r = requests.post(upload_url, files=files, verify=False)
-    # print 11111, r.content
-
     return dajax.json()
 
 @dajaxice_register
-def get_file(request, file_id='333124c5a10a43148480f960c7e7ff78'):
-    # file_id = '2a2e42c9760548de93fe365a002c1174'
-    print 1111111
+def delete_file(request, fileid):
+    dajax = Dajax()
     query = {
-        "method" : "get_file",
-        "key": request.user.sessionkey,
-        "params" : {
-            "id" : file_id
+            "method" : "delete_file",
+            "key": request.user.sessionkey,
+            "params" : {
+                "id" : fileid
         }
     }
-    import httplib2 
-    import json
-    headers = {'Content-type': 'application/json'}
-    http = httplib2.Http(disable_ssl_certificate_validation=True)
-    print 777, json.dumps(query)
-    file_data = http.request(API_URL, 'POST', body = json.dumps(query), headers = headers)
-    print type(file_data), file_data[0]
-    with file('../static/file_data.txt', 'w') as file_on:
-        file_on.write(file_data[1])
 
-    dajax = Dajax()
-    template_context = {'success_message': 'file upload'}
-    render = render_to_string('components/alert_messages.html', template_context)
-    dajax.assign('.extra-message-block', 'innerHTML', render)
+    content_dict = api_request(query)
+
+    if content_dict.has_key('result'):
+        dajax.add_data(fileid, 'delete_file_from_list')
+    else:
+        template_context = {'error_message': 'Error: {}'.format(content_dict['error']['message'])}
+        render = render_to_string('components/alert_messages.html', template_context)
+        dajax.assign('.extra-message-block', 'innerHTML', render)
+
     return dajax.json()
+
 # def prepair_objects(query_dict, object_download, with_attributes=False, with_sequences=False, encoding='utf-8'):
 #     object_download = Download.objects.get(id = object_download)
 #     content_dict = api_request(query_dict)
@@ -254,86 +225,6 @@ def get_file(request, file_id='333124c5a10a43148480f960c7e7ff78'):
 
 #     return True
 
-@dajaxice_register
-def assign_test(request):
-    dajax = Dajax()
-    dajax.assign('#box', 'innerHTML', 'Hello World!')
-    dajax.add_css_class('div .alert', 'red')
-    return dajax.json()
-
-@dajaxice_register
-def multiply(request, a, b):
-    dajax = Dajax()
-    result = int(a) * int(b)
-    dajax.assign('#result','value',str(result))
-    return dajax.json()
-
-@dajaxice_register
-def sayhello(request):
-    return simplejson.dumps({'message':'Hello World'})
-
-
-@dajaxice_register
-def send_form(request, form):
-    dajax = Dajax()
-    form = ExampleForm(deserialize_form(form))
-    
-    if form.is_valid():
-        dajax.remove_css_class('#my_form input', 'error')
-        dajax.alert("Form is_valid(), your username is: %s" % form.cleaned_data.get('username'))
-    else:
-        dajax.add_css_class('#my_form input', 'error')
-        for error in form.errors:
-            dajax.add_css_class('#id_%s' % error, 'error')
-
-    return dajax.json()
-    
-import random
-@dajaxice_register
-def randomize(request):
-    dajax = Dajax()
-    dajax.assign('#result', 'value', random.randint(1, 10))
-    return dajax.json()
-
-def add_ajax_form(request, form, query_dict, html_selector):
-	dajax = Dajax()
-	if form.is_valid():
-		# query_dict = {
-		# 	"method" : "add_organism",
-		# 	"key": request.user.sessionkey,
-		# 	"params" : {
-		# 		"data" : {
-		# 			"name": form.cleaned_data['name']
-		# 		}
-		# 	}
-		# }
-
-		content_dict = api_request(query_dict)
-		if content_dict.has_key('result'):
-			id = content_dict['result']['id']
-			name = form.cleaned_data['name']
-			dajax.script("success_adding('{0}', '{1}');".format(id, name))
-		else:
-			form._errors['name'] = ErrorList((content_dict['error']['message'],))
-			# error_html = '<span class="help-inline">ERROR: {}</span>'.format(content_dict['error']['data'])
-			# dajax.assign('#myModal1 #error_for_name', 'innerHTML', content_dict['error']['message'])
-			# dajax.add_css_class('#myModal1 #error_for_name', 'error')
-			# dajax.add_css_class('#myModal1 input#id_name', 'error')
-	 #        dajax.remove_css_class('#create_organism input', 'error')
-	 #        dajax.alert("Form is_valid(), your username is: %s" % form.cleaned_data.get('username'))
-	# else:
-		# dajax.add_css_class('#create_organism input', 'error')
-		# for error in form.errors:
-			# dajax.add_css_class('#myModal1 input#id_%s' % error, 'error')
-
-	# render = form
-	# dajax.assign('#create_organism', 'innerHTML', render)
-	context = {'additional_form': form}
-	context.update(csrf(request))
-	render = render_to_string('create_organism.html', context)
-	dajax.assign(html_selector, 'innerHTML', render)
-	return dajax.json()
-
 
 @dajaxice_register
 def add_organism(request, form):
@@ -354,35 +245,27 @@ def add_organism(request, form):
 	return add_ajax_form(request = request, form=form, 
 		query_dict=query_dict, html_selector='#create_organism')
 
-from apps.bioface.views import get_pagination_page
+# from apps.bioface.views import get_pagination_page
+# @dajaxice_register
+# # @ajax_login_required
+# def pagination(request, page, method, query):
+# 	query_dict = ast.literal_eval(query)
+# 	print query_dict
+# 	raise
+# 	query_dict = {
+# 	    "method" : method,
+# 	    "key": request.user.sessionkey,
+# 	    # "params" : {
+# 	    #     # "query" : "reference_id = id",
+# 	    #     "limit" : cd['limit'],
+# 	    #     "skip" : cd['skip'],
+# 	    #     # "orderby" : [["field_name", "acs"], ["field_name2", "desc"]]
+# 	    # }
+# 	}
 
-@dajaxice_register
-# @ajax_login_required
-def pagination(request, page, method, query):
-	query_dict = ast.literal_eval(query)
-	print query_dict
-	raise
-	query_dict = {
-	    "method" : method,
-	    "key": request.user.sessionkey,
-	    # "params" : {
-	    #     # "query" : "reference_id = id",
-	    #     "limit" : cd['limit'],
-	    #     "skip" : cd['skip'],
-	    #     # "orderby" : [["field_name", "acs"], ["field_name2", "desc"]]
-	    # }
-	}
+# 	template_name, template_context = get_pagination_page(page, query_dict)
+# 	render = render_to_string('result_list_paginated.html', template_context)
 
-	template_name, template_context = get_pagination_page(page, query_dict)
-	render = render_to_string('result_list_paginated.html', template_context)
-
-	dajax = Dajax()
-	dajax.assign('#result-list', 'innerHTML', render)
-	return dajax.json()
-
-@dajaxice_register
-def test_span(request):
-    dajax = Dajax()
-    dajax.assign('#test-span', 'innerHTML', 'Hello World!')
-    return dajax.json()
-
+# 	dajax = Dajax()
+# 	dajax.assign('#result-list', 'innerHTML', render)
+# 	return dajax.json()

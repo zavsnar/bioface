@@ -21,6 +21,8 @@
         <tr>
             <th>Name</th>
             <th>Type</th>
+            <th>Created</th>
+            <th>Comment</th>
             <th>Default value</th>
         </tr>
     </thead>    
@@ -31,6 +33,8 @@
                     <a href="{% url 'edit_attribute' item.id %}">{{ item.name }}</a>
                 </td>
                 <td>{{ item.atype }}</td>
+                <td>{{ item.created }}</td>
+                <td>{% firstof item.comment '' %}</td>
                 {% if item.atype == 'range' %}
                     <td class="js_attr_description" data-placement="bottom" title="{{ step.query }}" data-original-title="{{ step.query }}">
                         {% if item.description.default %}

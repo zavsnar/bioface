@@ -24,6 +24,9 @@ from apps.objects.forms import CreateOrganismForm, SelectObjects
 from apps.bioface.models import SavedQuery
 from apps.bioface.utils import api_request, get_choices
 
+
+##### For page Select Objects #####
+
 @dajaxice_register
 def update_attributes_from_organism(request, organism_id):
     # form_data = deserialize_form(form)
