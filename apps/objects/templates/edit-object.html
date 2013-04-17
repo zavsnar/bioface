@@ -158,12 +158,12 @@
 
                 <div class="tabbable"> <!-- Only required for left/right tabs -->
                     <ul class="nav nav-tabs">
-                        <li class="active"><a href="#tab1" data-toggle="tab">Attributes</a></li>
+                        <li><a href="#tab1" data-toggle="tab">Attributes</a></li>
                         <li><a href="#tab2" data-toggle="tab">Sequences</a></li>
-                        <li><a href="#tab-file" data-toggle="tab">Files</a></li>
+                        <li class="active"><a href="#tab-file" data-toggle="tab">Files</a></li>
                     </ul>
                     <div class="tab-content">
-                        <div class="tab-pane active" id="tab1">
+                        <div class="tab-pane" id="tab1">
 
                             {% for attr in attr_list %}
                                 {% if forloop.counter = 6 %}
@@ -186,7 +186,7 @@
                         <div class="tab-pane" id="tab2">
                             <p>List of sequences.</p>
                         </div>
-                        <div class="tab-pane" id="tab-file">
+                        <div class="tab-pane active" id="tab-file">
                             <div class="fileupload fileupload-new" data-provides="fileupload">
                                 <div class="input-append">
                                     <div class="uneditable-input span3">
@@ -220,8 +220,7 @@
                 <hr/> -->
                 
                 <div class="form-actions">
-                    <!-- <button type="submit" class="btn btn-success">Save</button>&nbsp; -->
-                    Save button
+                    <button type="submit" class="btn btn-success" style="margin-left: 170px" >Save</button>&nbsp;
                 </div>
             <!-- </form> -->
             </div>

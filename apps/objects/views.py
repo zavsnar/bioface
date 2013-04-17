@@ -173,9 +173,7 @@ def update_object(request, object_id = 0):
                 # {u'error': {u'code': -32005,
                 # u'data': u'(IntegrityError) duplicate key value violates unique constraint "objects_name_key"\nDETAIL:  Key (name)=(123) already exists.\n',
                 # u'message': u'not unique'}}
-                    messages.success(request, 'Object {0} with ID {1} and Version {2} successfully updated.'.format(
-                        form.cleaned_data['name'], content_dict['result']['id'], content_dict['result']['version'])
-                    )
+                    messages.success(request, 'Object "{}" successfully updated.'.format(cd.get('name')))
 
                     form.object_version = content_dict['result']['version']
                     # files_id = cd.get('files_id')
