@@ -44,10 +44,6 @@ a {
     margin: 20px 0;
 }
 
-.custom-tab-content {
-    overflow: hidden;
-}
-
 .red {color: red;}
 
 .list-no-style {list-style: none; margin: 0;}
@@ -177,6 +173,10 @@ table#table-nominal-id {
 }
 
 /* Object Edit */
+.custom-tab-content {
+    overflow-y: hidden;
+}
+
 .form-horizontal .attr-controls {
     margin-left: 220px;
 }

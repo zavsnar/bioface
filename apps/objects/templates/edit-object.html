@@ -24,7 +24,7 @@
 {% endblock %}
 
 {% block main %}
-    <form method="post" action="./" id="update-form" class="form-horizontal js-active-form span8 pull-left">
+    <form method="post" action="./" id="update-form" class="form-horizontal js-active-form span12 pull-left">
         {% csrf_token %}
         {% for error in form.non_field_errors %}
             <div class="alert alert-error">
@@ -144,6 +144,8 @@
 
         <!-- <input name="object_files" type="file"> -->
 
+        <button type="submit" class="btn btn-success pull-right" style="margin-right: 20px;" >Save</button>&nbsp;
+
         <div class="hidden">
             <input name="files_dict" id="files_dict" value="">
             <input name="updated_attributes" id="updated_attributes" value="">
@@ -154,12 +156,14 @@
             Save Button
         </div> -->
 
+
         <div class="row">
-            <div class="span8">
+            <div class="span12">
 
                 <div class="tabbable"> <!-- Only required for left/right tabs -->
                     <ul class="nav nav-tabs">
                         <li><a href="#tab1" data-toggle="tab">Attributes</a></li>
+                        <li><a href="#templates" data-toggle="tab">Templates</a></li>
                         <li><a href="#tab2" data-toggle="tab">Sequences</a></li>
                         <li class="active"><a href="#tab-file" data-toggle="tab">Files</a></li>
                     </ul>
@@ -194,6 +198,86 @@
                             {% endfor %}
                             <!-- <a class="btn btn-primary pull-right">Add</a>&nbsp; -->
                             
+                        </div>
+                        <div class="tab-pane" id="templates">
+                            <div class="control-group">
+                                <label class="control-label attr-control-label">Select template</label>
+                                <div class="controls attr-controls">
+                                    <select class="js_select2" style="width: 220px">
+                                        <option value="123">123</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <table class="table table-bordered">
+                                <!-- <thead>
+                                    <tr>
+                                        <th><input></th>
+                                        <th>
+                                            <select class="js_tbl_attribute" name="{{ attr_list.0.name }}" style="width: 220px">
+                                                <option></option>
+                                                {% for attr in attr_list|dictsort:"name" %}
+                                                    <option value="{{ attr.name }}">{{ attr.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <select class="js_tbl_attribute" name="{{ attr_list.1.name }}" style="width: 220px">
+                                                <option></option>
+                                                {% for attr in attr_list|dictsort:"name" %}
+                                                    <option value="{{ attr.name }}">{{ attr.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </th>
+                                    </tr>
+                                </thead> -->
+                                <tbody>
+                                    <tr>
+                                        <td><input></td>
+                                        <td>
+                                            <select class="js_tbl_attribute" name="{{ attr_list.0.name }}" style="width: 220px">
+                                                <option></option>
+                                                {% for attr in attr_list|dictsort:"name" %}
+                                                    <option value="{{ attr.name }}">{{ attr.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <select class="js_tbl_attribute" name="{{ attr_list.1.name }}" style="width: 220px">
+                                                <option></option>
+                                                {% for attr in attr_list|dictsort:"name" %}
+                                                    <option value="{{ attr.name }}">{{ attr.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <select class="js_tbl_attribute" name="{{ attr_list.0.name }}" style="width: 220px">
+                                                <option></option>
+                                                {% for attr in attr_list|dictsort:"name" %}
+                                                    <option value="{{ attr.name }}">{{ attr.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <select class="js_tbl_attribute" name="{{ attr_list.1.name }}" style="width: 220px">
+                                                <option></option>
+                                                {% for attr in attr_list|dictsort:"name" %}
+                                                    <option value="{{ attr.name }}">{{ attr.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </td>
+                                        <td><a class="btn btn-success">+</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a class="btn btn-success">+</a></td>
+                                        <td><a class="btn btn-success">+</a></td>
+                                        <td><a class="btn btn-success">+</a></td>
+                                        <td><a class="btn btn-success">+</a></td>
+                                        
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div class="hidden" id="attribute-select-id">
+                                <select class="js_tbl_attribute" name="{{ attr.name }}" style="width: 220px">
+                                    {% for attr in attr_list|dictsort:"name" %}
+                                        <option value="{{ attr.name }}">{{ attr.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
                         </div>
                         <div class="tab-pane" id="tab2">
                             <p>List of sequences.</p>
@@ -271,6 +355,11 @@
     <script type="text/javascript">
 
         $('.js_select2').select2({})
+
+        $('.js_tbl_attribute').select2({
+            placeholder: 'Select attribute',
+             allowClear: true
+        })
 
         files_dict = {{ files_dict|jsonify }}
 

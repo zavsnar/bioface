@@ -143,8 +143,9 @@ def update_object(request, object_id = 0):
 
             if request.POST.get('updated_attributes', ''):
                 attribute_dict = ast.literal_eval(request.POST['updated_attributes'])
-                query_dict['params']['data']['attributes'] = attribute_dict.items()
-                query_dict['params']['attributes_autoexpand'] = True
+                if attribute_dict:
+                    query_dict['params']['data']['attributes'] = attribute_dict.items()
+                    query_dict['params']['attributes_autoexpand'] = True
 
             content_dict = api_request(query_dict)
             # form._changed_data = {'source': '123'}
