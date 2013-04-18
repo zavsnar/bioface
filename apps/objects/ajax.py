@@ -24,6 +24,25 @@ from apps.objects.forms import CreateOrganismForm, SelectObjects
 from apps.bioface.models import SavedQuery
 from apps.bioface.utils import api_request, get_choices
 
+#### For page Update Object #####
+
+# def save_file_form_object(request, obj_id, obj_version, file_id_list):
+
+#     query_dict = {
+#         "method" : "update_object",
+#         "key": request.user.sessionkey,
+#         "params" : {
+#             "id" : cd.get('id'),
+#             "version" : cd.get('version'),
+#             "attributes_autoexpand" : False,
+#             "data" : {
+#                 "fields": {
+#                     "files": cd.get('files_id').split(',')
+#                 },
+#             }
+#         }
+#     }
+
 
 ##### For page Select Objects #####
 

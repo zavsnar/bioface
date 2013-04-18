@@ -44,6 +44,9 @@ a {
     margin: 20px 0;
 }
 
+.custom-tab-content {
+    overflow: hidden;
+}
 
 .red {color: red;}
 
@@ -171,4 +174,13 @@ table#table-nominal-id {
 
 #table-scale-id .item{
     cursor:move;
+}
+
+/* Object Edit */
+.form-horizontal .attr-controls {
+    margin-left: 220px;
+}
+
+.form-horizontal .attr-control-label {
+    width: 200px;
 }

@@ -104,12 +104,68 @@ def update_object(request, object_id = 0):
     except ValueError:
         raise Http404
 
+    if request.method == 'POST':
+        form = UpdateObjectForm(request=request, data = request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            query_dict = {
+                "method" : "update_object",
+                "key": request.user.sessionkey,
+                "params" : {
+                    "id" : cd.get('id'),
+                    "version" : cd.get('version'),
+                    "attributes_autoexpand" : False,
+                    "data" : {
+                        "fields": {
+                            "name" : cd.get('name'),
+                            "lab_id": cd.get('lab_id'),
+                            "organism": cd.get('organism'),
+                            "source": cd.get('source'),
+                            "comment": cd.get('comment'),
+                        #     "refs": ["id1", "id2"], //список id референсов
+                            # "tags": cd.get('tags'),
+                            # "files": cd.get('files_id').split(',')
+                        },
+                        # "attributes": [
+                        #     ["attribute_id", "value1"],
+                        #     etc...
+                        # ]
+                    }
+                }
+            }
+
+            if cd.get('tags', ''):
+                query_dict['params']['data']['fields']['tags'] = form.tags_id_list
+
+            if request.POST.get('files_dict', ''):
+                files_dict = ast.literal_eval(request.POST['files_dict'])
+                query_dict['params']['data']['fields']['files'] = files_dict.keys()
+
+            if request.POST.get('updated_attributes', ''):
+                attribute_dict = ast.literal_eval(request.POST['updated_attributes'])
+                query_dict['params']['data']['attributes'] = attribute_dict.items()
+                query_dict['params']['attributes_autoexpand'] = True
+
+            content_dict = api_request(query_dict)
+            # form._changed_data = {'source': '123'}
+            if content_dict.has_key('result'):
+            # {u'error': {u'code': -32005,
+            # u'data': u'(IntegrityError) duplicate key value violates unique constraint "objects_name_key"\nDETAIL:  Key (name)=(123) already exists.\n',
+            # u'message': u'not unique'}}
+                messages.success(request, 'Object "{}" successfully updated.'.format(cd.get('name')))
+
+                form.object_version = content_dict['result']['version']
+                # files_id = cd.get('files_id')
+
+            elif content_dict.has_key('error'):
+                messages.error(request, 'ERROR: {}'.format(content_dict['error']))
+
     query_dict = {
         "method" : "get_object",
         "key": request.user.sessionkey,
         "params" : {
             "id" : object_id,
-            "nulls_filler": "n/a",
+            "nulls_filler": "",
             # "attributes_list": ["attribute_id1", "attribute_id2",  ]
         }
     }
@@ -117,85 +173,36 @@ def update_object(request, object_id = 0):
     if content_dict.has_key('result'):
         object_data = content_dict['result']['object']
         if object_data.has_key('attributes'):
+            attr_query_dict = {
+                "method" : "get_attributes",
+                "key": request.user.sessionkey,
+                "params" : {
+                    "query" : "organism = {}".format(object_data['organism']),
+                    "orderby" : [["name", "asc"]]
+                }
+            }
+            attr_content_dict = api_request(attr_query_dict)
+            if attr_content_dict.has_key('result'):
+                attr_content_list = { attr['name']: attr['description'] for attr in attr_content_dict['result']['attributes'] if attr['atype'] in ('nominal', 'scale') }
             attr_list = content_dict['result']['object'].pop('attributes')
+            for attr in attr_list:
+                if attr['type'] == 'nominal':
+                    attr['options'] = attr_content_list[attr["name"]]['items']
+                elif attr['type'] == 'scale':
+                    opts = attr_content_list[attr["name"]]['scale']
+                    attr['options'] = map(lambda d: d['name'], sorted(opts, key=lambda opt: opt['weight']))
         else:
             attr_list = {}
-        print 111111, object_data['files']
+
         files_dict = { f['id']: f['name'] for f in object_data['files'] }
 
-        print 222222, files_dict
-
-        if request.method == 'POST':
-            print request.POST
-            # raise
-            form = UpdateObjectForm(request=request, data = request.POST)
-            if form.is_valid():
-                cd = form.cleaned_data
-                query_dict = {
-                    "method" : "update_object",
-                    "key": request.user.sessionkey,
-                    "params" : {
-                        "id" : cd.get('id'),
-                        "version" : cd.get('version'),
-                        "attributes_autoexpand" : False,
-                        "data" : {
-                            "fields": {
-                                "name" : cd.get('name'),
-                                "lab_id": cd.get('lab_id'),
-                                "organism": cd.get('organism'),
-                                "source": cd.get('source'),
-                                "comment": cd.get('comment'),
-                            #     "refs": ["id1", "id2"], //список id референсов
-                                # "tags": cd.get('tags'),
-                                # "files": cd.get('files_id').split(',')
-                            },
-                            # "attributes": [
-                            #     ["attribute_id", "value1"],
-                            #     etc...
-                            # ]
-                        }
-                    }
-                }
-
-                
-
-                if cd.get('tags', ''):
-                    query_dict['params']['data']['fields']['tags'] = form.tags_id_list
-
-                if request.POST.get('files_dict', ''):
-                    files_dict = ast.literal_eval(request.POST['files_dict'])
-                    query_dict['params']['data']['fields']['files'] = files_dict.keys()
-
-                content_dict = api_request(query_dict)
-                # form._changed_data = {'source': '123'}
-                print 666666, form.changed_data
-                if content_dict.has_key('result'):
-                # {u'error': {u'code': -32005,
-                # u'data': u'(IntegrityError) duplicate key value violates unique constraint "objects_name_key"\nDETAIL:  Key (name)=(123) already exists.\n',
-                # u'message': u'not unique'}}
-                    messages.success(request, 'Object "{}" successfully updated.'.format(cd.get('name')))
-
-                    form.object_version = content_dict['result']['version']
-                    # files_id = cd.get('files_id')
-
-                elif content_dict.has_key('error'):
-                    messages.error(request, 'ERROR: {}'.format(content_dict['error']))
-
-        else:
-                # obj_fields = query_dict['params']['data']['fields']
-                # for key, value in form.cleaned_data.items():
-                #     obj_fields[key] = value
-
-                # sequense_form = InlineSequenseForm(initial={})
-                # formset = formset_factory(InlineSequenseForm, extra=2, can_delete=True)
-
+        if request.method == 'GET':
             form = UpdateObjectForm(request = request, initial=object_data)
-
-        
 
         template_context = {
             'form': form,
             'attr_list': attr_list,
+            'attr_content_list': attr_content_list,
             'object_data': object_data,
             'files_dict': files_dict
             # 'formset': formset

@@ -127,7 +127,8 @@ class CreateOrganismForm(forms.Form):
     name = forms.CharField(label='Name')
 
 class TagMixin(forms.Form):
-    tags = forms.CharField(label = 'Tags', required=False, widget=forms.TextInput(attrs={'style': 'width:220px'}))
+    tags = forms.CharField(label = 'Tags', required=False, 
+        widget=forms.TextInput(attrs={'style': 'width:220px'}))
 
     def __init__(self, request, *args, **kwargs):
         super(TagMixin, self).__init__(*args, **kwargs)
@@ -138,24 +139,25 @@ class TagMixin(forms.Form):
         tags_id=[]
         new_tags=[]
         for tag in self.cleaned_data['tags'].split(','):
-            tag_exist = False
-            for id, name in self.fields['tags'].choices:
-                if tag == name:
-                    print 7777777
-                    tags_id.append(id)
-                    tag_exist = True
-                    break
+            if tag:
+                tag_exist = False
+                for id, name in self.fields['tags'].choices:
+                    if tag == name:
+                        print 7777777
+                        tags_id.append(id)
+                        tag_exist = True
+                        break
 
-            if not tag_exist:
-                query_dict = {
-                    "method": "add_tag",
-                    "key": self.request.user.sessionkey,
-                    "params": {"data": {"tag": tag}}
-                }
+                if not tag_exist:
+                    query_dict = {
+                        "method": "add_tag",
+                        "key": self.request.user.sessionkey,
+                        "params": {"data": {"tag": tag}}
+                    }
 
-                content_dict = api_request(query_dict)
-                if content_dict['result']:
-                    new_tags.append(content_dict['result']['id'])
+                    content_dict = api_request(query_dict)
+                    if content_dict.get('result', None):
+                        new_tags.append(content_dict['result']['id'])
 
         tags_id.extend(new_tags)
 

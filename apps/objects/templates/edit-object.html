@@ -4,7 +4,7 @@
 {% block subtitle %}Edit My profile{% endblock %}
 
 {% block forestyle %}
-<!-- <link href="{{ STATIC_URL }}css/select2.css" rel="stylesheet"/> -->
+<link href="{{ STATIC_URL }}css/select2.css" rel="stylesheet"/>
 <link href="{{ STATIC_URL }}css/bootstrap-fileupload.css" rel="stylesheet"/>
 
 <!-- <link href="{{ STATIC_URL }}css/tagit.css" rel="stylesheet"/> -->
@@ -146,8 +146,9 @@
 
         <div class="hidden">
             <input name="files_dict" id="files_dict" value="">
+            <input name="updated_attributes" id="updated_attributes" value="">
         </div>
-        
+
         <!-- <div class="form-actions">
             <button type="submit" class="btn btn-primary">Save</button>&nbsp;
             Save Button
@@ -162,22 +163,33 @@
                         <li><a href="#tab2" data-toggle="tab">Sequences</a></li>
                         <li class="active"><a href="#tab-file" data-toggle="tab">Files</a></li>
                     </ul>
-                    <div class="tab-content">
+                    <div class="tab-content custom-tab-content">
                         <div class="tab-pane" id="tab1">
 
-                            {% for attr in attr_list %}
+                            {% for attr in attr_list|dictsort:"name" %}
                                 {% if forloop.counter = 6 %}
-                                <a onclick="toggle_filter()" id="hideBut" class="btn">></a>
-                                <div class="show-hide">
+                                <!-- <a onclick="toggle_filter()" id="hideBut" class="btn">></a>
+                                <div class="show-hide"> -->
                                 {% endif %}
                                 <div class="control-group">
-                                    <label class="control-label" for="attr_{{ attr.name }}"><a href="#">{{ attr.name }}</a></label>
-                                    <div class="controls">
-                                        <input type="text" id="attr_{{ attr.name }}" name="attr_{{ attr.name }}" value="{{ attr.value }}">
+                                    <label class="control-label attr-control-label" for="{{ attr.name }}">{{ attr.name }}</label>
+                                    <div class="controls attr-controls">
+                                        {% if attr.options %}
+                                            <select class="js_attribute_value js_select2" 
+                                                data-pk="{{ attr.name }}" name="{{ attr.name }}" style="width: 220px">
+                                                {% for option in attr.options %}
+                                                    <option {% if attr.value == option %} selected {% endif %} 
+                                                        value="{{ option }}">{{ option }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        {% else %}
+                                            <input type="text" class="js_attribute_value" data-pk="{{ attr.name }}" name="{{ attr.name }}" value="{{ attr.value }}">
+                                        {% endif %}
                                     </div>
                                 </div>
+
                                 {% if forloop.counter >= 6 and forloop.last %}
-                                    </div>
+                                    <!-- </div> -->
                                 {% endif %}
                             {% endfor %}
                             <!-- <a class="btn btn-primary pull-right">Add</a>&nbsp; -->
@@ -199,7 +211,7 @@
                                     </span>
 
                                     <a href="#" class="btn fileupload-exists" data-dismiss="fileupload">Remove</a>
-                                    <a id="start_fileupload" class="btn btn-primary fileupload-exists">Upload</a>
+                                    <!-- <a id="start_fileupload" class="btn btn-primary fileupload-exists">Upload</a> -->
                                     <!-- <input type="text" /> -->
                                 </div>
                             </div>
@@ -225,7 +237,7 @@
                 <hr/> -->
                 
                 <div class="form-actions">
-                    <button type="submit" class="btn btn-success" style="margin-left: 170px" >Save</button>&nbsp;
+                    <button type="submit" class="btn btn-success pull-right" style="margin-left: 170px" >Save</button>&nbsp;
                 </div>
             <!-- </form> -->
             </div>
@@ -248,15 +260,17 @@
 
     <script src="{{ STATIC_URL }}js/jquery-ui-1.10.2.custom.min.js"></script>
 
-    <!-- // <script type="text/javascript" src="{{ STATIC_URL }}js/select2.min.js"></script> -->
+    <script src="{{ STATIC_URL }}js/select2.min.js"></script>
     <!-- // <script type="text/javascript" src="{{ STATIC_URL }}js/tagit.js"></script> -->
     <!-- // <script type="text/javascript" src="{{ STATIC_URL }}js/tagit-themeroller.js"></script> -->
     
     <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-fileupload.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/main.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/FileSaver.js"></script>
+    <!-- // <script type="text/javascript" src="{{ STATIC_URL }}js/FileSaver.js"></script> -->
 
     <script type="text/javascript">
+
+        $('.js_select2').select2({})
 
         files_dict = {{ files_dict|jsonify }}
 
@@ -312,7 +326,7 @@
 
         })
 
-        // $('#id_tags').select2({tags:[{% for name in form.fields.tags.choices %}{{ name }}, {% endfor %}]})
+        // $('#id_tags').select2({tags:[{% for tag in form.fields.tags.choices %}{{ tag.name }}, {% endfor %}]})
 
         
         //   var availableTags = [
@@ -331,6 +345,15 @@
         //         select: true, 
         //         sortable: true,
         //     });
+        
+
+        updated_attributes = {}
+
+        $('.js_attribute_value').change(function(){
+            var attr_pk = $(this).prop('name')
+            var attr_value = $(this).val()
+            updated_attributes[attr_pk] = attr_value
+        })
 
         $("#start_fileupload").click(function(){
             file_data = $('#object_file')[0].files[0],
@@ -469,7 +492,12 @@
                 return false
             }
 
-            $('#files_dict').val(JSON.stringify(files_dict));    
+            $('#files_dict').val(JSON.stringify(files_dict));
+            if (updated_attributes) {
+                $('#updated_attributes').val(JSON.stringify(updated_attributes));
+            }
+            
+            
         })
 
         // in your app create uploader as soon as the DOM is ready
