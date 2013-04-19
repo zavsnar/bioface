@@ -4,6 +4,7 @@ from __future__ import absolute_import
 
 from django import forms
 from django.utils.encoding import force_text
+from django.core.cache import cache
 
 #from django_select2 import *
 #from django_select2.widgets import *
@@ -133,39 +134,61 @@ class TagMixin(forms.Form):
     def __init__(self, request, *args, **kwargs):
         super(TagMixin, self).__init__(*args, **kwargs)
         self.request = request
-        self.fields['tags'].choices = get_choices(request, item_name='tags')
+        self.fields['tags'].choices = get_choices(request, item_name='tags', key="tag")
 
-    def clean_tags(self):
-        tags_id=[]
-        new_tags=[]
-        for tag in self.cleaned_data['tags'].split(','):
-            if tag:
-                tag_exist = False
-                for id, name in self.fields['tags'].choices:
-                    if tag == name:
-                        print 7777777
-                        tags_id.append(id)
-                        tag_exist = True
-                        break
+    # def clean_tags(self):
+    #     # tags_id=[]
+        
+    #     all_tags = map(lambda x: x[0], self.fields['tags'].choices)
+    #     new_tags=list(set(self.cleaned_data['tags'].split(',')) - set(all_tags))
+    #     print new_tags, 111, self.cleaned_data['tags'].split(','), 222, all_tags
+    #     # if new_tags:
+    #     #     for new_tag in new_tags:
+    #     #         query_dict = {
+    #     #             "method": "add_tag",
+    #     #             "key": self.request.user.sessionkey,
+    #     #             "params": {"data": {"tag": new_tag}}
+    #     #         }
 
-                if not tag_exist:
-                    query_dict = {
-                        "method": "add_tag",
-                        "key": self.request.user.sessionkey,
-                        "params": {"data": {"tag": tag}}
-                    }
+    #     #         content_dict = api_request(query_dict)
+    #     #         if content_dict.get('result', None):
+    #     #             new_tags.append(content_dict['result']['tag'])
 
-                    content_dict = api_request(query_dict)
-                    if content_dict.get('result', None):
-                        new_tags.append(content_dict['result']['id'])
+    #     # for tag in self.cleaned_data['tags'].split(','):
+    #     #     if tag:
+    #     #         tag_exist = False
+    #     #         for id, name in self.fields['tags'].choices:
+    #     #             if tag == name:
+    #     #                 # tags_id.append(id)
+    #     #                 tag_exist = True
+    #     #                 break
 
-        tags_id.extend(new_tags)
+    #     #         if not tag_exist:
+    #     #             query_dict = {
+    #     #                 "method": "add_tag",
+    #     #                 "key": self.request.user.sessionkey,
+    #     #                 "params": {"data": {"tag": tag}}
+    #     #             }
 
-        if new_tags:
-            self.fields['tags'].choices = get_choices(self.request, item_name='tags')
-        self.tags_id_list = tags_id
-        # self.cleaned_data['tags'] = ','.join(tags)
-        return self.cleaned_data['tags']
+    #     #             content_dict = api_request(query_dict)
+    #     #             if content_dict.get('result', None):
+    #     #                 new_tags.append(content_dict['result']['tag'])
+
+    #     # tags_id.extend(new_tags)
+
+    #     if new_tags:
+    #         print 2222, cache.get('tags')
+    #         if cache.has_key('tags'):
+    #             cache.delete('tags')
+    #             print 3333, cache.get('tags')
+
+    #         self.fields['tags'].choices = get_choices(self.request, item_name='tags', key='tag')
+        
+    #         print self.fields['tags'].choices
+    #         # raise
+    #     # self.tags_id_list = tags_id
+    #     # self.cleaned_data['tags'] = ','.join(tags)
+    #     return self.cleaned_data['tags']
 
 
 # def create_object_form(request, *args, **kwargs):

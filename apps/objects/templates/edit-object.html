@@ -24,7 +24,7 @@
 {% endblock %}
 
 {% block main %}
-    <form method="post" action="./" id="update-form" class="form-horizontal js-active-form span12 pull-left">
+    <form method="post" action="./" id="update-form" class="form-horizontal js-active-form pull-left">
         {% csrf_token %}
         {% for error in form.non_field_errors %}
             <div class="alert alert-error">
@@ -63,7 +63,7 @@
         </div>
 
         {# <!-- Tag --> #}
-        <!-- <div class="control-group {% if form.tags.errors %}error{% endif %}">
+        <div class="control-group {% if form.tags.errors %}error{% endif %}">
             <label class="control-label" for="{{ form.tags.id_for_label }}">{{ form.tags.label }}</label>
             <div class="controls">
                 {{ form.tags }}
@@ -71,7 +71,8 @@
                     <span class="help-inline">{{ error }}</span>
                 {% endfor %}
             </div>
-        </div> -->
+            <input id="id_old_tags" name="old_tags" type="hidden" value="{{ form.tags.value }}">
+        </div>
 
         <!-- <div class="box"> -->
             <!-- <ul id="demo2" data-name="demo2"> -->
@@ -162,13 +163,13 @@
 
                 <div class="tabbable"> <!-- Only required for left/right tabs -->
                     <ul class="nav nav-tabs">
-                        <li><a href="#tab1" data-toggle="tab">Attributes</a></li>
-                        <li><a href="#templates" data-toggle="tab">Templates</a></li>
+                        <li class="active"><a href="#tab1" data-toggle="tab">Attributes</a></li>
+                        <!-- <li><a href="#templates" data-toggle="tab">Templates</a></li> -->
                         <li><a href="#tab2" data-toggle="tab">Sequences</a></li>
-                        <li class="active"><a href="#tab-file" data-toggle="tab">Files</a></li>
+                        <li><a href="#tab-file" data-toggle="tab">Files</a></li>
                     </ul>
                     <div class="tab-content custom-tab-content">
-                        <div class="tab-pane" id="tab1">
+                        <div class="tab-pane active" id="tab1">
 
                             {% for attr in attr_list|dictsort:"name" %}
                                 {% if forloop.counter = 6 %}
@@ -282,7 +283,7 @@
                         <div class="tab-pane" id="tab2">
                             <p>List of sequences.</p>
                         </div>
-                        <div class="tab-pane active" id="tab-file">
+                        <div class="tab-pane" id="tab-file">
                             <div class="fileupload fileupload-new" data-provides="fileupload">
                                 <div class="input-append">
                                     <div class="uneditable-input span3">
@@ -327,7 +328,6 @@
             </div>
         </div>
     </form>
-        
 
 <div class="preloader-img" style="display: none"></div>
 
@@ -353,7 +353,7 @@
     <!-- // <script type="text/javascript" src="{{ STATIC_URL }}js/FileSaver.js"></script> -->
 
     <script type="text/javascript">
-
+        $('#id_tags').select2({tags:[{% for tag in form.fields.tags.choices %}"{{ tag.0 }}", {% endfor %}]})
         $('.js_select2').select2({})
 
         $('.js_tbl_attribute').select2({
@@ -415,7 +415,7 @@
 
         })
 
-        // $('#id_tags').select2({tags:[{% for tag in form.fields.tags.choices %}{{ tag.name }}, {% endfor %}]})
+        
 
         
         //   var availableTags = [

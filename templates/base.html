@@ -50,7 +50,7 @@
                                 <li class="dropdown">
                                     <a id="drop2" role="button" class="dropdown-toggle" data-toggle="dropdown">Sequences <b class="caret"></b></a>
                                     <ul class="dropdown-menu" role="menu" aria-labelledby="drop2">
-                                        <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'select_sequences' %}">Select</a></li>
+                                        <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'sequence_list' %}">Select</a></li>
                                         <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Create</a></li>
                                     </ul>
                                 </li>
@@ -167,7 +167,7 @@
         {#<!-- Block Scripts -->#}
         <!-- // <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>  -->
 
-        <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script> 
+        <script src="{{ STATIC_URL }}js/jquery-1.9.1.min.js"></script> 
 
         <!-- // <script src="{{ STATIC_URL }}js/jquery-1.8.3.js"></script> -->
         <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>

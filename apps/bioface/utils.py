@@ -72,13 +72,15 @@ def get_choices(request, item_name, cache_key='', key='id', query_params='', app
     if not cache_key:
         cache_key = item_name
     # if cache.has_key(cache_key):
-        print "CACHE ", cache_key
+        
     choices_list = cache.get(cache_key, [])
     # else:
     # choices_list = (('',''),)
     # if cache_key:
     
-    if not choices_list:
+    if choices_list:
+        print "CACHE ", cache_key
+    else:
         method = 'get_{}'.format(item_name)
         query_dict = {
             "method" : method,

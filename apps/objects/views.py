@@ -20,6 +20,7 @@ from django import forms
 from django.forms.formsets import formset_factory
 from django.http import StreamingHttpResponse, Http404
 from django.core.urlresolvers import reverse
+from django.core.cache import cache
 from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.shortcuts import render, render_to_response, redirect
@@ -134,8 +135,47 @@ def update_object(request, object_id = 0):
                 }
             }
 
-            if cd.get('tags', ''):
-                query_dict['params']['data']['fields']['tags'] = form.tags_id_list
+            if cd.get('tags', '') and request.POST['tags'] != request.POST['old_tags']:
+                # print request.POST['tags'], 111, len(request.POST['old_tags'])
+
+                new_tags = request.POST['tags'].split(',')
+                old_tags = request.POST['old_tags'].split(',')
+
+                print new_tags, 11111, old_tags
+                add_tags = list(set(new_tags) - set(old_tags))
+                if add_tags:
+                    query_add_tag = {
+                        "method": "tag_object",
+                        "key": request.user.sessionkey,
+                        "params": {
+                              "id": cd.get('id'),
+                              "tags": add_tags
+                        }
+                    }
+
+                    content_dict = api_request(query_add_tag)
+                    if content_dict.has_key('error'):
+                        messages.error(request, 'ERROR: {}'.format(content_dict['error']))
+
+                delete_tags = list(set(old_tags) - set(new_tags))
+                if delete_tags:
+                    query_delete_tag = {
+                        "method": "untag_object",
+                        "key": request.user.sessionkey,
+                        "params": {
+                            "id": cd.get('id'),
+                            "tags": delete_tags
+                        }
+                    }
+
+                    content_dict = api_request(query_delete_tag)
+                    if content_dict.has_key('error'):
+                        messages.error(request, 'ERROR: {}'.format(content_dict['error']))
+
+                if (add_tags or delete_tags) and cache.get('tags', None):
+                    cache.delete('tags')
+
+                # query_dict['params']['data']['fields']['tags'] = form.tags_id_list
 
             if request.POST.get('files_dict', ''):
                 files_dict = ast.literal_eval(request.POST['files_dict'])
@@ -148,11 +188,7 @@ def update_object(request, object_id = 0):
                     query_dict['params']['attributes_autoexpand'] = True
 
             content_dict = api_request(query_dict)
-            # form._changed_data = {'source': '123'}
             if content_dict.has_key('result'):
-            # {u'error': {u'code': -32005,
-            # u'data': u'(IntegrityError) duplicate key value violates unique constraint "objects_name_key"\nDETAIL:  Key (name)=(123) already exists.\n',
-            # u'message': u'not unique'}}
                 messages.success(request, 'Object "{}" successfully updated.'.format(cd.get('name')))
 
                 form.object_version = content_dict['result']['version']
@@ -194,11 +230,14 @@ def update_object(request, object_id = 0):
                     attr['options'] = map(lambda d: d['name'], sorted(opts, key=lambda opt: opt['weight']))
         else:
             attr_list = {}
+        object_data['tags'] = ','.join(object_data['tags'])
+        # if not object_data['tags']:
+        #     object_data['tags'] = ''
 
         files_dict = { f['id']: f['name'] for f in object_data['files'] }
 
-        if request.method == 'GET':
-            form = UpdateObjectForm(request = request, initial=object_data)
+        # if request.method == 'GET':
+        form = UpdateObjectForm(request = request, initial=object_data)
 
         template_context = {
             'form': form,
