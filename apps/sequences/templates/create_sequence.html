@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load bootstrap main_filters dajaxice_templatetags staticfiles %}
 
-{% block subtitle %}Edit My profile{% endblock %}
+{% block subtitle %}Create sequence{% endblock %}
 
 {% block forestyle %}
 <link href="{{ STATIC_URL }}css/select2.css" rel="stylesheet"/>
@@ -9,17 +9,14 @@
 {% endblock %}
 
 {% block forejs %} 
-
-
-    
- {% endblock %}
+{% endblock %}
 
 {% block main %}
 <div id="file-uploader">       
-            <noscript>          
-                <p>Please enable JavaScript to use file uploader.</p>
-            </noscript>         
-        </div>
+    <noscript>          
+        <p>Please enable JavaScript to use file uploader.</p>
+    </noscript>         
+</div>
 <form method="post" action="./" class="form-horizontal js-active-form span12 pull-left">
     {% csrf_token %}
     {% for error in form.non_field_errors %}

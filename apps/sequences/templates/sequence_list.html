@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block subtitle %}Attribute list{% endblock %}
+
+{% block forestyle %}
+<!-- <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery-ui-1.10.2.custom.min.css" /> -->
+<!-- <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery.ui.theme.css" /> -->
+{% endblock %}
+
+{% block forejs %} 
+{% endblock %}
+
+{% block content_title %}
+    <h1>Sequence list</h1>
+{% endblock %}
+
+{% block main %}
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <!-- <th>Type</th> -->
+            <th>Created</th>
+            <th>Comment</th>
+            <!-- <th>Default value</th> -->
+        </tr>
+    </thead>    
+    <tbody>
+        {% for item in sequences|dictsort:"name" %}
+            <tr>
+                <td>
+                    <a href="{% url 'sequence_edit' item.id %}">{{ item.name }}</a>
+                </td>
+                <!-- <td>{{ item.atype }}</td> -->
+                <td>{{ item.created }}</td>
+                <td>{% firstof item.comment '' %}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
+
+{% block endjs %}
+{% endblock %}

@@ -23,10 +23,9 @@ from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from apps.bioface.utils import api_request, API_URL
-from apps.bioface.forms import *
+from apps.sequences.forms import *
 
-def create_sequence(request):
-    template_name = 'create_sequence.html'
+def create_sequence(request, sequence_id=None):
     if request.method == 'POST':
         form = CreateSequenceForm(request=request, data = request.POST)
         if form.is_valid():
@@ -62,27 +61,59 @@ def create_sequence(request):
             content_dict = api_request(query_dict)
             
             if content_dict.has_key('result'):
-            # {u'error': {u'code': -32005,
-            # u'data': u'(IntegrityError) duplicate key value violates unique constraint "objects_name_key"\nDETAIL:  Key (name)=(123) already exists.\n',
-            # u'message': u'not unique'}}
-                messages.success(request, 'Object {0} with ID {1} and Version {2} successfully created.'.format(
-                    form.cleaned_data['name'], content_dict['result']['id'], content_dict['result']['version'])
+                messages.success(request, 
+                    'Object {0} with ID {1} and Version {2} successfully created.'.format(
+                    form.cleaned_data['name'], content_dict['result']['id'], 
+                    content_dict['result']['version'])
                 )
                 return redirect('update_object')
             elif content_dict.has_key('error'):
                 messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))
 
-    else:
-        form = CreateObjectForm(request=request)
+    # else:
+    if sequence_id:
+        query_dict = {
+                "method" : "get_sequences",
+                "key": request.user.sessionkey,
+                "params" : {
+                    "id" : sequence_id
+            }
+        }
 
-    add_organism_form = CreateOrganismForm()
+        content_dict = api_request(query_dict)
+        if content_dict.has_key('result'):
+            form = CreateSequenceForm(request=request, initial=content_dict['result']['sequence'])
+        elif content_dict.has_key('error'):
+            messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))
+    else:
+        form = CreateSequenceForm(request=request)
 
     template_context = {
         'form': form,
-        'additional_form': add_organism_form
     }
-    return render_to_response(template_name, template_context, context_instance=RequestContext(request))
+    return render_to_response('create_sequence.html', template_context, context_instance=RequestContext(request))
 
+def sequence_list(request):
+    template_context={}
+    query_dict = {
+            "method" : "get_sequences",
+            "key": request.user.sessionkey,
+            "params" : {
+                # "query" : "tags in (tag_id1, tag_id2)",
+                "orderby" : [["name", "asc"]]
+        }
+    }
+
+    content_dict = api_request(query_dict)
+
+    if content_dict.has_key('result'):
+        template_context.update({
+            'sequences': content_dict['result']['sequences']
+        })
+    elif content_dict.has_key('error'):
+        messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))
+
+    return render_to_response('sequence_list.html', template_context, context_instance=RequestContext(request))
 
 def get_item_list_by_api(item_name, content_dict):
     template_name = 'item_list.html'
@@ -131,6 +162,3 @@ def get_pagination_page(page, query_dict):
     })
 
     return template_name, template_context
-
-def test(request):
-    return render_to_response('test.html', {}, context_instance=RequestContext(request))
