@@ -18,7 +18,13 @@
             <tr>
                 <td><a href="{{ obj.url }}">{{ obj.object_name }}</a></td>
                 {% for field_name, field in obj.fields %}
-                    {% if field_name != 'name' %}
+                    {% if field_name == 'tags' %}
+                        <td>
+                            {% for tag in field %}
+                                <span class="label label-info">{{ tag }}</span>&nbsp;
+                            {% endfor %}
+                        </td>
+                    {% elif field_name != 'name' %}
                         <td>{{ field }}</td>
                     {% endif %}
                 {% endfor %}

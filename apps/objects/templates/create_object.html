@@ -25,17 +25,6 @@
             </div>
         {% endfor %}   
 
-        {% for field in form.hidden_fields %}
-            {{ field }}
-        {% endfor %}
-
-        {% for error in form.non_field_errors %}
-            <div class="alert alert-error">
-                <a data-dismiss="alert" class="close">×</a>
-                <p>{{ error }}</p>
-            </div>
-        {% endfor %}
-
         {# <!-- Name --> #}
         <div class="control-group {% if form.name.errors %}error{% endif %}">
             <label class="control-label" for="{{ form.name.id_for_label }}">{{ form.name.label }} <i class="red">*</i></label>
@@ -59,22 +48,23 @@
         </div>
 
         {# <!-- Tags --> #}
-        <div class="control-group {% if form.tags.errors %}error{% endif %}">
+        <!-- <div class="control-group {% if form.tags.errors %}error{% endif %}">
             <label class="control-label" for="{{ form.tags.id_for_label }}">{{ form.tags.label }}</label>
             <div class="controls">
                 <input id="id_tags" name="tags" style="width: 220px;" value="{% firstof form.tags.value %}">
+                <input id="id_old_tags" name="old_tags" type="hidden" value="{% firstof form.tags.value  '' %}">
                 {% for error in form.tags.errors %}
                     <span class="help-inline">{{ error }}</span>
                 {% endfor %}
             </div>
-        </div>
+        </div> -->
 
         {# <!-- Organism --> #}
         <div class="control-group {% if form.organism.errors %}error{% endif %}">
             <label class="control-label" for="{{ form.organism.id_for_label }}">{{ form.organism.label }} <i class="red">*</i></label>
             <div class="controls">
                 {{ form.organism }}
-                <a class="btn btn-success" data-toggle="modal" data-target="#myModal1">add</a>
+                <!-- <a class="btn btn-success" data-toggle="modal" data-target="#myModal1">add</a> -->
                 {% for error in form.organism.errors %}
                     <span class="help-inline">{{ error }}</span>
                 {% endfor %}
@@ -130,29 +120,23 @@
 {% block endjs %}
 
     {% dajaxice_js_import %}
-    <script type="text/javascript" src='{% static "/static/dajax/jquery.dajax.core.js" %}'></script>
+    <!-- // <script type="text/javascript" src='{% static "/static/dajax/jquery.dajax.core.js" %}'></script> -->
     <script type="text/javascript" src="{{ STATIC_URL }}js/select2.min.js"></script>
-    <script type="text/javascript">
-        function my_js_callback(data){
-            alert(data.message);
-        };
-        function calculate(){
-            Dajaxice.apps.bioface.multiply(Dajax.process,{'a':$('#a').val(),'b':$('#b').val()})
-        };
+    <!-- <script type="text/javascript">
 
-        function success_adding(id, name){
-            // $('#myModal1').hide();
-            $('#myModal1').modal('hide');
-            $('#id_organism option:last').after('<option value="'+id+'">'+name+'</option>');
-            $('#id_organism option:last').prop('selected', true);
-            return false;
-        };
+        // function success_adding(id, name){
+        //     // $('#myModal1').hide();
+        //     $('#myModal1').modal('hide');
+        //     $('#id_organism option:last').after('<option value="'+id+'">'+name+'</option>');
+        //     $('#id_organism option:last').prop('selected', true);
+        //     return false;
+        // };
 
 
-        $('#create_organism').bind('submit', function(event) {
-            Dajaxice.apps.bioface.add_organism(Dajax.process,{'form':$('#create_organism').serialize(true)});
-            return false; // dont post it automatically
-        });
+        // $('#create_organism').bind('submit', function(event) {
+        //     Dajaxice.apps.bioface.add_organism(Dajax.process,{'form':$('#create_organism').serialize(true)});
+        //     return false; // dont post it automatically
+        // });
 
         // function send_form(){
         //     Dajaxice.apps.bioface.send_form1(Dajax.process,{'form':$('#create_organism').serialize(true)});
@@ -160,7 +144,9 @@
         // };
 
         // $('#id_tags').select2({tags:["1","2","3"]})
-        $('#id_tags').select2({tags:[{% for id, value in form.fields.tags.choices %}"{{value}}", {% endfor %}]})
+
+
+        // $('#id_tags').select2({tags:[{% for id, value in form.fields.tags.choices %}"{{value}}", {% endfor %}]})
         
 
         // $(document).ready(function () {
@@ -171,6 +157,6 @@
           // });
         // });
           
-    </script>
+    </script> -->
 
 {% endblock %}

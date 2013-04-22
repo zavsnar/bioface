@@ -82,6 +82,14 @@
                 <label class="control-label" for="{{ form.attributes_list.id_for_label }}">{{ form.attributes_list.label }}</label>
                 <div class="controls">
                     {{ form.attributes_list }}
+
+                    {{ form.tags }}
+                    <!-- <select id="js_attr_tags">
+                        <option></option>
+                        {% for tag in tags %}
+                            <option value="{{ tag }}">{{ tag }}</option>
+                        {% endfor %}
+                    </select> -->
                     {% for error in form.attributes_list.errors %}
                         <span class="help-inline">{{ error }}</span>
                     {% endfor %}
@@ -136,7 +144,6 @@
                     </ul>
                 {% endif %}
                 {% endcomment %}
-
 
 
                 <!-- WIZARD -->
@@ -450,6 +457,9 @@
 <script type="text/javascript" src="{{ STATIC_URL }}js/main.js"></script>
 
 <script type="text/javascript">
+    $('#id_tags').select2({
+        placeholder: 'Add from tag'
+    });
     $('.js_query_tr .js_query_field').select2({});
 
     attribute_container = $('#js_attribute_container')
@@ -462,6 +472,20 @@
     js_queries_list_btn = $("#js_queries_list_btn")
     // $('.preloader').hide();
 
+
+    $('#id_tags').change(function(){
+        Dajaxice.apps.objects.update_attr_from_tag(Dajax.process, { 
+            'organism': $('#id_organism').val(),
+            'tag': $(this).val(), 'attrs': $('#id_attributes_list').select2('val')
+        });
+        
+    })
+
+    function update_attr_from_tag(attr_list){
+        alert(attr_list)
+        attr_list = attr_list
+        $('#id_attributes_list').select2('val', attr_list)
+    }
 
     function download_objects(){
         Dajaxice.apps.bioface.download_objects(Dajax.process, { 
@@ -520,7 +544,7 @@
     //     preloader_img.hide()
     // }
 
-    $('#js_attribute_container select').select2({
+    $('#js_attribute_container #id_attributes_list').select2({
             maximumSelectionSize: 5,
             minimumInputLength: 0,
         });

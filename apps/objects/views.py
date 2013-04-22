@@ -77,13 +77,9 @@ def create_object(request):
             content_dict = api_request(query_dict)
             
             if content_dict.has_key('result'):
-            # {u'error': {u'code': -32005,
-            # u'data': u'(IntegrityError) duplicate key value violates unique constraint "objects_name_key"\nDETAIL:  Key (name)=(123) already exists.\n',
-            # u'message': u'not unique'}}
-                messages.success(request, 'Object {0} with ID {1} and Version {2} successfully created.'.format(
-                    form.cleaned_data['name'], content_dict['result']['id'], content_dict['result']['version'])
-                )
+                messages.success(request, 'Object {0} successfully created.'.format(form.cleaned_data['name']))
                 return redirect('update_object', object_id=content_dict['result']['id'])
+            
             elif content_dict.has_key('error'):
                 messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))
 
@@ -134,46 +130,6 @@ def update_object(request, object_id = 0):
                     }
                 }
             }
-
-            if cd.get('tags', '') and request.POST['tags'] != request.POST['old_tags']:
-                # print request.POST['tags'], 111, len(request.POST['old_tags'])
-
-                new_tags = request.POST['tags'].split(',')
-                old_tags = request.POST['old_tags'].split(',')
-
-                print new_tags, 11111, old_tags
-                add_tags = list(set(new_tags) - set(old_tags))
-                if add_tags:
-                    query_add_tag = {
-                        "method": "tag_object",
-                        "key": request.user.sessionkey,
-                        "params": {
-                              "id": cd.get('id'),
-                              "tags": add_tags
-                        }
-                    }
-
-                    content_dict = api_request(query_add_tag)
-                    if content_dict.has_key('error'):
-                        messages.error(request, 'ERROR: {}'.format(content_dict['error']))
-
-                delete_tags = list(set(old_tags) - set(new_tags))
-                if delete_tags:
-                    query_delete_tag = {
-                        "method": "untag_object",
-                        "key": request.user.sessionkey,
-                        "params": {
-                            "id": cd.get('id'),
-                            "tags": delete_tags
-                        }
-                    }
-
-                    content_dict = api_request(query_delete_tag)
-                    if content_dict.has_key('error'):
-                        messages.error(request, 'ERROR: {}'.format(content_dict['error']))
-
-                if (add_tags or delete_tags) and cache.get('tags', None):
-                    cache.delete('tags')
 
                 # query_dict['params']['data']['fields']['tags'] = form.tags_id_list
 
@@ -234,7 +190,10 @@ def update_object(request, object_id = 0):
         # if not object_data['tags']:
         #     object_data['tags'] = ''
 
-        files_dict = { f['id']: f['name'] for f in object_data['files'] }
+        if object_data.has_key('object_data'):
+            files_dict = { f['id']: f['name'] for f in object_data['files'] }
+        else:
+            files_dict = {}
 
         # if request.method == 'GET':
         form = UpdateObjectForm(request = request, initial=object_data)
@@ -308,25 +267,6 @@ def create_organism(request):
     return render_to_response('create_object.html', template_context, context_instance=RequestContext(request))
 
 
-def get_item_list_by_api(item_name, content_dict):
-    template_name = 'item_list.html'
-    template_context = {'items': []}
-    item_list = content_dict['result'].get(item_name, [])
-    if item_list:
-        if item_name == "objects":
-            attr_name_list = [ attr['name'] for attr in content_dict['result']['attributes'] ]
-        else:
-            attr_name_list = set([param_name for item in item_list for param_name in item.keys()])
-
-        template_context = {
-            'attr_name_list': attr_name_list, 
-            'item_name': item_name, 
-            'items': item_list
-            }
-
-    return template_name, template_context
-
-
 def get_pagination_page(page, query_dict, paginate_by=5):
     item_name = query_dict['method'].replace('get_', '')
     if not query_dict.has_key('params'):
@@ -359,9 +299,6 @@ def get_pagination_page(page, query_dict, paginate_by=5):
     # })
 
     # return template_name, template_context
-
-def test(request):
-    return render_to_response('test.html', {}, context_instance=RequestContext(request))
 
 from ajaxuploader.views import AjaxFileUploader
 import_uploader = AjaxFileUploader()
@@ -497,6 +434,7 @@ def get_objects(request):
                             object_fields.append( (field, field_value) )
                         else:
                             object_fields.append( (field, obj[field]) )
+                            print field, type(obj[field])
                     
                     if obj.has_key('attributes'):
                         object_attrs = [ None for i in attr_list ]
@@ -509,7 +447,7 @@ def get_objects(request):
                     object_list.append(
                         {'object_name': obj['name'],
                         'url': reverse('update_object', kwargs={'object_id': obj['id']}),
-                        'fields' :object_fields,
+                        'fields': object_fields,
                         # 'attrs': [ d for attr in attr_list for d in obj['attributes'] if d['name'] == attr ]
                         'attrs': object_attrs,
                     })

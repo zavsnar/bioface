@@ -3,27 +3,26 @@ from __future__ import unicode_literals
 # from __future__ import print_function
 from __future__ import absolute_import
 
-import urllib
-import httplib2 
-import json
+# import urllib
+# import httplib2 
+# import json
 
-import ast
+# import ast
 
-from django.conf import settings
-from django import forms
-from django.forms.formsets import formset_factory
-from django.http import StreamingHttpResponse
-from django.template import RequestContext
-from django.template.loader import render_to_string
-from django.shortcuts import render, render_to_response, redirect
-from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login, logout as auth_logout
+# from django.conf import settings
+# from django import forms
+# from django.forms.formsets import formset_factory
+# from django.http import StreamingHttpResponse
+# from django.template import RequestContext
+# from django.template.loader import render_to_string
+from django.shortcuts import render_to_response, redirect
+# from django.contrib.auth.forms import AuthenticationForm
+# from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+# from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-from apps.bioface.utils import api_request, API_URL
-from apps.sequences.forms import *
+from apps.bioface.utils import api_request
+from apps.sequences.forms import CreateSequenceForm
 
 def create_sequence(request, sequence_id=None):
     if request.method == 'POST':
@@ -114,22 +113,6 @@ def sequence_list(request):
         messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))
 
     return render_to_response('sequence_list.html', template_context, context_instance=RequestContext(request))
-
-def get_item_list_by_api(item_name, content_dict):
-    template_name = 'item_list.html'
-    template_context = {'items': []}
-    item_list = content_dict['result'].get(item_name, [])
-    if item_list:
-        if item_name == "objects":
-            attr_name_list = [ attr['name'] for attr in content_dict['result']['attributes'] ]
-            print attr_name_list
-        else:
-            attr_name_list = set([param_name for item in item_list for param_name in item.keys()])
-
-        template_context = {'attr_name_list': attr_name_list, 'item_name': item_name, 'items': item_list}
-
-    return template_name, template_context
-
 
 def get_pagination_page(page, query_dict):
     item_count = 5

@@ -3,6 +3,7 @@
 {% block subtitle %}Edit attribute{% endblock %}
 
 {% block forestyle %}
+<link href="{{ STATIC_URL }}css/select2.css" rel="stylesheet"/>
 {% endblock %}
 
 {% block forejs %} 
@@ -109,6 +110,18 @@
             </div>
         </div>
 
+        {# <!-- Tag --> #}
+        <div class="control-group {% if form.tags.errors %}error{% endif %}">
+            <label class="control-label" for="{{ form.tags.id_for_label }}">{{ form.tags.label }}</label>
+            <div class="controls">
+                {{ form.tags }}
+                {% for error in form.tags.errors %}
+                    <span class="help-inline">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <input id="id_old_tags" name="old_tags" type="hidden" value="{{ form.tags.value }}">
+        </div>
+
         {# <!-- Atype --> #}
         <div class="control-group">
             <label class="control-label">{{ form.atype.label }}</label>
@@ -209,11 +222,17 @@
 {% endblock %}
 
 {% block endjs %}
+    <script src="{{ STATIC_URL }}js/select2.min.js"></script>
     <!-- Script for full edit attribute -->
     <!-- // <script src="{{ STATIC_URL }}js/attribute_edit.js"></script> -->
 
     <script type="text/javascript">
+        $('#id_tags').select2({tags:[{% for tag in form.fields.tags.choices %}"{{ tag.0 }}", {% endfor %}]})
+
         $('#id_name').change(function(){
+            $('#save_btn').removeAttr('disabled')
+        })
+        $('#id_tags').change(function(){
             $('#save_btn').removeAttr('disabled')
         })
 

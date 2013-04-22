@@ -47,6 +47,31 @@ from apps.bioface.utils import api_request, get_choices
 ##### For page Select Objects #####
 
 @dajaxice_register
+def update_attr_from_tag(request, organism, tag, attrs):
+    query_dict = {
+        "method" : "get_attributes",
+        "key": request.user.sessionkey,
+        "params" : {
+            'query' : 'organism = {0} & tags.contains("{1}")'.format(organism, tag),
+            # "orderby" : [["field_name", "asc"], ["field_name2", "desc"]]
+        }
+    }
+    content_dict = api_request(query_dict)
+    dajax = Dajax()
+    if content_dict.has_key('result'):
+        new_attrs = [ attr['name'] for attr in content_dict['result']['attributes'] ]
+        if new_attrs:
+            attrs.extend(new_attrs)
+            result_attr_list = list(set(attrs))
+            dajax.add_data(result_attr_list, 'update_attr_from_tag')
+    else:
+        template_context = {'error_message': 'Error. {}.'.format(content_dict['error']['message'])}
+        render = render_to_string('components/alert_messages.html', template_context)
+        dajax.assign('.extra-message-block', 'innerHTML', render)
+
+    return dajax.json()
+
+@dajaxice_register
 def update_attributes_from_organism(request, organism_id):
     # form_data = deserialize_form(form)
     # form = SelectObjects(request=request, data=deserialize_form(form), with_choices=False)

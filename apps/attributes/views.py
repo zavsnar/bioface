@@ -36,7 +36,6 @@ def attribute_list(request):
 
     if not organism_id:
         organisms = cache.get('organisms', [])
-        print 1111, organisms
         if organisms:
             organism_id = organisms[0][0]
         else:
@@ -167,7 +166,8 @@ def create_attribute(request):
                         "organism": int(form.cleaned_data['organism']),
                         "atype": form.cleaned_data['atype'],
                         "descr": description_dict,
-                        "primary": primary
+                        "primary": primary,
+                        # "tags": cd
                     }
                 }
             }
@@ -220,25 +220,26 @@ def edit_attribute(request, attr_id):
                 if success:
                     return redirect('attributes')
 
-            elif rp.get('name', None):
-                form = EditAttributeForm(request)
-                query_dict = {
-                    "method" : "update_attribute",
-                    "key": request.user.sessionkey,
-                    "params" : {
-                        "id" : attr_id,
-                        "version": attr_version,
-                        "data": { "name": rp['name'] }
+            else:
+                form = EditAttributeForm(request=request, data=rp)
+                if form.is_valid():
+                    query_dict = {
+                        "method" : "update_attribute",
+                        "key": request.user.sessionkey,
+                        "params" : {
+                            "id" : attr_id,
+                            "version": attr_version,
+                            "data": { "name": rp['name'] }
+                        }
                     }
-                }
 
-                content_dict = api_request(query_dict)
-                
-                if content_dict.has_key('result'):
-                    messages.success(request, 'Attribute change.')
-                    cache.delete('attributes')
-                elif content_dict.has_key('error'):
-                        messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))
+                    content_dict = api_request(query_dict)
+                    
+                    if content_dict.has_key('result'):
+                        messages.success(request, 'Attribute change.')
+                        cache.delete('attributes')
+                    elif content_dict.has_key('error'):
+                            messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))
     # else:
     query_dict = {
         "method" : "get_attribute",
@@ -260,7 +261,8 @@ def edit_attribute(request, attr_id):
             # 'attr_dict': attr_dict,
             # 'descr_{}_default'.format(attr_data['atype']): attr_data['description']['default']
         })
-
+        attr_data['tags'] = ','.join(attr_data['tags'])
+        print 9999999
         form = EditAttributeForm(request=request, data=attr_data)
         template_context.update({
             'form': form,
