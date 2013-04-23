@@ -62,7 +62,8 @@ def update_attr_from_tag(request, organism, tag, attrs):
         new_attrs = [ attr['name'] for attr in content_dict['result']['attributes'] ]
         if new_attrs:
             attrs.extend(new_attrs)
-            result_attr_list = list(set(attrs))
+            # result_attr_list = list(set(attrs))
+            result_attr_list = attrs
             dajax.add_data(result_attr_list, 'update_attr_from_tag')
     else:
         template_context = {'error_message': 'Error. {}.'.format(content_dict['error']['message'])}
@@ -159,7 +160,44 @@ def delete_saved_query(request, name):
     return dajax.json()
 
 @dajaxice_register
-# @ajax_login_required
+def tagging_objects(request, page_num, tags, query_dict):
+    query_dict = json.loads(query_dict)
+    
+    query_dict['params']['count'] = False
+    if query_dict['params'].has_key('skip'):
+        del query_dict['params']['skip']
+    if query_dict['params'].has_key('limit'):
+        del query_dict['params']['limit']
+    content_dict = api_request(query_dict)
+    dajax = Dajax()
+
+    if content_dict.has_key('result'):
+        obj_id_list = [ obj['id'] for obj in content_dict['result']['objects'] ]
+        tags = json.loads(tags)
+        for obj_id in obj_id_list:
+            tag_query = { 
+                "method": "tag_object",
+                "key": request.user.sessionkey,
+                "params": {
+                    "id": int(obj_id),
+                    "tags": tags
+                }
+            }
+            tag_content_dict = api_request(tag_query)
+            if tag_content_dict.has_key('result'):
+                template_context = {'success_message': 'Objects tagged'}
+                dajax.script('get_page({});'.format(page_num))
+            else:
+                template_context = {'error_message': 'ERROR: {}'.format(tag_content_dict['error']['message'])}
+    else:
+        template_context = {'error_message': 'ERROR: {}'.format(content_dict['error']['message'])}
+
+    render = render_to_string('components/alert_messages.html', template_context)
+    dajax.assign('.extra-message-block', 'innerHTML', render)
+    dajax.script('stop_show_loading();')
+    return dajax.json()
+
+@dajaxice_register
 # def pagination(request, page, paginate_by, display_fields, attributes, raw_query):
 def pagination(request, page, paginate_by, items_count, data):
     # data = ast.literal_eval(data)

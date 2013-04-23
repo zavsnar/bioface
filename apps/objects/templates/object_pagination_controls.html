@@ -1,6 +1,6 @@
 <!-- <div class="pagination"> -->
 {% if pages|length > 1 %}
-    <ul class="pager pagination">
+    <ul class="pager pagination object-pagination">
         {% if has_previous %}
             <li>
                 <a class="js_prev_button" onclick="prev_page()">&larr; previous</a>
@@ -33,13 +33,16 @@
         {% endif %}
     </ul>
     <!-- </div> -->
+{% endif %}
 
     <script type="text/javascript">
         data = {
             'display_fields':{{ display_fields_str }},
             'query_dict':{{ query_dict_str }}
         }
-
+        
+        this_page = {{ this_page }}
+        
         function next_page(){
             // $('.js_prev_button').attr('disabled', true)
             // $('.js_next_button').attr('disabled', true)
@@ -76,4 +79,3 @@
           // return false;
         }
     </script>
-{% endif %}

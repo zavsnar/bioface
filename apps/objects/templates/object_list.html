@@ -1,45 +1,62 @@
-<table class="table table-bordered">
-    <!-- <caption>Result Table</caption> -->
-    <thead>
-        <tr>
-            <th>Object Name</th>
-            {% for field in display_fields %}
-                {% if field != 'name' %}
-                    <th>{{ field }}</th>
-                {% endif %}
-            {% endfor %}
-            {% for attribute_name in attributes %}
-                <th>{{ attribute_name }}</th>
-            {% endfor %}
-        </tr>
-    </thead>    
-    <tbody>
-        {% for obj in object_list %}
-            <tr>
-                <td><a href="{{ obj.url }}">{{ obj.object_name }}</a></td>
-                {% for field_name, field in obj.fields %}
-                    {% if field_name == 'tags' %}
-                        <td>
-                            {% for tag in field %}
-                                <span class="label label-info">{{ tag }}</span>&nbsp;
-                            {% endfor %}
-                        </td>
-                    {% elif field_name != 'name' %}
-                        <td>{{ field }}</td>
-                    {% endif %}
-                {% endfor %}
-                {% for attr in obj.attrs %}
-                    <td>
-                        {% if attr.value == 'n/a' %}
-                            <span class="red">n/a</span>
-                        {% else %}
-                            {{ attr.value }}
+<div id="js_object_result_table">
+    
+    <!-- <div class="set-tag">
+        <a href="#" id="set-tag" data-type="select2" data-pk="1" data-placeholder="Required" data-original-title="Enter tags" class="editable editable-click set-tag"></a>
+    </div> -->
+    <div class="object-result-table">
+        <table class="table table-bordered">
+            <!-- <caption>Result Table</caption> -->
+            <thead>
+                <tr>
+                    <th>Object Name</th>
+                    {% for field in display_fields %}
+                        {% if field != 'name' %}
+                            <th>{{ field }}</th>
                         {% endif %}
-                    </td>
+                    {% endfor %}
+                    {% for attribute_name in attributes %}
+                        <th>{{ attribute_name }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>    
+            <tbody>
+                {% for obj in object_list %}
+                    <tr>
+                        <td><a href="{{ obj.url }}">{{ obj.object_name }}</a></td>
+                        {% for field_name, field in obj.fields %}
+                            {% if field_name == 'tags' %}
+                                <td>
+                                    {% for tag in field %}
+                                        <span class="label">{{ tag }}</span>&nbsp;
+                                    {% endfor %}
+                                </td>
+                            {% elif field_name != 'name' %}
+                                <td>{{ field }}</td>
+                            {% endif %}
+                        {% endfor %}
+                        {% for attr in obj.attrs %}
+                            <td>
+                                {% if attr.value == 'n/a' %}
+                                    <span class="red">n/a</span>
+                                {% else %}
+                                    {{ attr.value }}
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
                 {% endfor %}
-            </tr>
-        {% endfor %}
-    </tbody>
-</table>
+            </tbody>
+        </table>
+    </div>
+    
 
-{% include "object_pagination_controls.html" %}
+    {% include "object_pagination_controls.html" %}
+
+</div>
+
+<script type="text/javascript">
+// $(function() {
+    
+    
+// })
+</script>

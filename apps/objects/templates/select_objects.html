@@ -8,11 +8,16 @@
 <!-- <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery-ui-1.10.2.custom.min.css" /> -->
 <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery-ui-1.10.2.custom.min.css" />
 <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery.ui.theme.css" />
+
+<link href="{{ STATIC_URL }}css/bootstrap-editable.css" rel="stylesheet"/>
 <link rel="stylesheet" href="{{ STATIC_URL }}fuelux/css/fuelux.min.css" />
 {% endblock %}
 
 {% block forejs %} 
 <!-- <script src="{{ STATIC_URL }}js/require.js"></script> -->
+<script type="text/javascript">
+    
+</script>
  {% endblock %}
 
 {% block content_title %}
@@ -83,14 +88,25 @@
                 <div class="controls">
                     {{ form.attributes_list }}
 
-                    {{ form.tags }}
-                    <!-- <select id="js_attr_tags">
+                    {{ form.attr_from_tag }}
+                    <!-- <select id="id_attr_from_tag">
                         <option></option>
-                        {% for tag in tags %}
-                            <option value="{{ tag }}">{{ tag }}</option>
+                        {% for tag in form.tags.choices %}
+                            <option value="{{ tag.0 }}">{{ tag.0 }}</option>
                         {% endfor %}
                     </select> -->
                     {% for error in form.attributes_list.errors %}
+                        <span class="help-inline">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {# <!-- Tags --> #}
+            <div class="control-group {% if form.tags.errors %}error{% endif %}">
+                <label class="control-label" for="{{ form.tags.id_for_label }}">{{ form.tags.label }}</label>
+                <div class="controls">
+                    {{ form.tags }}
+                    {% for error in form.tags.errors %}
                         <span class="help-inline">{{ error }}</span>
                     {% endfor %}
                 </div>
@@ -305,14 +321,14 @@
         <div class="row">
             <div class="span12">
 
-                <p>
-                    <span>Find {{ items_count }} objects</span>
+                <div>
+                    <span class="pull-left">Find {{ items_count }} objects</span>
+                    <a href="#" id="set-tag" data-type="select2" data-pk="1" data-placeholder="Required" data-original-title="Enter tags" class="editable editable-click set-tag"></a>
                     <a class="btn pull-right" data-toggle="modal" data-target="#DownloadObjectSelection">Export</a>
-                </p>
-                <div id="js_object_result_table">
+                </div>
 
                     {% include "object_list.html" %}
-                </div>
+                
             </div>
         </div>
     </div>
@@ -437,6 +453,7 @@
             </div>
         </div>
     {# <!-- --> #}
+
 {% endif %}
 
 {% endblock %}
@@ -454,12 +471,47 @@
 <!-- <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 <script src="{{ STATIC_URL }}js/bootstrap.min.js"></script> -->
 <script src="{{ STATIC_URL }}js/select2.min.js"></script>
+<script src="{{ STATIC_URL }}js/bootstrap-editable.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/main.js"></script>
 
 <script type="text/javascript">
     $('#id_tags').select2({
+        placeholder: 'Select tags'
+    })
+
+    $('#id_attr_from_tag').select2({
         placeholder: 'Add from tag'
     });
+
+    // $('#set-tag').select2({tags:[{% for tag in form.fields.tags.choices %}"{{ tag.0 }}", {% endfor %}]})
+
+
+    // For Tagging selected objects
+    tag_list = [{% for tag in form.fields.tags.choices %}"{{ tag.0 }}", {% endfor %}] 
+    
+    // Tagging objects
+    $('#set-tag').editable({
+        emptytext: 'Tagging this objects',
+        inputclass: 'input-large',
+        placeholder: 'Tagging this objects',
+        select2: {
+            tags: tag_list,
+            // tokenSeparators: [",", " "]
+        }
+    }); 
+
+    this_page = {{ this_page }}
+
+    $('#set-tag').on('save', function(e, params) {
+        start_show_loading();
+        Dajaxice.apps.objects.tagging_objects(Dajax.process, { 
+            'page_num': this_page,
+            'tags': JSON.stringify(params.newValue),
+            'query_dict': JSON.stringify({{ query_dict_str }}),
+
+        });
+    });
+
     $('.js_query_tr .js_query_field').select2({});
 
     attribute_container = $('#js_attribute_container')
@@ -473,7 +525,7 @@
     // $('.preloader').hide();
 
 
-    $('#id_tags').change(function(){
+    $('#id_attr_from_tag').change(function(){
         Dajaxice.apps.objects.update_attr_from_tag(Dajax.process, { 
             'organism': $('#id_organism').val(),
             'tag': $(this).val(), 'attrs': $('#id_attributes_list').select2('val')
@@ -482,8 +534,8 @@
     })
 
     function update_attr_from_tag(attr_list){
-        alert(attr_list)
-        attr_list = attr_list
+        // alert(attr_list)
+        // attr_list = attr_list
         $('#id_attributes_list').select2('val', attr_list)
     }
 
@@ -545,7 +597,7 @@
     // }
 
     $('#js_attribute_container #id_attributes_list').select2({
-            maximumSelectionSize: 5,
+            // maximumSelectionSize: 5,
             minimumInputLength: 0,
         });
     $('#js_sort_by_container select').select2({
@@ -554,7 +606,7 @@
         });
     function create_attribute_select(){
         $('#js_attribute_container select').select2({
-            maximumSelectionSize: 10,
+            // maximumSelectionSize: 10,
             minimumInputLength: 0,
         });
         stop_show_loading();

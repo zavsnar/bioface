@@ -83,7 +83,9 @@ class SelectObjects(forms.Form):
         widget=ObjectSortWidget(attrs={'style': 'width:300px'}))
     paginate_by = forms.ChoiceField(required=False, 
         widget=forms.Select(attrs={'style': 'width:80px'}), choices=PAGINATE_BY_CHOICES, initial=10)
-    tags = forms.ChoiceField(required=False, 
+    tags = forms.MultipleChoiceField(label = 'Tags', required=False, 
+        widget=forms.SelectMultiple(attrs={'style': 'width:220px'}))
+    attr_from_tag = forms.ChoiceField(required=False, 
         widget=forms.Select(attrs={'style': 'width:200px'}))
     # row_query = forms.CharField(required=False)
     # limit = forms.IntegerField(required=False)
@@ -122,6 +124,8 @@ class SelectObjects(forms.Form):
                 }
                 self.fields['tags'].choices.extend(get_choices(self.request, item_name='tags', 
                     key='tag', query_params=query_params))
+                
+                self.fields['attr_from_tag'].choices = self.fields['tags'].choices
                 # print 333, self.fields['sort_by'].choices
             # else:
             #     self.fields['attributes_list'].choices = get_choices(request, item_name='attributes', key='name')

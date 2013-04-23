@@ -347,9 +347,7 @@ def get_objects(request):
                         attr_name, operation, attr_value = re.findall('(.+) (.+) (".+")', attr)[0]
                     else:
                         attr_name, operation, attr_value = attr.split()
-                    # print attr_name.encode('utf8')
                     _attr_name = attr_name.replace('attr.', '') if attr_name.startswith('attr.') else attr_name
-                    # print attr_name.decode('utf8')
                     field_filters_dict_sort[i] = (attr_name, operation, attr_value.replace('"', ''), all_attr_type_dict[_attr_name])
 
         else:
@@ -382,6 +380,8 @@ def get_objects(request):
             cd = form.cleaned_data
             paginate_by = int(cd['paginate_by'])
             raw_query = 'organism = {}'.format(cd['organism'])
+            if cd['tags']:
+                raw_query = raw_query + ' & tags.contains("{}")'.format('","'.join(cd['tags']))
 
             if raw_query_str:
                 prep_raw_query_str = raw_query_str.replace(' AND ', ' & ').replace(' OR ', ' | ')

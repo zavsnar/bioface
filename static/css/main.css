@@ -184,3 +184,37 @@ table#table-nominal-id {
 .form-horizontal .attr-control-label {
     width: 200px;
 }
+
+/* Select Objects */
+
+.object-pagination {
+    float: right;
+    margin-top: 0;
+}
+
+.set-tag {
+    float: left;
+}
+
+#set-tag {
+    /*width: 150px;*/
+    float: left;
+    margin-left: 15px;
+}
+
+.object-result-table {
+    width: 100%; 
+    overflow-x: auto;  
+    /*margin-left:5em; */
+    overflow-y:visible;
+    /*padding-bottom:1px;*/
+    border-left: 1px solid #dddddd;
+    border-right: 1px solid #dddddd;
+}
+
+/*.headcol {
+    position:absolute; 
+    width:5em; 
+    left:0;
+    top:auto;
+}*/
