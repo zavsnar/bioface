@@ -30,6 +30,23 @@ DATABASES = {
 }
 
 UWSGI_PORT = 49001
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+    }
+}
+
+BROKER_URL = "redis://localhost:6379/0"
+CELERY_RESULT_BACKEND = "redis"
+CELERY_REDIS_HOST = "localhost"
+CELERY_REDIS_PORT = 6379
+CELERY_REDIS_DB = 0
+CELERYD_LOG_FILE='/tmp/celery.log'
+CELERND_TASK_ERROR_EMAILS = True 
+CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
+
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error.
@@ -129,14 +146,6 @@ DEBUG_TOOLBAR_PANELS = (
 
 INTERNAL_IPS = ('127.0.0.1',)
 
-BROKER_URL = "redis://localhost:6379/0"
-CELERY_RESULT_BACKEND = "redis"
-CELERY_REDIS_HOST = "localhost"
-CELERY_REDIS_PORT = 6379
-CELERY_REDIS_DB = 0
-CELERYD_LOG_FILE='/tmp/celery.log'
-CELERND_TASK_ERROR_EMAILS = True 
-CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
 
 # Eway.com.au test account , Test Credit Card is  4444333322221111
 # EWAY_AU_MERCHANT = {

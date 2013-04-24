@@ -157,9 +157,9 @@ class CreateObjectForm(forms.Form):
     comment = forms.CharField(required=False)
     files_dict = forms.CharField(widget=forms.HiddenInput,required=False)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, request, *args, **kwargs):
         # self.tag_method = 'object'
-        # self.request = request
+        self.request = request
 
         super(CreateObjectForm, self).__init__(*args, **kwargs)
         self.fields['organism'].choices = get_choices(self.request, item_name='organisms')

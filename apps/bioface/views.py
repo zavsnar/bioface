@@ -266,7 +266,7 @@ def create_organism(request):
         form = CreateOrganismForm(data = request.POST)
         if form.is_valid():
             query_dict = {
-                "method" : "create_object",
+                "method" : "add_organism",
                 "key": request.user.sessionkey,
                 "params" : {
                     "data" : {
