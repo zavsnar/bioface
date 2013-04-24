@@ -177,4 +177,4 @@ class UpdateObjectForm(CreateObjectForm, TagMixin):
         self.tag_method = 'object'
         # TagMixin.__init__(self, request, *args, **kwargs)
         # CreateObjectForm.__init__(self, request, *args, **kwargs)
-        super(UpdateObjectForm, self).__init__(*args, **kwargs)
+        super(UpdateObjectForm, self).__init__(request, *args, **kwargs)

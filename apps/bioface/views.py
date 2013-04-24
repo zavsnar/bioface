@@ -282,6 +282,7 @@ def create_organism(request):
             content_dict = api_request(query_dict)
             
             if content_dict.has_key('result'):
+                cache.delete('organisms')
                 messages.success(request, 'Organism "{}" successfully create.'.format(form.cleaned_data['name']))
             elif content_dict.has_key('error'):
                 messages.error(request, 'ERROR: {}'.format(content_dict['error']['message']))
@@ -292,7 +293,7 @@ def create_organism(request):
     template_context = {
         'form': form,
     }
-    return render_to_response('create_object.html', template_context, context_instance=RequestContext(request))
+    return render_to_response('create_organism.html', template_context, context_instance=RequestContext(request))
 
 def get_pagination_page(page, query_dict):
     item_count = 5

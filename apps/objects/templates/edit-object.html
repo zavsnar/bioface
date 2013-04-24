@@ -304,9 +304,9 @@
                             <table class="table" id="upload-files">
                                 <col></col>
                                 <col width=50></col>
-                                {% for id, file_name in files_dict.items %}
+                                {% for id, file in files %}
                                     <tr class="fileid_{{ id }}">
-                                        <td><a class="js_download_file" data-file-id="{{ id }}">{{ file_name }}</a></td>
+                                        <td><a class="js_download_file" data-file-id="{{ id }}">{{ file.0 }}</a></td>
                                         <td><a class="js-file-delete btn btn-mini btn-danger" data-file-id="{{ id }}">x</a></td>
                                     </tr>
                                 {% endfor %}
@@ -406,7 +406,7 @@
             //     }
             // }).always(function() { alert() });
 
-            var formHTML = '<form action="/download" method="post">'+
+            var formHTML = '<form action="https://{{ request.get_host }}/download" method="post">'+
                 '<input type="hidden" name="id" value="'+$(this).data('fileId')+'" />'+
                 '<input type="hidden" name="key" value="{{ request.user.sessionkey }}" />'+
                 '</form>';
@@ -499,7 +499,7 @@
                     // $('#files_id').val($('#files_id').val() + ',' + upload_id)
                     $("#start_fileupload").hide()
                     not_all_file_upload = false
-                    files_dict[upload_id] = fileName
+                    files_dict[upload_id] = [fileName, '']
 
                     if (form_submit_required) {
                         $('#update-form').submit()

@@ -177,23 +177,27 @@ def update_object(request, object_id = 0):
             attr_content_dict = api_request(attr_query_dict)
             if attr_content_dict.has_key('result'):
                 attr_content_list = { attr['name']: attr['description'] for attr in attr_content_dict['result']['attributes'] if attr['atype'] in ('nominal', 'scale') }
-            attr_list = content_dict['result']['object'].pop('attributes')
-            for attr in attr_list:
-                if attr['type'] == 'nominal':
-                    attr['options'] = attr_content_list[attr["name"]]['items']
-                elif attr['type'] == 'scale':
-                    opts = attr_content_list[attr["name"]]['scale']
-                    attr['options'] = map(lambda d: d['name'], sorted(opts, key=lambda opt: opt['weight']))
+            
+                attr_list = content_dict['result']['object'].pop('attributes')
+                for attr in attr_list:
+                    if attr['type'] == 'nominal':
+                        attr['options'] = attr_content_list[attr["name"]]['items']
+                    elif attr['type'] == 'scale':
+                        opts = attr_content_list[attr["name"]]['scale']
+                        attr['options'] = map(lambda d: d['name'], sorted(opts, key=lambda opt: opt['weight']))
         else:
             attr_list = {}
+            attr_content_list = {}
         object_data['tags'] = ','.join(object_data['tags'])
         # if not object_data['tags']:
         #     object_data['tags'] = ''
 
-        if object_data.has_key('object_data'):
-            files_dict = { f['id']: f['name'] for f in object_data['files'] }
+        if object_data.has_key('files'):
+            files_dict = { f['id']: (f['name'], f['created']) for f in object_data['files'] }
+            files = sorted(files_dict.iteritems(), key=lambda f: f[1][1])
         else:
             files_dict = {}
+            files = []
 
         # if request.method == 'GET':
         form = UpdateObjectForm(request = request, initial=object_data)
@@ -203,7 +207,8 @@ def update_object(request, object_id = 0):
             'attr_list': attr_list,
             'attr_content_list': attr_content_list,
             'object_data': object_data,
-            'files_dict': files_dict
+            'files_dict': files_dict,
+            'files': files
             # 'formset': formset
         }
 
