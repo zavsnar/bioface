@@ -367,12 +367,13 @@
             $('.fileupload').fileupload({});
 
             $('.js_download_file').click(function(){
-
-                var formHTML = '<form action="https://{{ request.get_host }}/download" method="post">'+
+                var formHTML = '<form id="download_temp_form" action="https://{{ request.get_host }}/download" method="post" class="hidden">'+
                     '<input type="hidden" name="id" value="'+$(this).data('fileId')+'" />'+
                     '<input type="hidden" name="key" value="{{ request.user.sessionkey }}" />'+
                     '</form>';
-                $(formHTML).submit()
+                $(formHTML).appendTo('body')
+                $('#download_temp_form').submit().remove()
+                // $(formHTML).submit()
 
             })
 
@@ -382,10 +383,6 @@
                 var attr_pk = $(this).prop('name')
                 var attr_value = $(this).val()
                 updated_attributes[attr_pk] = attr_value
-            });
-
-            $('#id_lab_id').click(function(){
-                alert(123);
             });
 
             $("#start_fileupload").click(function(){
@@ -404,60 +401,6 @@
                     );
                 }
             })
-
-            function delete_file_from_list(fileid){
-                delete files_dict[fileid]
-                $('.fileid_' + fileid).remove()
-            }
-
-            function upload_2_server(upload_data){
-                upload_url = upload_data.upload_url
-                upload_id = upload_data.upload_id
-                // alert(upload_url);
-                form_data = new FormData(file_data);
-                form_data.append("files", file_data)
-
-                $.ajax({
-                    type: 'post',
-                    url: upload_url,
-                    cache: false,
-                    contentType: false,
-                    processData: false,
-                    // crossDomain: true,
-                    data: form_data,
-                    // beforeSend: function (request)
-                    // {
-                    //     request.setRequestHeader('Access-Control-Allow-Origin', "*");
-                    // },
-                    beforeSend: function (xhr) {
-                        start_show_loading();
-                    },
-                    success: function (data){
-                        stop_show_loading(); 
-                        $('#upload-files').prepend(
-                            '<tr class="fileid_' + upload_id + '"> \
-                                <td><a class="js_download_file" data-file-id="' + upload_id + '">' + file_data.name + '</a></td> \
-                                <td><a class="js-file-delete btn btn-mini btn-danger" data-file-id="' + upload_id + '">x</a></td> \
-                            </tr>'
-                            )
-                        // $('#files_id').val($('#files_id').val() + ',' + upload_id)
-                        $("#start_fileupload").hide()
-                        not_all_file_upload = false
-                        files_dict[upload_id] = [fileName, '']
-
-                        if (form_submit_required) {
-                            $('#update-form').submit()
-                        }
-                     // alert ( " Done ! " + data );
-                    },
-                    error: function(xhr,err){
-                        stop_show_loading();
-                        alert("status: "+xhr.status);
-                        // alert("responseText: "+xhr.responseText);
-                    },
-                  // dataType: dataType
-                });
-            };
             
             not_all_file_upload = true
             form_submit_required = false
@@ -480,11 +423,65 @@
                 }
                 
             })
-
-            $(".show-hide").hide();
-            function toggle_filter() {
-                $(".show-hide").toggle("hide");
-            };
         }) 
+
+        function delete_file_from_list(fileid){
+            delete files_dict[fileid]
+            $('.fileid_' + fileid).remove()
+        }
+
+        function upload_2_server(upload_data){
+            upload_url = upload_data.upload_url
+            upload_id = upload_data.upload_id
+            // alert(upload_url);
+            form_data = new FormData(file_data);
+            form_data.append("files", file_data)
+
+            $.ajax({
+                type: 'post',
+                url: upload_url,
+                cache: false,
+                contentType: false,
+                processData: false,
+                // crossDomain: true,
+                data: form_data,
+                // beforeSend: function (request)
+                // {
+                //     request.setRequestHeader('Access-Control-Allow-Origin', "*");
+                // },
+                beforeSend: function (xhr) {
+                    start_show_loading();
+                },
+                success: function (data){
+                    stop_show_loading(); 
+                    $('#upload-files').prepend(
+                        '<tr class="fileid_' + upload_id + '"> \
+                            <td><a class="js_download_file" data-file-id="' + upload_id + '">' + file_data.name + '</a></td> \
+                            <td><a class="js-file-delete btn btn-mini btn-danger" data-file-id="' + upload_id + '">x</a></td> \
+                        </tr>'
+                        )
+                    // $('#files_id').val($('#files_id').val() + ',' + upload_id)
+                    $("#start_fileupload").hide()
+                    not_all_file_upload = false
+                    files_dict[upload_id] = [fileName, '']
+
+                    if (form_submit_required) {
+                        $('#update-form').submit()
+                    }
+                 // alert ( " Done ! " + data );
+                },
+                error: function(xhr,err){
+                    stop_show_loading();
+                    alert("status: "+xhr.status);
+                    // alert("responseText: "+xhr.responseText);
+                },
+              // dataType: dataType
+            });
+        };
+
+        $(".show-hide").hide();
+        function toggle_filter() {
+            $(".show-hide").toggle("hide");
+        };
     </script>
 {% endblock %}
