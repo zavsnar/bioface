@@ -306,7 +306,7 @@
                                 <col width=50></col>
                                 {% for id, file in files %}
                                     <tr class="fileid_{{ id }}">
-                                        <td><a class="js_download_file" data-file-id="{{ id }}">{{ file.0 }}</a></td>
+                                        <td><a href class="js_download_file" data-file-id="{{ id }}">{{ file.0 }}</a></td>
                                         <td><a class="js-file-delete btn btn-mini btn-danger" data-file-id="{{ id }}">x</a></td>
                                     </tr>
                                 {% endfor %}
@@ -353,251 +353,138 @@
     <!-- // <script type="text/javascript" src="{{ STATIC_URL }}js/FileSaver.js"></script> -->
 
     <script type="text/javascript">
-        $('#id_tags').select2({tags:[{% for tag in form.fields.tags.choices %}"{{ tag.0 }}", {% endfor %}]})
-        $('.js_select2').select2({})
+        $(document).ready(function(){
+            $('#id_tags').select2({tags:[{% for tag in form.fields.tags.choices %}"{{ tag.0 }}", {% endfor %}]})
+            $('.js_select2').select2({})
 
-        $('.js_tbl_attribute').select2({
-            placeholder: 'Select attribute',
-             allowClear: true
-        })
+            $('.js_tbl_attribute').select2({
+                placeholder: 'Select attribute',
+                 allowClear: true
+            })
 
-        files_dict = {{ files_dict|jsonify }}
+            files_dict = {{ files_dict|jsonify }}
 
-        $('.fileupload').fileupload({});
+            $('.fileupload').fileupload({});
 
-        $('.js_download_file').click(function(){
+            $('.js_download_file').click(function(){
 
-            // var query = {
-            //     "method" : "get_file",
-            //     "key": "{{ request.user.sessionkey }}",
-            //     "params" : {
-            //         "id" : $(this).data('fileId')
-            // }}
-            // function addJSON(el){
-            //     el.value=JSON.stringify(query)
-            // }
-            // $('#downloadform_id').submit()
+                var formHTML = '<form action="https://{{ request.get_host }}/download" method="post">'+
+                    '<input type="hidden" name="id" value="'+$(this).data('fileId')+'" />'+
+                    '<input type="hidden" name="key" value="{{ request.user.sessionkey }}" />'+
+                    '</form>';
+                $(formHTML).submit()
 
-            // $.post("/api/v1", query);
-            // $form = $("<form>").appendTo("body");
-            // $form.hide()
-            //     .attr('method', "POST")
-            //     .attr('action', fileUrl)
+            })
 
+            updated_attributes = {}
 
-            // $.form('/api/v1', query)
-
-
-            // $.ajax({
-            //     url: "/api/v1",
-            //     contentType: 'application/json',
-            //     dataType: 'json',
-            //     data: JSON.stringify(query),
-            //     type: 'POST',
-            //     success: function(data){
-            //         content = data;
-            //         uriContent = "data:application/octet-stream," + encodeURIComponent(content);
-            //         // или в Base64...
-            //         // newWindow=window.open(uriC÷ontent, "myDocument");
-            //         location.href = uriContent
-            //         // или лучше location.href = uriContent, что позволит избежать ругани с открытием окна
-
-            //         // saveAs(new Blob([data]), $(this).text());
-            //     }
-            // }).always(function() { alert() });
-
-            var formHTML = '<form action="https://{{ request.get_host }}/download" method="post">'+
-                '<input type="hidden" name="id" value="'+$(this).data('fileId')+'" />'+
-                '<input type="hidden" name="key" value="{{ request.user.sessionkey }}" />'+
-                '</form>';
-            $(formHTML).submit()
-
-
-        })
-
-        
-
-        
-        //   var availableTags = [
-        //     {% for id, value in form.fields.tags.choices %}
-        //         {
-        //           label: '{{ value }}',
-        //           value: '{{ id }}',
-        //         },
-        //     {% endfor %}
-        //   ]
-
-        // $('#demo2').tagit(
-        //     {
-        //         tagSource: availableTags, 
-        //         caseSensitive: true,
-        //         select: true, 
-        //         sortable: true,
-        //     });
-        
-
-        updated_attributes = {}
-
-        $('.js_attribute_value').change(function(){
-            var attr_pk = $(this).prop('name')
-            var attr_value = $(this).val()
-            updated_attributes[attr_pk] = attr_value
-        })
-
-        $("#start_fileupload").click(function(){
-            file_data = $('#object_file')[0].files[0],
-            fileName = file_data.name,
-            // fileSize = file_data.size;
-            // alert("Uploading: "+fileName+" @ "+fileSize+"bytes");
-            Dajaxice.apps.bioface.upload_file(Dajax.process, { 'filename': fileName, 'file_data': file_data });
-           // CustomFileHandlingFunction(file);
-        });
-
-        $('.js-file-delete').click(function(){
-            if (confirm('You realy want delete this file?')){
-                Dajaxice.apps.bioface.delete_file(Dajax.process, 
-                    { 'fileid': $(this).data('fileId')}
-                );
-            }
-        })
-
-        function delete_file_from_list(fileid){
-            delete files_dict[fileid]
-            $('.fileid_' + fileid).remove()
-        }
-
-        function upload_2_server(upload_data){
-            upload_url = upload_data.upload_url
-            upload_id = upload_data.upload_id
-            // alert(upload_url);
-            form_data = new FormData(file_data);
-            form_data.append("files", file_data)
-
-            $.ajax({
-                type: 'post',
-                url: upload_url,
-                cache: false,
-                contentType: false,
-                processData: false,
-                // crossDomain: true,
-                data: form_data,
-                // beforeSend: function (request)
-                // {
-                //     request.setRequestHeader('Access-Control-Allow-Origin', "*");
-                // },
-                beforeSend: function (xhr) {
-                    start_show_loading();
-                },
-                success: function (data){
-                    stop_show_loading(); 
-                    $('#upload-files').prepend(
-                        '<tr class="fileid_' + upload_id + '"> \
-                            <td><a class="js_download_file" data-file-id="' + upload_id + '">' + file_data.name + '</a></td> \
-                            <td><a class="js-file-delete btn btn-mini btn-danger" data-file-id="' + upload_id + '">x</a></td> \
-                        </tr>'
-                        )
-                    // $('#files_id').val($('#files_id').val() + ',' + upload_id)
-                    $("#start_fileupload").hide()
-                    not_all_file_upload = false
-                    files_dict[upload_id] = [fileName, '']
-
-                    if (form_submit_required) {
-                        $('#update-form').submit()
-                    }
-                 // alert ( " Done ! " + data );
-                },
-                error: function(xhr,err){
-                    stop_show_loading();
-                    alert("status: "+xhr.status);
-                    // alert("responseText: "+xhr.responseText);
-                },
-              // dataType: dataType
+            $('.js_attribute_value').change(function(){
+                var attr_pk = $(this).prop('name')
+                var attr_value = $(this).val()
+                updated_attributes[attr_pk] = attr_value
             });
-        };
 
-            // $.ajax({
-            // // Uncomment the following to send cross-domain cookies:
-            // //xhrFields: {withCredentials: true},
-            //     url: upload_url,
-            //     type: 'POST',
-            //     // dataType: 'json',
-            //     context: file_data
-            // }).done(function (result) {
-            //     $(this).fileupload('option', 'done')
-            //         .call(this, null, {result: result});
-            // });
+            $('#id_lab_id').click(function(){
+                alert(123);
+            });
 
-            // var form_data = new FormData(file_data);                  // Creating object of FormData class
-            // // form_data.append("file", file_data) 
-            // var response = $.ajax({
-            //     url: upload_url,
-            //     // dataType: 'text',
-            //     cache: false,
-            //     contentType: false,
-            //     processData: false,
-            //     crossDomain: true,
-            //     async: false,
-            //     // dataType: 'text',
-            //     data: form_data,                         // Setting the data attribute of ajax with file_data
-            //     type: 'POST',
-            //     error: function(xhr,err,errorMessage){
-            //         alert("readyState: "+xhr.readyState+"\nstatus: "+xhr.status);
-            //         alert("responseText: "+xhr.responseText+errorMessage);
-            //     },
-            //     success: function (data)
-            //     {
-            //      alert ( " Done ! " + data );
-            //     }
-            //    });
-            // post_response = $.get(upload_url);
-        // }
-
-        // function createUploader(){            
-        //     var uploader = new qq.FileUploader({
-        //         element: document.getElementById('file_contener'),
-        //         onSubmit: function(id, fileName){
-        //             alert(fileName);
-
-        //             // Dajaxice.apps.bioface.upload_file(Dajax.process, { 'filename': fileName });
-        //             // return false
-        //         },
-        //         onProgress: function(id, fileName, loaded, total){alert(loaded);},
-        //         action: '/'
-        //     });           
-        // }
-        
-        not_all_file_upload = true
-        form_submit_required = false
-        $('#update-form').submit(function(){
-            upload_file = $('#object_file')[0].files
-            if (upload_file.length > 0 && not_all_file_upload) {
-                file_data = upload_file[0],
+            $("#start_fileupload").click(function(){
+                file_data = $('#object_file')[0].files[0],
                 fileName = file_data.name,
                 // fileSize = file_data.size;
                 // alert("Uploading: "+fileName+" @ "+fileSize+"bytes");
-                form_submit_required = true
                 Dajaxice.apps.bioface.upload_file(Dajax.process, { 'filename': fileName, 'file_data': file_data });
+               // CustomFileHandlingFunction(file);
+            });
+
+            $('.js-file-delete').click(function(){
+                if (confirm('You realy want delete this file?')){
+                    Dajaxice.apps.bioface.delete_file(Dajax.process, 
+                        { 'fileid': $(this).data('fileId')}
+                    );
+                }
+            })
+
+            function delete_file_from_list(fileid){
+                delete files_dict[fileid]
+                $('.fileid_' + fileid).remove()
+            }
+
+            function upload_2_server(upload_data){
+                upload_url = upload_data.upload_url
+                upload_id = upload_data.upload_id
+                // alert(upload_url);
+                form_data = new FormData(file_data);
+                form_data.append("files", file_data)
+
+                $.ajax({
+                    type: 'post',
+                    url: upload_url,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    // crossDomain: true,
+                    data: form_data,
+                    // beforeSend: function (request)
+                    // {
+                    //     request.setRequestHeader('Access-Control-Allow-Origin', "*");
+                    // },
+                    beforeSend: function (xhr) {
+                        start_show_loading();
+                    },
+                    success: function (data){
+                        stop_show_loading(); 
+                        $('#upload-files').prepend(
+                            '<tr class="fileid_' + upload_id + '"> \
+                                <td><a class="js_download_file" data-file-id="' + upload_id + '">' + file_data.name + '</a></td> \
+                                <td><a class="js-file-delete btn btn-mini btn-danger" data-file-id="' + upload_id + '">x</a></td> \
+                            </tr>'
+                            )
+                        // $('#files_id').val($('#files_id').val() + ',' + upload_id)
+                        $("#start_fileupload").hide()
+                        not_all_file_upload = false
+                        files_dict[upload_id] = [fileName, '']
+
+                        if (form_submit_required) {
+                            $('#update-form').submit()
+                        }
+                     // alert ( " Done ! " + data );
+                    },
+                    error: function(xhr,err){
+                        stop_show_loading();
+                        alert("status: "+xhr.status);
+                        // alert("responseText: "+xhr.responseText);
+                    },
+                  // dataType: dataType
+                });
+            };
+            
+            not_all_file_upload = true
+            form_submit_required = false
+            $('#update-form').submit(function(){
+                upload_file = $('#object_file')[0].files
+                if (upload_file.length > 0 && not_all_file_upload) {
+                    file_data = upload_file[0],
+                    fileName = file_data.name,
+                    // fileSize = file_data.size;
+                    // alert("Uploading: "+fileName+" @ "+fileSize+"bytes");
+                    form_submit_required = true
+                    Dajaxice.apps.bioface.upload_file(Dajax.process, { 'filename': fileName, 'file_data': file_data });
+                    
+                    return false
+                }
+
+                $('#files_dict').val(JSON.stringify(files_dict));
+                if (updated_attributes) {
+                    $('#updated_attributes').val(JSON.stringify(updated_attributes));
+                }
                 
-                return false
-            }
+            })
 
-            $('#files_dict').val(JSON.stringify(files_dict));
-            if (updated_attributes) {
-                $('#updated_attributes').val(JSON.stringify(updated_attributes));
-            }
-            
-            
-        })
-
-        // in your app create uploader as soon as the DOM is ready
-        // don't wait for the window to load  
-        // window.onload = createUploader;     
-    
-
-        $(".show-hide").hide();
-        function toggle_filter() {
-            $(".show-hide").toggle("hide");
-        };
-
+            $(".show-hide").hide();
+            function toggle_filter() {
+                $(".show-hide").toggle("hide");
+            };
+        }) 
     </script>
 {% endblock %}

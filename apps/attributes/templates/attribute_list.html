@@ -102,6 +102,7 @@
 
 {% block endjs %}
     <script src="{{ STATIC_URL }}js/jquery-ui-1.10.2.custom.min.js"></script>
+    <script src="{{ STATIC_URL }}js/select2.min.js"></script>
     <script type="text/javascript">
         $(function() {
             $('.js_attr_description').tooltip({
@@ -116,6 +117,9 @@
                 return options_html
               }
             });
+
+            $('.js_tag_input').select2({tags:[{% for tag in form.fields.tags.choices %}"{{ tag.0 }}", {% endfor %}]})
+
           });
     </script>
 {% endblock %}
