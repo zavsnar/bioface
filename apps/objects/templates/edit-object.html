@@ -306,7 +306,7 @@
                                 <col width=50></col>
                                 {% for id, file in files %}
                                     <tr class="fileid_{{ id }}">
-                                        <td><a href class="js_download_file" data-file-id="{{ id }}">{{ file.0 }}</a></td>
+                                        <td><a class="js_download_file" data-file-id="{{ id }}">{{ file.0 }}</a></td>
                                         <td><a class="js-file-delete btn btn-mini btn-danger" data-file-id="{{ id }}">x</a></td>
                                     </tr>
                                 {% endfor %}
