@@ -189,7 +189,7 @@ table#table-nominal-id {
 
 .object-pagination {
     float: right;
-    margin-top: 0;
+    /*margin-top: 0;*/
 }
 
 .set-tag {
@@ -210,6 +210,10 @@ table#table-nominal-id {
     /*padding-bottom:1px;*/
     border-left: 1px solid #dddddd;
     border-right: 1px solid #dddddd;
+}
+
+.object-result-table .table {
+    margin-bottom: 0;
 }
 
 /*.headcol {

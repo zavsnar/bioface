@@ -97,35 +97,36 @@ class SelectObjects(forms.Form):
         if with_choices:
             # choices_list = [('', '')]
             organism_choices_list = get_choices(request, item_name='organisms')
-            self.fields['organism'].choices = organism_choices_list
-            # attr_choices = self.fields['attributes_list'].choices
-            if kwargs.has_key('data'):
-                organism_id = kwargs['data']['organism']
-            else:
-                organism_id = organism_choices_list[0][0]
+            if organism_choices_list:
+                self.fields['organism'].choices = organism_choices_list
+                # attr_choices = self.fields['attributes_list'].choices
+                if kwargs.has_key('data'):
+                    organism_id = kwargs['data']['organism']
+                else:
+                    organism_id = organism_choices_list[0][0]
 
-            if organism_id:
-                query_params = {
-                    "query": "organism = {}".format(organism_id),
-                    "orderby" : [["name", "asc"]]
-                }
-                self.fields['attributes_list'].choices = get_choices(self.request, 
-                    cache_key='attributes_{}'.format(organism_id), item_name='attributes', 
-                    key='name', query_params = query_params, append_field='atype')
-                attr_choices = self.fields['attributes_list'].choices
-                # Copy list
-                all_fields = list(OBJECT_FIELDS_CHOICES)
-                all_fields.extend(attr_choices)
-                self.fields['sort_by'].choices = all_fields
+                if organism_id:
+                    query_params = {
+                        "query": "organism = {}".format(organism_id),
+                        "orderby" : [["name", "asc"]]
+                    }
+                    self.fields['attributes_list'].choices = get_choices(self.request, 
+                        cache_key='attributes_{}'.format(organism_id), item_name='attributes', 
+                        key='name', query_params = query_params, append_field='atype')
+                    attr_choices = self.fields['attributes_list'].choices
+                    # Copy list
+                    all_fields = list(OBJECT_FIELDS_CHOICES)
+                    all_fields.extend(attr_choices)
+                    self.fields['sort_by'].choices = all_fields
 
-                self.fields['tags'].choices = [('','')]
-                query_params = {
-                    "orderby" : [["weight", "asc"]]
-                }
-                self.fields['tags'].choices.extend(get_choices(self.request, item_name='tags', 
-                    key='tag', query_params=query_params))
-                
-                self.fields['attr_from_tag'].choices = self.fields['tags'].choices
+                    self.fields['tags'].choices = [('','')]
+                    query_params = {
+                        "orderby" : [["weight", "asc"]]
+                    }
+                    self.fields['tags'].choices.extend(get_choices(self.request, item_name='tags', 
+                        key='tag', query_params=query_params))
+                    
+                    self.fields['attr_from_tag'].choices = self.fields['tags'].choices
                 # print 333, self.fields['sort_by'].choices
             # else:
             #     self.fields['attributes_list'].choices = get_choices(request, item_name='attributes', key='name')

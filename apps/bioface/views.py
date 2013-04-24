@@ -269,39 +269,22 @@ def create_organism(request):
                 "method" : "create_object",
                 "key": request.user.sessionkey,
                 "params" : {
-                    # "attributes_autoexpand" : true,
                     "data" : {
-                        "fields": {
-                        #     "name" : name, //str
-                        #     "lab_id":  Лабораторный идентификатор, //str
-                        #     "organism": организм, //str
-                        #     "source": источник, //str
-                        #     "comment": comment, //str
-                        #     "refs": ["id1", "id2"], //список id референсов
-                        #     "tags": ["id", "id"], //список id тегов
-                             },
-                        # "attributes": [["attribute_id", "value1"],
-                        #     etc...
-                        # ]
-                        }
+                        "name": form.cleaned_data['name']
                     }
                 }
+            }
 
-            obj_fields = query_dict['params']['data']['fields']
-            for key, value in form.cleaned_data.items():
-                obj_fields[key] = value
+            # obj_fields = query_dict['params']['data']['fields']
+            # for key, value in form.cleaned_data.items():
+            #     obj_fields[key] = value
 
             content_dict = api_request(query_dict)
             
             if content_dict.has_key('result'):
-            # {u'error': {u'code': -32005,
-            # u'data': u'(IntegrityError) duplicate key value violates unique constraint "objects_name_key"\nDETAIL:  Key (name)=(123) already exists.\n',
-            # u'message': u'not unique'}}
-                messages.success(request, 'Object {0} with ID {1} and Version {2} successfully created.'.format(
-                    form.cleaned_data['name'], content_dict['result']['id'], content_dict['result']['version'])
-                )
+                messages.success(request, 'Organism "{}" successfully create.'.format(form.cleaned_data['name']))
             elif content_dict.has_key('error'):
-                messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))
+                messages.error(request, 'ERROR: {}'.format(content_dict['error']['message']))
 
     else:
         form = CreateOrganismForm()
