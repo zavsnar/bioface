@@ -47,13 +47,13 @@
                                         <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'create_object' %}">Create</a></li>
                                     </ul>
                                 </li>
-                                <li class="dropdown">
+                                <!-- <li class="dropdown">
                                     <a id="drop2" role="button" class="dropdown-toggle" data-toggle="dropdown">Sequences <b class="caret"></b></a>
                                     <ul class="dropdown-menu" role="menu" aria-labelledby="drop2">
                                         <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'sequence_list' %}">Select</a></li>
                                         <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Create</a></li>
                                     </ul>
-                                </li>
+                                </li> -->
                                 <!-- <li>
                                     <a href="#">#Create organism#</a> 
                                 </li> -->
@@ -66,6 +66,9 @@
                                 <!-- <li>
                                     <a href="#">#Create sequence#</a> 
                                 </li> -->
+                                <li>
+                                    <a href="{% url 'create_organism' %}">Create organism</a> 
+                                </li>
                                 <li>
                                     <a href="{% url 'downloads_list' %}">My Downloads</a> 
                                 </li>

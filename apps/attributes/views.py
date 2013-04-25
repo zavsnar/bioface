@@ -118,7 +118,7 @@ def create_attribute(request):
             atype = cd.get('atype')
             default_name = 'descr_{}_default'.format(atype)
             default_value = cd.get(default_name, None)
-            if not default_value:
+            if not default_value and default_value != 0:
                 default_value = None
             primary = bool(rp.get('primary'))
             print 333, default_value
@@ -153,8 +153,8 @@ def create_attribute(request):
             elif atype == 'range':
                 description_dict = {
                     "default": default_value, 
-                    "upper": cd.get('descr_range_from', ''), 
-                    "lower": cd.get('descr_range_to', '')
+                    "lower": cd.get('descr_range_from', ''), 
+                    "upper": cd.get('descr_range_to', '')
                     }
 
             query_dict = {
@@ -186,10 +186,10 @@ def create_attribute(request):
 
 
             elif content_dict.has_key('error'):
-                if 'Key ({0})=({1}) already exists.'.format('name', cd['name']) in content_dict['error']['data']:
-                    form.errors['name'] = form.error_class([content_dict['error']['message']])
-                else:
-                    messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))
+                # if 'Key ({0})=({1}) already exists.'.format('name', cd['name']) in content_dict['error']['data']:
+                #     form.errors['name'] = form.error_class([content_dict['error']['message']])
+                # else:
+                    messages.error(request, 'ERROR: {}'.format(content_dict['error']['message']))
                 # '(IntegrityError) duplicate key value violates unique constraint "attrdescrs_name_key" DETAIL: Key (name)=(test_attr2) already exists.'
         else:
             form.fields['descr_nominal'].value = rp.getlist('descr_nominal')

@@ -434,7 +434,7 @@
             upload_url = upload_data.upload_url
             upload_id = upload_data.upload_id
             // alert(upload_url);
-            form_data = new FormData(file_data);
+            form_data = new FormData();
             form_data.append("files", file_data)
 
             $.ajax({

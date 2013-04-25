@@ -30,7 +30,7 @@ urlpatterns = patterns('',
         url(r'^logout/$', logout, name='logout'),
         url(r'^registration/$', registration, name='registration'),
 
-        url(r'^downloads/$', downloads_list, name='downloads_list'),
+        url(r'^my-downloads/$', downloads_list, name='downloads_list'),
 
         url(r'^', include('apps.objects.urls')),
         url(r'^', include('apps.attributes.urls')),

@@ -42,7 +42,7 @@
                     <td>{% firstof item.comment '' %}</td>
                     {% if item.atype == 'range' %}
                         <td class="js_attr_description" data-placement="bottom" title="{{ step.query }}" data-original-title="{{ step.query }}">
-                            {% if item.description.default %}
+                            {% if item.description.default or item.description.default == 0 %}
                                 {{ item.description.default }}
                             {% else %}
                                 <span class="red">n/a</span>
@@ -53,7 +53,7 @@
                         </td>
                     {% elif item.atype == 'nominal' %}
                         <td class="js_attr_description" data-placement="bottom" title="{{ step.query }}" data-original-title="{{ step.query }}">
-                            {% if item.description.default %}
+                            {% if item.description.default or item.description.default == 0 %}
                                 {{ item.description.default }}
                             {% else %}
                                 <span class="red">n/a</span>
@@ -120,6 +120,10 @@
 
             $('.js_tag_input').select2({tags:[{% for tag in form.fields.tags.choices %}"{{ tag.0 }}", {% endfor %}]})
 
-          });
+            $('.js_show_tag_input').click(function(){
+
+
+            })
+        });
     </script>
 {% endblock %}
