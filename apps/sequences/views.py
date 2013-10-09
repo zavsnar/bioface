@@ -21,7 +21,7 @@ from django.shortcuts import render_to_response, redirect
 from django.contrib import messages
 # from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-from apps.bioface.utils import api_request
+from apps.common.utils import api_request
 from apps.sequences.forms import CreateSequenceForm
 
 def create_sequence(request, sequence_id=None):

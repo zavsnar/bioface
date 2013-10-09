@@ -18,31 +18,10 @@ from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.db import IntegrityError
 
-# from apps.bioface.utils import ajax_login_required
 from apps.objects.views import get_pagination_page
 from apps.objects.forms import CreateOrganismForm, SelectObjects
-from apps.bioface.models import SavedQuery
-from apps.bioface.utils import api_request, get_choices
-
-#### For page Update Object #####
-
-# def save_file_form_object(request, obj_id, obj_version, file_id_list):
-
-#     query_dict = {
-#         "method" : "update_object",
-#         "key": request.user.sessionkey,
-#         "params" : {
-#             "id" : cd.get('id'),
-#             "version" : cd.get('version'),
-#             "attributes_autoexpand" : False,
-#             "data" : {
-#                 "fields": {
-#                     "files": cd.get('files_id').split(',')
-#                 },
-#             }
-#         }
-#     }
-
+from apps.persons.models import SavedQuery, Download
+from apps.common.utils import api_request, get_choices
 
 ##### For page Select Objects #####
 
@@ -198,9 +177,49 @@ def tagging_objects(request, page_num, tags, query_dict):
     return dajax.json()
 
 @dajaxice_register
-# def pagination(request, page, paginate_by, display_fields, attributes, raw_query):
+def download_objects(request, form, query_dict):
+    dajax = Dajax()
+    query_dict = ast.literal_eval(query_dict)
+    form_data = deserialize_form(form)
+    form = DownloadForm(data = form_data)
+    if form.is_valid():
+        del query_dict['params']['limit']
+        del query_dict['params']['skip']
+
+        encoding = form.cleaned_data['encoding']
+        object_download = Download.objects.create(
+            encoding = encoding,
+            user = request.user,
+            description = form.cleaned_data['description'],
+            status = 'expected')
+
+        with_attributes = True if 'attributes' in form.cleaned_data['options'] else False
+        with_sequences = True if 'sequences' in form.cleaned_data['options'] else False
+        obj_id = object_download.id
+        # Add to queue
+        download_task = loading_objects.delay(
+            query_dict = query_dict, 
+            object_download_id = obj_id,
+            with_attributes = with_attributes,
+            with_sequences = with_sequences,
+            encoding = encoding
+            )
+        object_download.task_id = download_task.task_id
+        object_download.save()
+
+        msg = 'Ok'
+        template_context = {'success_message': 'Downloading successfully begin. You can see the status or get file in "My downloads".'}
+        dajax.script('success_adding_download();')
+    else:
+        msg = 'err'
+    
+    render = render_to_string('components/alert_messages.html', template_context)
+    dajax.assign('.extra-message-block', 'innerHTML', render)
+    
+    return dajax.json()
+
+@dajaxice_register
 def pagination(request, page, paginate_by, items_count, data):
-    # data = ast.literal_eval(data)
     data = json.loads(data)
     display_fields = data['display_fields']
     query_dict = data['query_dict']

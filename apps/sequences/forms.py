@@ -10,7 +10,7 @@ from django.core.exceptions import ValidationError
 #from django_select2 import *
 #from django_select2.widgets import *
 
-from apps.bioface.utils import api_request, get_choices
+from apps.common.utils import api_request, get_choices
 
 METHODS_FOR_CALL_ITEM = ("get_object", "get_attribute", "get_tag", "get_tags_version", "get_sequence", "get_reference",
     "get_segment", "get_alignment", "get_annotation")

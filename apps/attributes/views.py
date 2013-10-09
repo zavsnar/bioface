@@ -27,7 +27,7 @@ from django.core.cache import cache
 
 
 
-from apps.bioface.utils import api_request
+from apps.common.utils import api_request
 from apps.attributes.forms import CreateAttributeForm, EditAttributeForm
 
 @login_required

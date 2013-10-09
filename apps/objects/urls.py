@@ -1,8 +1,10 @@
 from django.conf.urls import patterns, url, include
 from django.conf import settings
-# from django.views.decorators.cache import cache_page
 
-from apps.objects.views import create_object, update_object, get_objects, import_uploader
+from ajaxuploader.views import AjaxFileUploader
+import_uploader = AjaxFileUploader()
+
+from apps.objects.views import create_object, update_object, get_objects
 
 urlpatterns = patterns('',
         url(r'^select/objects/$', get_objects, name='select_objects'),

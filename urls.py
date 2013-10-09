@@ -1,31 +1,18 @@
 from django.conf.urls import patterns, url, include
 from django.conf import settings
-# from django.http import HttpResponse
-# from django.shortcuts import render
-# from django.contrib.auth.views import login
-# from django.views.decorators.cache import cache_page
-
-# from django.contrib.sitemaps import views as sitemaps_views
 from django.contrib import admin
 
-# from sitemaps import scheme as sitemaps
-from apps.bioface.views import index, signin, registration, logout, \
-    create_organism, downloads_list
+from apps.common.views import index, signin, registration, logout, create_organism
+from apps.persons.views import downloads_list
 
 admin.autodiscover()
 
 from dajaxice.core import dajaxice_autodiscover, dajaxice_config
 dajaxice_autodiscover()
 
-# robots_txt view
-# robots_txt = "User-agent: *\nDisallow: /" if settings.DISALLOW_SEARCH_ROBOTS else ''
-# get_robots_txt = lambda r: HttpResponse(robots_txt, mimetype="text/plain")
-
 urlpatterns = patterns('',
-        # url(r'^$', request_api_page, name='index'),
         url(r'^$', index, name='index'),
 
-        # url(r'^alter-index/$', alter_index, name='alter_index'),
         url(r'^login/$', signin, name='signin'),
         url(r'^logout/$', logout, name='logout'),
         url(r'^registration/$', registration, name='registration'),

@@ -1,16 +1,12 @@
 
 from django.utils import simplejson
 from django.http import HttpResponse, HttpResponseBadRequest
-# from django.views.decorators.csrf import csrf_protect
 
-from apps.bioface.utils import api_request
+from apps.common.utils import api_request
 
-# @csrf_protect
 def ajax_change_attribute(request):
     if request.method == 'POST':
-        # print 2233333, request
         rp = request.POST
-        print 44444, rp
         query_dict = {
             "method" : "update_attribute",
             "key": request.user.sessionkey,
@@ -26,11 +22,8 @@ def ajax_change_attribute(request):
             
         if content_dict.has_key('result'):
             results = {
-                # 'success': 'success',
-                    # 'data': {
                 'id': content_dict['result']['id'],
                 'version': content_dict['result']['version']
-                    # }
             }
         else:
             msg = content_dict['error']['message']

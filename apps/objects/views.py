@@ -32,10 +32,9 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.utils.safestring import mark_safe
 from django.utils.encoding import smart_text, force_text, smart_unicode
 
-
-from apps.bioface.utils import api_request
-from apps.bioface.models import SavedQuery
-from apps.bioface.forms import DownloadForm
+from apps.persons.models import SavedQuery
+from apps.common.utils import api_request
+from apps.common.forms import DownloadForm
 from apps.objects.forms import CreateObjectForm, UpdateObjectForm, \
     CreateOrganismForm, SelectObjects
 from apps.objects.forms import OBJECT_FIELDS, OBJECT_FIELDS_CHOICES_WITH_TYPE
