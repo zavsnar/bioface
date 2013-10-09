@@ -32,7 +32,6 @@ def update_attr_from_tag(request, organism, tag, attrs):
         "key": request.user.sessionkey,
         "params" : {
             'query' : 'organism = {0} & tags.contains("{1}")'.format(organism, tag),
-            # "orderby" : [["field_name", "asc"], ["field_name2", "desc"]]
         }
     }
     content_dict = api_request(query_dict)
@@ -41,7 +40,6 @@ def update_attr_from_tag(request, organism, tag, attrs):
         new_attrs = [ attr['name'] for attr in content_dict['result']['attributes'] ]
         if new_attrs:
             attrs.extend(new_attrs)
-            # result_attr_list = list(set(attrs))
             result_attr_list = attrs
             dajax.add_data(result_attr_list, 'update_attr_from_tag')
     else:
@@ -51,20 +49,15 @@ def update_attr_from_tag(request, organism, tag, attrs):
 
     return dajax.json()
 
+
 @dajaxice_register
 def update_attributes_from_organism(request, organism_id):
-    # form_data = deserialize_form(form)
-    # form = SelectObjects(request=request, data=deserialize_form(form), with_choices=False)
-    # attr_field = form.fields['attributes_list']
     query_params = {
         "query": "organism = {}".format(organism_id),
         "orderby" : [["name", "asc"]]
     }
     attr_list = get_choices(request, item_name='attributes', cache_key='attributes_{}'.format(organism_id), 
         key='name', query_params=query_params, append_field = 'atype')
-    # attr_field.choices = attr_list
-    # value = form_data.getlist('attributes_list')
-    # render = attr_field.widget.render(name='attributes_list', value = value)
 
     attr_render = '<select multiple="multiple" id="id_attributes_list" name="attributes_list" style="width:530px">\n'
     options=[]
@@ -82,6 +75,7 @@ def update_attributes_from_organism(request, organism_id):
     dajax.assign('#js_reference_query_item .js_query_attr_list', 'innerHTML', options_render)
     dajax.script('update_query_items();')
     return dajax.json()
+
 
 @dajaxice_register
 def save_query(request, name, form, field_filters_dict, query_str):
@@ -120,23 +114,22 @@ def save_query(request, name, form, field_filters_dict, query_str):
     
     return dajax.json()
     
+
 @dajaxice_register
 def delete_saved_query(request, name):
     try:
-        query = SavedQuery.objects.get(user = request.user, 
-            # type_query = 'get_objects', 
-            name = name)
+        query = SavedQuery.objects.get(user = request.user, name = name)
         query.delete()
         template_context = {'success_message': 'Query "{}" successfully deleted.'.format(name)}
     except SavedQuery.DoesNotExist:
         template_context = {'error_message': 'Query does not exist.'}
 
     dajax = Dajax()
-    # dajax.alert('Success! {}'.format(saved_query))
     render = render_to_string('components/alert_messages.html', template_context)
     dajax.assign('.extra-message-block', 'innerHTML', render)
     dajax.script('stop_show_loading();')
     return dajax.json()
+
 
 @dajaxice_register
 def tagging_objects(request, page_num, tags, query_dict):
@@ -230,7 +223,6 @@ def pagination(request, page, paginate_by, items_count, data):
         attributes = []
 
     content_dict = get_pagination_page(page=page, paginate_by=paginate_by, query_dict=query_dict)
-    # print 777, content_dict['result']['objects']
     if content_dict.has_key('result'):
         object_list = []
         for obj in content_dict['result']['objects']:
@@ -263,7 +255,6 @@ def pagination(request, page, paginate_by, items_count, data):
         previous_page = True if page > 1 else False
 
         pages_count = int(math.ceil(items_count/paginate_by))
-        # all_pages = range(1, pages_count+1)
         if pages_count <= 11:
             pages = range(1, pages_count+1)
         elif page == 1 or page == pages_count:
@@ -287,13 +278,6 @@ def pagination(request, page, paginate_by, items_count, data):
             pages.extend(range(page-1, page+2))
             pages.append('...')
             pages.extend(range(pages_count-2, pages_count+1))
-
-        # if len(object_list) > paginate_by:
-        #     next_page = True
-        #     object_list = object_list[:-1]
-        # else:
-        #     next_page = False
-
 
         query_dict_str = mark_safe(simplejson.dumps(query_dict))
         display_fields_str = mark_safe(simplejson.dumps(display_fields))

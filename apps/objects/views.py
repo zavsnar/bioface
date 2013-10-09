@@ -219,57 +219,6 @@ def update_object(request, object_id = 0):
 
     return render_to_response('edit-object.html', template_context, context_instance=RequestContext(request))
 
-@login_required
-def create_organism(request):
-    if request.method == 'POST':
-        form = CreateOrganismForm(data = request.POST)
-        if form.is_valid():
-            query_dict = {
-                "method" : "create_object",
-                "key": request.user.sessionkey,
-                "params" : {
-                    # "attributes_autoexpand" : true,
-                    "data" : {
-                        "fields": {
-                        #     "name" : name, //str
-                        #     "lab_id":  Лабораторный идентификатор, //str
-                        #     "organism": организм, //str
-                        #     "source": источник, //str
-                        #     "comment": comment, //str
-                        #     "refs": ["id1", "id2"], //список id референсов
-                        #     "tags": ["id", "id"], //список id тегов
-                             },
-                        # "attributes": [["attribute_id", "value1"],
-                        #     etc...
-                        # ]
-                        }
-                    }
-                }
-
-            obj_fields = query_dict['params']['data']['fields']
-            for key, value in form.cleaned_data.items():
-                obj_fields[key] = value
-
-            content_dict = api_request(query_dict)
-            
-            if content_dict.has_key('result'):
-            # {u'error': {u'code': -32005,
-            # u'data': u'(IntegrityError) duplicate key value violates unique constraint "objects_name_key"\nDETAIL:  Key (name)=(123) already exists.\n',
-            # u'message': u'not unique'}}
-                messages.success(request, 'Object {0} with ID {1} and Version {2} successfully created.'.format(
-                    form.cleaned_data['name'], content_dict['result']['id'], content_dict['result']['version'])
-                )
-            elif content_dict.has_key('error'):
-                messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))
-
-    else:
-        form = CreateOrganismForm()
-
-    template_context = {
-        'form': form,
-    }
-    return render_to_response('create_object.html', template_context, context_instance=RequestContext(request))
-
 
 def get_pagination_page(page, query_dict, paginate_by=5):
     item_name = query_dict['method'].replace('get_', '')
@@ -283,29 +232,6 @@ def get_pagination_page(page, query_dict, paginate_by=5):
 
     return content_dict
     
-    # template_name, template_context = get_item_list_by_api(item_name, content_dict)
-    # items = template_context['items']
-    # if len(items) > paginate_by:
-    #     next_page = True
-    #     template_context['items'] = template_context['items'][:-1]
-    # else:
-    #     next_page = False
-
-    # previous_page = True if page > 1 else False
-
-    # template_context.update({
-    #     'has_next': next_page,
-    #     'has_previous': previous_page,
-    #     'next_page_number': page+1,
-    #     'previous_page_number': page-1,
-    #     'method': query_dict['method']
-    #     # 'query': query_dict['params'],
-    # })
-
-    # return template_name, template_context
-
-from ajaxuploader.views import AjaxFileUploader
-import_uploader = AjaxFileUploader()
 
 @login_required
 def get_objects(request):

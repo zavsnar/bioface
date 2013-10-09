@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Prepare filesystem (mkdir), install virtualenv
+# Prepare filesystem (mkdir)
 
 cd `dirname "$0"`;
 BRANCH_ROOT="../../"

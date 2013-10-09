@@ -2,7 +2,6 @@
 from __future__ import with_statement
 
 from fabric.api import *
-# from fabric.contrib.console import confirm
 
 from local_settings import SOURCE_ROOT, PROJECT_NAME, HOST_NAME, UWSGI_PORT
 
@@ -10,19 +9,7 @@ env.hosts = ['zavsnar@10.0.1.208']
 
 PROJECT_ROOT = SOURCE_ROOT + '../'
 
-# def deploy():
-#     # local('git push')
-#     # code_dir = PROJECT_ROOT
-#     with settings(sudo_user='zavsnar'):
-#         sudo('ln -sf {0}supervisor.conf /etc/supervisor/conf.d/{1}.conf'.format(PROJECT_ROOT, PROJECT_NAME))
-#         sudo('supervisorctl update')
-#         sudo('ln -sf {0}nginx.conf /etc/nginx/conf.d/{1}.conf'.format(PROJECT_ROOT, PROJECT_NAME))
-#         sudo('service nginx restart')
-        # run('git pull')
-        #run('./manage.py compress')
-
-    # run('touch /tmp/project.txt')
-
+# Generate config files from templates
 def configure():
     with file('{0}deploy/supervisor.template'.format(SOURCE_ROOT), 'r') as supervisor_conf:
         local_conf = supervisor_conf.read().format(project_root = PROJECT_ROOT, source_root = SOURCE_ROOT, project_name = PROJECT_NAME)

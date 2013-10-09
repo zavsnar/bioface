@@ -4,8 +4,6 @@ SOURCE_ROOT = dirname(abspath( __file__)) + '/'
 HOST_NAME = 'web-bioface.ru'
 PROJECT_NAME = 'bioface'
 
-# API_URL = 'https://10.0.1.208:5000/api/v1/'
-
 DEBUG = True
 API_HOST = 'https://10.0.1.204:5000'
 
@@ -80,22 +78,6 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
-        # 'tasks': {
-        #     'handlers': ['console'],
-        #     'level': 'DEBUG',
-        # },
-        # 'open_facebook': {
-        #     'handlers': ['console'],
-        #     'level': 'DEBUG',
-        # },
-        # 'financial_accounts': {
-        #     'handlers': ['console'],
-        #     'level': 'DEBUG',
-        # },
-        # 'eway_au': {
-        #     'handlers': ['console'],
-        #     'level': 'DEBUG',
-        # },
         'api_request': {
             'handlers': ['logfile'],
             'level': 'DEBUG',
@@ -110,27 +92,7 @@ ADMINS = MANAGERS = ('zavsnar@gmail.com',)
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'gw6&l9aqg(h=$g01j02hp34min4aexcxqa^-f_djsc7ca3('
 
-# Email backend settings
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'localhost'
-# EMAIL_PORT = 25
-# EMAIL_HOST_USER = None
-# EMAIL_HOST_PASSWORD = None
-# DEFAULT_FROM_EMAIL = u'TaskMarket<no-reply@tasks-market.levelupdev.com>'
-
 DISALLOW_SEARCH_ROBOTS = True
-
-# #FCGI settings. 'port' value should be specified explicitly
-# APP_SERVER_SETTINGS = {
-#     'host': '127.0.0.1',
-#     'pidfile': join(SOURCE_ROOT, '../fcgi.pid'),
-#     'method': 'prefork',
-#     'maxchildren': 2,
-#     'maxrequests': 0,
-#     'debug': True,
-#     'umask': '022',
-#     'daemonize': 'false',
-# }
 
 DEBUG_TOOLBAR_PANELS = (
     'debug_toolbar.panels.version.VersionDebugPanel',
@@ -145,18 +107,3 @@ DEBUG_TOOLBAR_PANELS = (
 )
 
 INTERNAL_IPS = ('127.0.0.1',)
-
-
-# Eway.com.au test account , Test Credit Card is  4444333322221111
-# EWAY_AU_MERCHANT = {
-#         'customer_id': '87654321',
-#         'username': 'TestAccount',
-#     }
-
-# Eway.com.au sandbox account
-# EWAY_AU_MERCHANT = {
-#         'customer_id': '91389768',
-#         'username': 'me@orend.net.sand',
-#     }
-
-# DISABLE_SSL_CERTIFICATE_VALIDATION = True

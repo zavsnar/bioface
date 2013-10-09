@@ -5,14 +5,10 @@ from local_settings import PROJECT_NAME, HOST_NAME
 from local_settings import UWSGI_PORT
 from local_settings import SECRET_KEY, MANAGERS, ADMINS, DISALLOW_SEARCH_ROBOTS
 from local_settings import STATIC_FILES_VERSION
-# from local_settings import DEFAULT_FROM_EMAIL, EMAIL_BACKEND, EMAIL_HOST, EMAIL_PORT, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD
-# from local_settings import APP_SERVER_SETTINGS
-# from local_settings import THUMBNAIL_DUMMY
 from local_settings import DEBUG_TOOLBAR_PANELS, INTERNAL_IPS
 from local_settings import API_HOST
 from local_settings import BROKER_URL, CELERY_RESULT_BACKEND, CELERY_REDIS_HOST, CELERY_REDIS_PORT, CELERY_REDIS_DB, \
     CELERYD_LOG_FILE, CELERND_TASK_ERROR_EMAILS, CELERYBEAT_SCHEDULER
-#from local_settings import HOST_NAME
 
 from os.path import join
 
@@ -89,7 +85,6 @@ STATICFILES_FINDERS = (
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -100,7 +95,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.transaction.TransactionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     
-    'apps.bioface.middleware.LoginRedirectMiddleware',
+    'apps.common.middleware.LoginRedirectMiddleware',
     # 'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
@@ -141,41 +136,26 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
 
     # third-parties
-    # 'djkombu',
-    # 'kombu.transport.django',
     'djcelery',
+    'jsonfield',
+    'django_extensions',
+    'widget_tweaks',
+    # Bootstrap tools
+    'bootstrapform',
+    'debug_toolbar',
+    'south'
 
-
+    # Simple ajax requests
     'dajaxice',
     'dajax',
 
     'ajaxuploader',
 
-    #'django_select2',
-
-    'jsonfield',
-
-    'django_extensions',
-    # 'runfcgi',
-    'widget_tweaks',
-    # 'pipeline',
-    'bootstrapform',
-    # 'sorl.thumbnail',
-    'debug_toolbar',
-    
     # original
-    # 'apps.open_facebook',
-    # 'apps.tasks',
-    # 'apps.accounts',
-    # 'apps.financial_accounts',
-    # 'apps.eway_au',
-    'apps.bioface',
+    'apps.persons',
     'apps.objects',
     'apps.attributes',
     'apps.sequences',
-    # 'apps.attributes',
-
-    'south'
 )
 
 LOGIN_URL = '/login/'
@@ -190,32 +170,10 @@ SESSION_COOKIE_AGE = 86400
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # SESSION_COOKIE_AGE = 15
 
-AUTH_USER_MODEL = 'bioface.CustomUser'
+AUTH_USER_MODEL = 'persons.CustomUser'
 
 FIXTURE_DIRS = (
     join(SOURCE_ROOT, 'fixtures'),
 )
 
 AUTO_RENDER_SELECT2_STATICS = False
-
-
-# BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
-# BROKER_URL = 'django://'
-
-# STATICFILES_STORAGE = 'pipeline.storage.PipelineStorage'
-
-# PIPELINE_CSS_COMPRESSOR = 'pipeline.compressors.yui.YUICompressor'
-# PIPELINE_YUI_CSS_ARGUMENTS = '--charset utf-8'
-
-# PIPELINE_JS_COMPRESSOR = 'pipeline.compressors.yui.YUICompressor'
-# PIPELINE_YUI_JS_ARGUMENTS = '--charset utf-8'
-# PIPELINE_YUI_BINARY = 'yui-compressor'
-# PIPELINE_DISABLE_WRAPPER = True
-
-# from static_pipelines import PIPELINE_CSS, PIPELINE_JS
-
-# THUMBNAIL_DEBUG = DEBUG
-# THUMBNAIL_PREFIX = 'thumbs/'
-
-# TASK_CREATION_COST = 5 # AUD
-# BID_CREATION_COST = 2 # AUD
