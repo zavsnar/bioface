@@ -11,8 +11,8 @@ from django.contrib import messages
 #from django_select2 import *
 #from django_select2.widgets import *
 
-from apps.bioface.utils import api_request, get_choices
-from apps.bioface.models import Download
+from apps.common.utils import api_request, get_choices
+from apps.common.models import Download
 
 METHODS_FOR_CALL_ITEM = ("get_object", "get_attribute", "get_tag", "get_tags_version", "get_sequence", "get_reference",
     "get_segment", "get_alignment", "get_annotation")

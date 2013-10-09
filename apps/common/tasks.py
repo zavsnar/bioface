@@ -7,7 +7,7 @@ import codecs
 from csv_unicode_recoder import UnicodeWriter
 
 from settings import DOWNLOADS_ROOT
-from apps.bioface.utils import api_request
+from apps.common.utils import api_request
 
 @task()
 def loading_objects(object_download_id, query_dict, with_attributes=False, with_sequences=False, encoding='utf-8'):
@@ -15,7 +15,6 @@ def loading_objects(object_download_id, query_dict, with_attributes=False, with_
     if content_dict.has_key('result'):
         objects = content_dict['result']['objects']
         with tempfile.NamedTemporaryFile(delete=False) as obj_csvfile:
-            # spamwriter = csv.writer(obj_csvfile, delimiter=str(','), quotechar=str('|'), quoting=csv.QUOTE_MINIMAL)
             spamwriter = UnicodeWriter(obj_csvfile, encoding=encoding, quoting=csv.QUOTE_NONE, delimiter = ';')
 
             col_list = []
@@ -41,12 +40,7 @@ def loading_objects(object_download_id, query_dict, with_attributes=False, with_
                         obj_vals.append(val)
 
                 obj_vals.extend(obj_attrs_val)
-                # try:
                 spamwriter.writerow(obj_vals)
-                # except UnicodeEncodeError:
-                #     print 666666, obj_vals
-
-
 
         csv_files_list = [('objects.csv', obj_csvfile.name)]
 
@@ -60,7 +54,6 @@ def loading_objects(object_download_id, query_dict, with_attributes=False, with_
                 objects = content_dict['result']['objects']
 
                 with tempfile.NamedTemporaryFile(delete=False) as attr_csvfile:
-                    # spamwriter = csv.writer(attr_csvfile, delimiter=str(','), quotechar=str('|'), quoting=csv.QUOTE_MINIMAL)
                     spamwriter = UnicodeWriter(attr_csvfile, encoding=encoding)
                     attr_col_list = ['Objects']
                     attr_col_list.extend([ attr['name'] for attr in objects[0]['attributes'] ])
