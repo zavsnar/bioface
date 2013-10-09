@@ -4,9 +4,10 @@ import zlib
 import tempfile
 import codecs
 
-from apps.bioface.utils import api_request, UnicodeWriter
+from csv_unicode_recoder import UnicodeWriter
 
 from settings import DOWNLOADS_ROOT
+from apps.bioface.utils import api_request
 
 @task()
 def loading_objects(object_download_id, query_dict, with_attributes=False, with_sequences=False, encoding='utf-8'):

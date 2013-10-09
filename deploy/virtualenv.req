@@ -3,7 +3,6 @@ flup
 pyyaml
 django == 1.5.1
 uwsgi
-#pillow
 httplib2 == 0.8
 python-dateutil == 2.1
 
@@ -23,8 +22,8 @@ django-jsonfield == 0.8.12
 django-dajaxice == 0.5.5
 django-dajax == 0.9.2
 
-#hg+https://bitbucket.org/levelup/runfcgi
-#sorl-thumbnail == 11.12
+# CSV unicode recoder
+git+https://github.com/zavsnar/csv_unicode_recoder.git
 
 ajaxuploader == 0.2.4
 
