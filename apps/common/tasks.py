@@ -9,6 +9,7 @@ from csv_unicode_recoder import UnicodeWriter
 from settings import DOWNLOADS_ROOT
 from apps.common.utils import api_request
 
+# load objects from query
 @task()
 def loading_objects(object_download_id, query_dict, with_attributes=False, with_sequences=False, encoding='utf-8'):
     content_dict = api_request(query_dict)
@@ -80,5 +81,7 @@ def loading_objects(object_download_id, query_dict, with_attributes=False, with_
             compression = zipfile.ZIP_DEFLATED
             for file_name, file_path in csv_files_list:
                 myzip.write(file_path, arcname=file_name, compress_type=compression)
-    print 'Task Stop'
+    else:
+        return 'Error: {}'.format(content_dict['error']['message'])
+        
     return zip_file_name

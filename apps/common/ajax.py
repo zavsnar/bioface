@@ -17,7 +17,7 @@ from apps.common.forms import CreateOrganismForm
 from apps.common.utils import api_request
 from apps.common.tasks import loading_objects
 
-
+# Upload file to server
 @dajaxice_register
 def upload_file(request, filename, file_data):
     dajax = Dajax()
@@ -45,6 +45,7 @@ def upload_file(request, filename, file_data):
 
     return dajax.json()
 
+# Delete file in server
 @dajaxice_register
 def delete_file(request, fileid):
     dajax = Dajax()
@@ -66,6 +67,7 @@ def delete_file(request, fileid):
         dajax.assign('.extra-message-block', 'innerHTML', render)
 
     return dajax.json()
+
 
 @dajaxice_register
 def add_organism(request, form):

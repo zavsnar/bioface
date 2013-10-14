@@ -152,7 +152,7 @@ def get_pagination_page(page, query_dict):
     if not query_dict.has_key('params'):
         query_dict['params'] = {}
 
-    # Monkey patch. Need for test existing next page
+    # Magic. Need for test existing next page
     query_dict['params']['limit'] = item_count+1
 
     query_dict['params']['skip'] = item_count * (page-1)

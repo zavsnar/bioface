@@ -5,26 +5,13 @@ from __future__ import absolute_import
 from django import forms
 from django.utils.encoding import force_text
 
-
-
-#from django_select2 import *
-#from django_select2.widgets import *
-
 from apps.common.utils import get_choices
 from apps.common.forms import TagMixin
-
-METHODS_FOR_CALL_ITEM = ("get_object", "get_attribute", "get_tag", "get_tags_version", "get_sequence", "get_reference",
-    "get_segment", "get_alignment", "get_annotation")
-
-METHODS_FOR_CREATE_ITEM = ("add_segment", "add_object")
-
-CREATE_METHOD_CHOISES = [ (i, i.replace('add_', '')) for i in METHODS_FOR_CREATE_ITEM ]
 
 OBJECT_FIELDS = ['name', 'comment', 'lab_id', 'user_id', 'created', 'creator', 'modified', \
     'source', 'organism', 'id']
 DISPLAY_FIELDS = list(OBJECT_FIELDS)
 DISPLAY_FIELDS.append('tags')
-# OBJECT_FIELDS_CHOICES = zip(OBJECT_FIELDS, OBJECT_FIELDS)
 OBJECT_FIELDS_CHOICES = zip(DISPLAY_FIELDS, DISPLAY_FIELDS)
 OBJECT_FIELDS_CHOICES_WITH_TYPE = (
     ('name', 'string'),
@@ -72,8 +59,6 @@ class ObjectSortWidget(forms.Select):
         return '\n'.join(output)
 
 class SelectObjects(forms.Form):
-    # request = forms.CharField(widget=forms.Textarea, required=False)
-    # method = forms.ChoiceField(choices = GET_METHOD_CHOISES, initial = 'get_objects')
     organism = forms.ChoiceField(widget=forms.Select(attrs={'style': 'width:220px'}))
     display_fields = ObjectFields(required=False, 
         widget=forms.CheckboxSelectMultiple(), choices=OBJECT_FIELDS_CHOICES, initial=('name',))
@@ -87,9 +72,6 @@ class SelectObjects(forms.Form):
         widget=forms.SelectMultiple(attrs={'style': 'width:220px'}))
     attr_from_tag = forms.ChoiceField(required=False, 
         widget=forms.Select(attrs={'style': 'width:200px'}))
-    # row_query = forms.CharField(required=False)
-    # limit = forms.IntegerField(required=False)
-    # skip = forms.IntegerField(required=False)
 
     def __init__(self, request, with_choices=True, organism_id=None, *args, **kwargs):
         super(SelectObjects, self).__init__(*args, **kwargs)
@@ -99,7 +81,6 @@ class SelectObjects(forms.Form):
             organism_choices_list = get_choices(request, item_name='organisms')
             if organism_choices_list:
                 self.fields['organism'].choices = organism_choices_list
-                # attr_choices = self.fields['attributes_list'].choices
                 if kwargs.has_key('data'):
                     organism_id = kwargs['data']['organism']
                 else:
@@ -127,45 +108,26 @@ class SelectObjects(forms.Form):
                         key='tag', query_params=query_params))
                     
                     self.fields['attr_from_tag'].choices = self.fields['tags'].choices
-                # print 333, self.fields['sort_by'].choices
-            # else:
-            #     self.fields['attributes_list'].choices = get_choices(request, item_name='attributes', key='name')
-            
-
-    # def clean(self):
-    #     if self.cleaned_data.has_key('organism') and self.cleaned_data['organism']:
-    #         organism_id = self.cleaned_data['organism']
-    #         attr_field = self.fields['attributes_list']
-    #         # Add choices for attributes after cleaning
-    #         attr_list = get_choices(self.request, cache_key='attributes_{}'.format(organism_id), item_name='attributes', 
-    #             key='name', query="organism = {}".format(organism_id), append_field='atype')
-    #         attr_field.choices = attr_list
-    #     return self.cleaned_data
 
 
 class CreateOrganismForm(forms.Form):
     name = forms.CharField(label='Name')
 
 
-# def create_object_form(request, *args, **kwargs):
 class CreateObjectForm(forms.Form):
     organism = forms.ChoiceField(widget=forms.Select(attrs={'style': 'width:220px'}))
     name = forms.CharField(label='Name')
     lab_id = forms.CharField(label='laboratory ID', required=False)
-    # tags = forms.CharField(required=False)
     source = forms.CharField(required=False)
     comment = forms.CharField(required=False)
     files_dict = forms.CharField(widget=forms.HiddenInput,required=False)
 
     def __init__(self, request, *args, **kwargs):
-        # self.tag_method = 'object'
         self.request = request
 
         super(CreateObjectForm, self).__init__(*args, **kwargs)
         self.fields['organism'].choices = get_choices(self.request, item_name='organisms')
         
-        # self.fields['tags'].choices = get_choices(request, item_name='tags')
-
 
 class UpdateObjectForm(CreateObjectForm, TagMixin):
     id = forms.IntegerField(widget=forms.HiddenInput, required=False)
@@ -175,6 +137,4 @@ class UpdateObjectForm(CreateObjectForm, TagMixin):
     def __init__(self, request, *args, **kwargs):
         self.request = request
         self.tag_method = 'object'
-        # TagMixin.__init__(self, request, *args, **kwargs)
-        # CreateObjectForm.__init__(self, request, *args, **kwargs)
         super(UpdateObjectForm, self).__init__(request, *args, **kwargs)

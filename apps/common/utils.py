@@ -33,18 +33,9 @@ def api_request(query_dict):
                 'data': 'Unknown error'
             }
         }
-        content_dict['error']['message']
 
     return content_dict
 
-# def check_response(response_dict, item_name):
-#     if response_dict.has_key('result'):
-#         items = organisms_dict['result'][item_name][0][0]
-#     else:
-#         msg = content_dict['error']['message']
-#         messages.error(request, 'API ERROR: {}. {}'.format(msg, content_dict['error']['data']))
-
-#     return
 
 def ajax_login_required(view_func):
     def wrap(request, *args, **kwargs):
@@ -58,6 +49,10 @@ def ajax_login_required(view_func):
     return wrap
 
 def get_choices(request, item_name, cache_key='', key='id', query_params='', append_field=''):
+    """
+        Return list of tuples choices. Format correspond choices in django.forms.ChoiceField.
+        If append_field is not empty string, in tuple append that correspond value.
+    """
 
     if not cache_key:
         cache_key = item_name

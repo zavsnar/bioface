@@ -2,9 +2,9 @@ from django import template
 
 register = template.Library()
 
+# Get value from dict by key
 @register.filter
 def get(d, key):
-	print d
 	return d.get(key, '')
 
 @register.filter

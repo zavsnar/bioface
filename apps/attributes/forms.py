@@ -3,26 +3,10 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 
 from django import forms
-# from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
-
-#from django_select2 import *
-#from django_select2.widgets import *
 
 from apps.common.utils import get_choices
 from apps.common.forms import TagMixin
-
-METHODS_FOR_CALL_ITEM = ("get_object", "get_attribute", "get_tag", "get_tags_version", "get_sequence", "get_reference",
-    "get_segment", "get_alignment", "get_annotation")
-METHODS_FOR_CALL_ITEMS = ("get_attributes", "get_tags", "get_sequences", "get_references", 
-    "get_segments", "get_alignments", "get_annotations", "get_objects")
-
-METHODS_FOR_CREATE_ITEM = ("add_segment", "add_object")
-
-CREATE_METHOD_CHOISES = [ (i, i.replace('add_', '')) for i in METHODS_FOR_CREATE_ITEM ]
-
-GET_METHOD_CHOISES = zip(METHODS_FOR_CALL_ITEMS, METHODS_FOR_CALL_ITEMS)
-# METHOD_CHOISES.append(("get_objects", "get_objects"))
 
 ATYPE_ATTRIBUTES = ("integer", "string", "float", "scale", "nominal", "range")
 ATYPE_ATTRIBUTES_CHOISES = zip(ATYPE_ATTRIBUTES, ATYPE_ATTRIBUTES)

@@ -19,7 +19,6 @@ class SavedQuery(models.Model):
     name = models.CharField(max_length=255, unique=True)
     user = models.ForeignKey(CustomUser, related_name='saved_queries')
     created = models.DateTimeField(auto_now=True, auto_now_add=True)
-    # a = jsonfield.JSONField()
     organism_id = models.CharField(max_length=255)
     display_fields = jsonfield.JSONField()
     attributes_list = jsonfield.JSONField()
