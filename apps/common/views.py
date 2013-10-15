@@ -145,13 +145,28 @@ def create_organism(request):
     return render_to_response('create_organism.html', template_context, context_instance=RequestContext(request))
 
 
+def get_item_list_by_api(item_name, content_dict):
+    template_name = 'item_list.html'
+    template_context = {'items': []}
+    item_list = content_dict['result'].get(item_name, [])
+    if item_list:
+        if item_name == "objects":
+            attr_name_list = [ attr['name'] for attr in content_dict['result']['attributes'] ]
+        else:
+            attr_name_list = set([param_name for item in item_list for param_name in item.keys()])
+
+        template_context = {'attr_name_list': attr_name_list, 'item_name': item_name, 'items': item_list}
+
+    return template_name, template_context
+
+
 def get_pagination_page(page, query_dict):
     item_count = 5
     item_name = query_dict['method'].replace('get_', '')
     if not query_dict.has_key('params'):
         query_dict['params'] = {}
 
-    # Magic. Need for test existing next page
+    # Magic. Need for test exist next page, or not
     query_dict['params']['limit'] = item_count+1
 
     query_dict['params']['skip'] = item_count * (page-1)
@@ -172,7 +187,6 @@ def get_pagination_page(page, query_dict):
         'next_page_number': page+1,
         'previous_page_number': page-1,
         'method': query_dict['method']
-        # 'query': query_dict['params'],
     })
 
     return template_name, template_context

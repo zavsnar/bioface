@@ -63,8 +63,6 @@ def attribute_list(request):
         msg = content_dict['error']['message']
         messages.error(request, 'API ERROR: {}. {}'.format(msg, content_dict['error']['data']))
         
-
-
     return render_to_response("attribute_list.html", template_context, context_instance=RequestContext(request))
 
 @login_required
@@ -232,50 +230,4 @@ def delete_attribute(request, id, version):
         success = False
 
     return success
-
-
-def get_item_list_by_api(item_name, content_dict):
-    template_name = 'item_list.html'
-    template_context = {'items': []}
-    item_list = content_dict['result'].get(item_name, [])
-    if item_list:
-        if item_name == "objects":
-            attr_name_list = [ attr['name'] for attr in content_dict['result']['attributes'] ]
-        else:
-            attr_name_list = set([param_name for item in item_list for param_name in item.keys()])
-
-        template_context = {'attr_name_list': attr_name_list, 'item_name': item_name, 'items': item_list}
-
-    return template_name, template_context
-
-
-def get_pagination_page(page, query_dict):
-    item_count = 5
-    item_name = query_dict['method'].replace('get_', '')
-    if not query_dict.has_key('params'):
-        query_dict['params'] = {}
-
-    # Magic. Need for test exist next page, or not
-    query_dict['params']['limit'] = item_count+1
-
-    query_dict['params']['skip'] = item_count * (page-1)
-    content_dict = api_request(query_dict)
-    template_name, template_context = get_item_list_by_api(item_name, content_dict)
-    items = template_context['items']
-    if len(items) > item_count:
-        next_page = True
-        template_context['items'] = template_context['items'][:-1]
-    else:
-        next_page = False
-
-    previous_page = True if page > 1 else False
-
-    template_context.update({
-        'has_next': next_page,
-        'has_previous': previous_page,
-        'next_page_number': page+1,
-        'previous_page_number': page-1,
-        'method': query_dict['method']
-    })
-
-    return template_name, template_context
+    

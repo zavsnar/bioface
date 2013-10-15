@@ -9,14 +9,14 @@ from csv_unicode_recoder import UnicodeWriter
 from settings import DOWNLOADS_ROOT
 from apps.common.utils import api_request
 
-# load objects from query
+# load to file objects by query
 @task()
 def loading_objects(object_download_id, query_dict, with_attributes=False, with_sequences=False, encoding='utf-8'):
     content_dict = api_request(query_dict)
     if content_dict.has_key('result'):
         objects = content_dict['result']['objects']
         with tempfile.NamedTemporaryFile(delete=False) as obj_csvfile:
-            spamwriter = UnicodeWriter(obj_csvfile, encoding=encoding, quoting=csv.QUOTE_NONE, delimiter = ';')
+            writer = UnicodeWriter(obj_csvfile, encoding=encoding, quoting=csv.QUOTE_NONE, delimiter = ';')
 
             col_list = []
             attr_col_list = []
@@ -27,7 +27,7 @@ def loading_objects(object_download_id, query_dict, with_attributes=False, with_
                     col_list.append(key)
             col_list.extend(attr_col_list)
 
-            spamwriter.writerow(col_list)
+            writer.writerow(col_list)
             for obj in objects:
                 obj_vals = []
                 obj_attrs_val = [ None for i in attr_col_list ]
@@ -41,7 +41,7 @@ def loading_objects(object_download_id, query_dict, with_attributes=False, with_
                         obj_vals.append(val)
 
                 obj_vals.extend(obj_attrs_val)
-                spamwriter.writerow(obj_vals)
+                writer.writerow(obj_vals)
 
         csv_files_list = [('objects.csv', obj_csvfile.name)]
 
@@ -55,10 +55,10 @@ def loading_objects(object_download_id, query_dict, with_attributes=False, with_
                 objects = content_dict['result']['objects']
 
                 with tempfile.NamedTemporaryFile(delete=False) as attr_csvfile:
-                    spamwriter = UnicodeWriter(attr_csvfile, encoding=encoding)
+                    writer = UnicodeWriter(attr_csvfile, encoding=encoding)
                     attr_col_list = ['Objects']
                     attr_col_list.extend([ attr['name'] for attr in objects[0]['attributes'] ])
-                    spamwriter.writerow(attr_col_list)
+                    writer.writerow(attr_col_list)
                     for obj in objects:
                         obj_attrs_val = [ None for i in attr_col_list ]
                         for attr in obj['attributes']:
@@ -66,7 +66,7 @@ def loading_objects(object_download_id, query_dict, with_attributes=False, with_
                             obj_attrs_val[idx] = attr['value']
                         obj_attrs_val[0] = obj['name']
 
-                        spamwriter.writerow(obj_attrs_val)
+                        writer.writerow(obj_attrs_val)
 
                 csv_files_list.append(('attributes.csv', attr_csvfile.name))
 

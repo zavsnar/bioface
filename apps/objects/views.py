@@ -127,8 +127,6 @@ def update_object(request, object_id = 0):
                 }
             }
 
-                # query_dict['params']['data']['fields']['tags'] = form.tags_id_list
-
             if request.POST.get('files_dict', ''):
                 files_dict = ast.literal_eval(request.POST['files_dict'])
                 query_dict['params']['data']['fields']['files'] = files_dict.keys()
@@ -148,6 +146,7 @@ def update_object(request, object_id = 0):
             elif content_dict.has_key('error'):
                 messages.error(request, 'ERROR: {}'.format(content_dict['error']))
 
+    # Get actual object.
     query_dict = {
         "method" : "get_object",
         "key": request.user.sessionkey,
@@ -184,8 +183,6 @@ def update_object(request, object_id = 0):
             attr_list = {}
             attr_content_list = {}
         object_data['tags'] = ','.join(object_data['tags'])
-        # if not object_data['tags']:
-        #     object_data['tags'] = ''
 
         if object_data.has_key('files'):
             files_dict = { f['id']: (f['name'], f['created']) for f in object_data['files'] }
@@ -194,7 +191,6 @@ def update_object(request, object_id = 0):
             files_dict = {}
             files = []
 
-        # if request.method == 'GET':
         form = UpdateObjectForm(request = request, initial=object_data)
 
         template_context = {
@@ -204,7 +200,6 @@ def update_object(request, object_id = 0):
             'object_data': object_data,
             'files_dict': files_dict,
             'files': files
-            # 'formset': formset
         }
 
     elif content_dict.has_key('error'):
@@ -309,7 +304,6 @@ def get_objects(request):
             attr_list=[]
             attr_list = cd['attributes_list']
 
-            # if request.GET.has_key('order_by'):
             order_field = request.GET.get('order_by', 'name')
             order_field = cd['sort_by'] if cd['sort_by'] in OBJECT_FIELDS else 'attr.' + cd['sort_by']
 
