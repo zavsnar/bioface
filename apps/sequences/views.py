@@ -1,25 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-# from __future__ import print_function
 from __future__ import absolute_import
 
-# import urllib
-# import httplib2 
-# import json
-
-# import ast
-
-# from django.conf import settings
-# from django import forms
-# from django.forms.formsets import formset_factory
-# from django.http import StreamingHttpResponse
-# from django.template import RequestContext
-# from django.template.loader import render_to_string
 from django.shortcuts import render_to_response, redirect
-# from django.contrib.auth.forms import AuthenticationForm
-# from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-# from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from apps.common.utils import api_request
 from apps.sequences.forms import CreateSequenceForm
@@ -69,7 +53,6 @@ def create_sequence(request, sequence_id=None):
             elif content_dict.has_key('error'):
                 messages.error(request, 'ERROR: {}'.format(content_dict['error']['data']))
 
-    # else:
     if sequence_id:
         query_dict = {
                 "method" : "get_sequences",
@@ -98,7 +81,6 @@ def sequence_list(request):
             "method" : "get_sequences",
             "key": request.user.sessionkey,
             "params" : {
-                # "query" : "tags in (tag_id1, tag_id2)",
                 "orderby" : [["name", "asc"]]
         }
     }
@@ -141,7 +123,6 @@ def get_pagination_page(page, query_dict):
         'next_page_number': page+1,
         'previous_page_number': page-1,
         'method': query_dict['method']
-        # 'query': query_dict['params'],
     })
 
     return template_name, template_context

@@ -1,5 +1,4 @@
 from __future__ import unicode_literals
-# from __future__ import print_function
 from __future__ import absolute_import
 
 from django import forms
@@ -44,8 +43,6 @@ class CreateAttributeForm(forms.Form):
     descr_scale_default = forms.CharField(required=False)
 
     def __init__(self, request, *args, **kwargs):
-        # self.tag_method = 'attribute'
-        # self.request = request
         super(CreateAttributeForm, self).__init__(*args, **kwargs)
         self.fields['organism'].choices = get_choices(request, item_name='organisms')
 
@@ -83,7 +80,6 @@ class CreateAttributeForm(forms.Form):
                 del self._errors[field]
         return cd
 
-# class EditAttributeForm(CreateAttributeForm):
 class EditAttributeForm(TagMixin):
     id = forms.IntegerField(widget=forms.HiddenInput, required=False)
     version = forms.IntegerField(widget=forms.HiddenInput, required=False)
@@ -98,10 +94,3 @@ class EditAttributeForm(TagMixin):
         self.request = request
         super(EditAttributeForm, self).__init__(*args, **kwargs)
         self.fields['organism'].choices = get_choices(request, item_name='organisms')
-
-    # def clean(self):
-    #     print 55555555, self.cleaned_data
-    #     super(EditAttributeForm, self).clean()
-    #     cd = self.cleaned_data
-    #     print 777777, cd
-    #     return cd

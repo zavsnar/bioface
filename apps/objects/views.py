@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-# from __future__ import print_function
 from __future__ import absolute_import, division
 
 import math
@@ -10,9 +9,7 @@ import httplib2
 import socket
 import json
 from dateutil.parser import parse as datetime_parse
-
 import ast
-
 from itertools import repeat
 
 from django.conf import settings
@@ -147,7 +144,6 @@ def update_object(request, object_id = 0):
                 messages.success(request, 'Object "{}" successfully updated.'.format(cd.get('name')))
 
                 form.object_version = content_dict['result']['version']
-                # files_id = cd.get('files_id')
 
             elif content_dict.has_key('error'):
                 messages.error(request, 'ERROR: {}'.format(content_dict['error']))
@@ -247,8 +243,6 @@ def get_objects(request):
         form = SelectObjects(request=request, data = request.POST)
         query_history = ast.literal_eval(request.POST['query_history'])
 
-        # query_history_step = query_history_step.decode('utf8')
-
         # Load from history
         query_history_step = request.POST['query_history_step']
         if query_history_step:
@@ -293,17 +287,12 @@ def get_objects(request):
                     if key:
                         q[1] = mark_safe(q[1])
                         field_filters_dict_sort[int(key)] = [ s.decode('utf8') for s in q ]
-        # attributes_from_organism = [ value[1] for value in form.fields['attributes_list'].choices ]
 
-        # attributes_from_organism = form.fields['attributes_list'].choices
-        # print 77777, attributes_from_organism
-        # raise
         template_context.update({
             'logic_operation': logic_operation,
             'raw_query_str': raw_query_str,
             'old_raw_query_str': old_raw_query_str,
             'query_history_step': query_history_step
-            # 'attributes_from_organism': attributes_from_organism,
         })
 
         if form.is_valid():
@@ -364,7 +353,6 @@ def get_objects(request):
                             object_fields.append( (field, field_value) )
                         else:
                             object_fields.append( (field, obj[field]) )
-                            print field, type(obj[field])
                     
                     if obj.has_key('attributes'):
                         object_attrs = [ None for i in attr_list ]
@@ -393,13 +381,7 @@ def get_objects(request):
                     pages.append('...')
                     pages.extend(range(pages_count-2, pages_count+1))
 
-                    # object_list = object_list[:-1]
-                # else:
-                #     next_page = False
-
                 if query_history:
-                    # if query_history[-1]['query'] == raw_query_str.encode('utf8'):
-                    #     query_history[-1]['count'] = objects_count
                     if query_history_step:
                         # Loading from history
                         for step in query_history:
@@ -409,7 +391,6 @@ def get_objects(request):
                                 query_history = query_history[:idx+1]
                                 break
                     elif where_search == 'search_in_results' and query_history[-1]['query'] != raw_query_str.encode('utf8'):
-                    # elif len(query_history) > 1 and query_history[-2]['query'] == old_raw_query_str[1:-1].encode('utf8'):
                         # Search in result
                         query_history.append({'query': raw_query_str, 'count': objects_count})
                     else:
@@ -417,11 +398,9 @@ def get_objects(request):
                         query_history[-1] = {'query': raw_query_str, 'count': objects_count}
                 else:
                     query_history.append({'query': raw_query_str, 'count': objects_count})
-                # print 99999, query_history
 
                 display_fields_str = mark_safe(json.dumps(display_fields))
                 template_context.update({
-                    # 'fields': fields,
                     'display_fields': display_fields,
                     'display_fields_str': display_fields_str,
                     'attributes': attr_list,
@@ -433,7 +412,6 @@ def get_objects(request):
                     'pages': pages,
                     'this_page': 1,
                     'next_page_number': 2,
-                    # 'previous_page_number': 1,
                     'paginate_by': paginate_by,
                     'items_count': objects_count,  
                 })
@@ -444,11 +422,10 @@ def get_objects(request):
 
             query_dict_str = mark_safe(json.dumps(query_dict))
             template_context.update({
-                # 'query_str': raw_query,
                 'query_dict_str': query_dict_str
                 })
         else:
-            print 55555
+            # TODO print validation error
 
     # For saved query
     elif request.method == 'GET' and request.GET.get('saved_query', None):
@@ -462,7 +439,7 @@ def get_objects(request):
             'sort_by': saved_query.sort_by
             }
         form = SelectObjects(request=request, data=form_data)
-        # field_filters_dict_sort = saved_query.filter_fields
+
         if saved_query.filter_fields.items():
             field_filters_dict_sort = {}
             for key, q in saved_query.filter_fields.items():
@@ -473,7 +450,6 @@ def get_objects(request):
         raw_query_str = saved_query.query_str
         old_raw_query_re = re.findall('\(.+\)', raw_query_str)
         old_raw_query_str = old_raw_query_re[0] if old_raw_query_re else ''
-
 
         if raw_query_str:
             step = True
@@ -486,17 +462,14 @@ def get_objects(request):
                     query_history.append({'query': step, 'count': ''})
                     raw_query_str_iter = step
 
-            
             query_history.reverse()
 
         template_context.update({
-            # 'logic_operation': saved_query.logic_operation,
             'logic_operation': "ALL",
             'raw_query_str': raw_query_str,
             'old_raw_query_str': old_raw_query_str,
-            # 'raw_query_str': '',
-            # 'attributes_from_organism': attributes_from_organism,
         })
+
     else:
         form = SelectObjects(request=request)
 

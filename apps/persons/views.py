@@ -15,7 +15,6 @@ def downloads_list(request):
                 d.file_path = task.result
                 d.status = 'complite'
             else:
-                # TODO
                 status = task.status
                 pass
             d.save()
